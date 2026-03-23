@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<!--
+  OBS Setup:
+  - Add as Browser Source
+  - Width: 600, Height: 400
+  - Position: center-top of screen (x=660, y=50)
+  - Check "Shutdown source when not visible"
+  - Trigger via URL param: ?name=棋友小王
+  - Or via postMessage: window.postMessage({ name: '棋友小王' }, '*')
+  - Alert plays once then auto-hides after 5 seconds
+  - Refresh the source to re-trigger
+  - Transparent background: yes
+-->
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    width: 600px;
+    height: 400px;
+    overflow: hidden;
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .alert-container {
+    text-align: center;
+    opacity: 0;
+    transform: translateY(60px);
+    animation: alertBounceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
+    position: relative;
+  }
+
+  @keyframes alertBounceIn {
+    0% {
+      opacity: 0;
+      transform: translateY(60px) scale(0.8);
+    }
+    60% {
+      opacity: 1;
+      transform: translateY(-10px) scale(1.05);
+    }
+    80% {
+      transform: translateY(4px) scale(0.98);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes alertFadeOut {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-30px) scale(0.9); }
+  }
+
+  .alert-card {
+    background: linear-gradient(135deg, rgba(25, 25, 25, 0.92), rgba(40, 40, 40, 0.88));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 2px solid rgba(255, 215, 0, 0.4);
+    border-radius: 16px;
+    padding: 30px 50px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.1);
+  }
+
+  .alert-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.08), transparent);
+    animation: cardShimmer 2.5s ease-in-out infinite 1s;
+  }
+
+  @keyframes cardShimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+
+  /* Gold top bar */
+  .alert-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #ffd700, transparent);
+    border-radius: 0 0 2px 2px;
+  }
+
+  .welcome-label {
+    font-size: 18px;
+    color: rgba(255, 215, 0, 0.8);
+    letter-spacing: 6px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .username {
+    font-size: 36px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    letter-spacing: 4px;
+    margin-bottom: 6px;
+  }
+
+  .sub-label {
+    font-size: 14px;
+    color: rgba(200, 200, 200, 0.6);
+    letter-spacing: 3px;
+  }
+
+  /* Piece icon decoration */
+  .piece-deco-left, .piece-deco-right {
+    position: absolute;
+    font-size: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.15;
+    color: #ffd700;
+  }
+  .piece-deco-left { left: 15px; }
+  .piece-deco-right { right: 15px; }
+
+  /* Flying piece animation */
+  .flying-piece {
+    position: absolute;
+    font-size: 48px;
+    color: #ffd700;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+  }
+
+  @keyframes flyPiece1 {
+    0% { transform: translate(-200px, 100px) rotate(0deg); opacity: 0; }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.6; }
+    100% { transform: translate(600px, -200px) rotate(360deg); opacity: 0; }
+  }
+  @keyframes flyPiece2 {
+    0% { transform: translate(600px, 200px) rotate(0deg); opacity: 0; }
+    20% { opacity: 0.7; }
+    80% { opacity: 0.5; }
+    100% { transform: translate(-200px, -100px) rotate(-360deg); opacity: 0; }
+  }
+  @keyframes flyPiece3 {
+    0% { transform: translate(300px, 400px) rotate(0deg); opacity: 0; }
+    20% { opacity: 0.6; }
+    80% { opacity: 0.4; }
+    100% { transform: translate(-100px, -300px) rotate(270deg); opacity: 0; }
+  }
+
+  /* Sparkle particles */
+  .sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #ffd700;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Audio placeholder (uncomment and set src to enable sound)
+<audio id="alertSound" preload="auto">
+  <source src="alert.mp3" type="audio/mpeg">
+  <source src="alert.ogg" type="audio/ogg">
+</audio>
+-->
+
+<div class="alert-container" id="alertContainer">
+  <div class="alert-card">
+    <div class="piece-deco-left">帥</div>
+    <div class="piece-deco-right">將</div>
+    <div class="welcome-label">欢 迎 关 注</div>
+    <div class="username" id="username">棋友</div>
+    <div class="sub-label">加入象棋大家庭</div>
+  </div>
+</div>
+
+<!-- Flying pieces (spawned dynamically) -->
+
+<script>
+  var PIECES = ['車', '馬', '炮', '相', '仕', '兵', '帥', '將', '象', '士', '卒'];
+
+  function getRandomPiece() {
+    return PIECES[Math.floor(Math.random() * PIECES.length)];
+  }
+
+  function spawnFlyingPieces() {
+    var animations = ['flyPiece1', 'flyPiece2', 'flyPiece3'];
+    for (var i = 0; i < 3; i++) {
+      var el = document.createElement('div');
+      el.className = 'flying-piece';
+      el.textContent = getRandomPiece();
+      el.style.top = (20 + Math.random() * 60) + '%';
+      el.style.left = '50%';
+      el.style.animation = animations[i] + ' ' + (2 + Math.random()) + 's ease-in-out ' + (0.5 + i * 0.3) + 's forwards';
+      document.body.appendChild(el);
+    }
+  }
+
+  function spawnSparkles() {
+    for (var i = 0; i < 12; i++) {
+      var s = document.createElement('div');
+      s.className = 'sparkle';
+      s.style.left = (20 + Math.random() * 60) + '%';
+      s.style.top = (30 + Math.random() * 40) + '%';
+      var delay = 0.5 + Math.random() * 2;
+      var dur = 0.6 + Math.random() * 0.4;
+      s.style.animation = 'sparkleAnim ' + dur + 's ease ' + delay + 's forwards';
+      document.body.appendChild(s);
+    }
+
+    // Inject sparkle keyframes
+    if (!document.getElementById('sparkleStyle')) {
+      var style = document.createElement('style');
+      style.id = 'sparkleStyle';
+      style.textContent = '@keyframes sparkleAnim { 0% { opacity: 0; transform: scale(0); } 50% { opacity: 1; transform: scale(1.5); } 100% { opacity: 0; transform: scale(0); } }';
+      document.head.appendChild(style);
+    }
+  }
+
+  function showAlert(name) {
+    document.getElementById('username').textContent = name;
+
+    // Reset animation
+    var container = document.getElementById('alertContainer');
+    container.style.animation = 'none';
+    void container.offsetHeight;
+    container.style.animation = 'alertBounceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards';
+
+    spawnFlyingPieces();
+    spawnSparkles();
+
+    // Uncomment to play sound:
+    // var audio = document.getElementById('alertSound');
+    // if (audio) { audio.currentTime = 0; audio.play(); }
+
+    // Fade out after 5 seconds
+    setTimeout(function() {
+      container.style.animation = 'alertFadeOut 0.8s ease forwards';
+    }, 5000);
+  }
+
+  // Trigger from URL param
+  var params = new URLSearchParams(window.location.search);
+  var name = params.get('name');
+  if (name) {
+    showAlert(name);
+  }
+
+  // Accept postMessage triggers
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.name) {
+      showAlert(e.data.name);
+    }
+  });
+</script>
+</body>
+</html>

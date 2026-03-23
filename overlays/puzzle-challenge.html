@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<!--
+  OBS Setup:
+  - Add as Browser Source
+  - Width: 1920, Height: 1080
+  - Position: full screen (x=0, y=0)
+  - Check "Shutdown source when not visible"
+  - Toggle visibility to start/stop the challenge
+  - URL params: ?time=15&text=这步你会走吗？
+  - Default: 15 seconds, "这步你会走吗？"
+  - Transparent background: yes
+-->
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  }
+
+  /* Pulsing border frame */
+  .border-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    border: 4px solid transparent;
+    animation: borderPulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes borderPulse {
+    0%, 100% {
+      border-color: rgba(255, 215, 0, 0.3);
+      box-shadow: inset 0 0 30px rgba(255, 215, 0, 0.05);
+    }
+    50% {
+      border-color: rgba(255, 215, 0, 0.7);
+      box-shadow: inset 0 0 60px rgba(255, 215, 0, 0.1);
+    }
+  }
+
+  /* Corner decorations */
+  .corner {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-color: #ffd700;
+    border-style: solid;
+    z-index: 2;
+  }
+  .corner.tl { top: 15px; left: 15px; border-width: 3px 0 0 3px; }
+  .corner.tr { top: 15px; right: 15px; border-width: 3px 3px 0 0; }
+  .corner.bl { bottom: 15px; left: 15px; border-width: 0 0 3px 3px; }
+  .corner.br { bottom: 15px; right: 15px; border-width: 0 3px 3px 0; }
+
+  /* Top challenge banner */
+  .challenge-banner {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    animation: bannerDrop 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+  }
+
+  @keyframes bannerDrop {
+    0% { transform: translateX(-50%) translateY(-60px); opacity: 0; }
+    100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+  }
+
+  .challenge-text {
+    font-size: 48px;
+    font-weight: 700;
+    color: #ffd700;
+    letter-spacing: 8px;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.6);
+    background: linear-gradient(135deg, rgba(20, 20, 20, 0.85), rgba(40, 40, 40, 0.8));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 20px 60px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .challenge-text::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+    animation: textShimmer 2s ease-in-out infinite;
+  }
+
+  @keyframes textShimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+
+  /* Timer display */
+  .timer-container {
+    position: absolute;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    animation: timerAppear 0.5s ease 0.5s both;
+  }
+
+  @keyframes timerAppear {
+    0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+    100% { opacity: 1; transform: translateX(-50%) scale(1); }
+  }
+
+  .timer-ring {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(20, 20, 20, 0.9), rgba(30, 30, 30, 0.85));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 4px solid rgba(255, 215, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .timer-number {
+    font-size: 72px;
+    font-weight: 700;
+    color: #4caf50;
+    transition: color 0.3s ease;
+    text-shadow: 0 0 15px currentColor;
+    z-index: 1;
+  }
+
+  /* SVG progress ring */
+  .progress-ring {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    width: 188px;
+    height: 188px;
+    transform: rotate(-90deg);
+  }
+
+  .progress-ring circle {
+    fill: none;
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;
+  }
+
+  .progress-track {
+    stroke: rgba(100, 100, 100, 0.3);
+  }
+
+  .progress-fill {
+    stroke: #4caf50;
+    stroke-dasharray: 565;
+    stroke-dashoffset: 0;
+  }
+
+  .timer-label {
+    font-size: 16px;
+    color: rgba(255, 215, 0, 0.7);
+    margin-top: 12px;
+    letter-spacing: 4px;
+  }
+
+  /* Urgency classes */
+  .urgency-green .timer-number { color: #4caf50; }
+  .urgency-green .progress-fill { stroke: #4caf50; }
+
+  .urgency-yellow .timer-number { color: #ffc107; }
+  .urgency-yellow .progress-fill { stroke: #ffc107; }
+  .urgency-yellow .timer-ring {
+    animation: urgencyShake 0.5s ease-in-out infinite;
+    border-color: rgba(255, 193, 7, 0.5);
+  }
+
+  .urgency-red .timer-number { color: #f44336; }
+  .urgency-red .progress-fill { stroke: #f44336; }
+  .urgency-red .timer-ring {
+    animation: urgencyShake 0.25s ease-in-out infinite;
+    border-color: rgba(244, 67, 54, 0.6);
+  }
+
+  @keyframes urgencyShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+  }
+
+  /* Reveal flash */
+  .reveal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 10;
+  }
+
+  .reveal-overlay.active {
+    animation: revealFlash 1.5s ease forwards;
+  }
+
+  @keyframes revealFlash {
+    0% { opacity: 0; background: transparent; }
+    10% { opacity: 1; background: rgba(255, 215, 0, 0.4); }
+    30% { opacity: 1; background: rgba(255, 255, 255, 0.6); }
+    60% { opacity: 0.5; background: rgba(255, 215, 0, 0.2); }
+    100% { opacity: 0; background: transparent; }
+  }
+
+  /* Burst particles */
+  .burst-particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #ffd700;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 11;
+  }
+
+  /* Reveal text */
+  .reveal-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 80px;
+    font-weight: 700;
+    color: #ffd700;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 4px 12px rgba(0,0,0,0.8);
+    letter-spacing: 12px;
+    opacity: 0;
+    z-index: 12;
+    pointer-events: none;
+  }
+
+  .reveal-text.active {
+    animation: revealTextPop 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @keyframes revealTextPop {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+    40% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+</style>
+</head>
+<body>
+
+<div class="border-frame" id="borderFrame">
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+</div>
+
+<div class="challenge-banner">
+  <div class="challenge-text" id="challengeText">这步你会走吗？</div>
+</div>
+
+<div class="timer-container" id="timerContainer">
+  <div class="timer-ring urgency-green" id="timerRing">
+    <svg class="progress-ring" viewBox="0 0 188 188">
+      <circle class="progress-track" cx="94" cy="94" r="90" />
+      <circle class="progress-fill" id="progressFill" cx="94" cy="94" r="90" />
+    </svg>
+    <div class="timer-number" id="timerNumber">15</div>
+  </div>
+  <div class="timer-label">倒 计 时</div>
+</div>
+
+<div class="reveal-overlay" id="revealOverlay"></div>
+<div class="reveal-text" id="revealText">揭晓！</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const totalTime = parseInt(params.get('time')) || 15;
+  const text = params.get('text') || '这步你会走吗？';
+
+  document.getElementById('challengeText').textContent = text;
+  document.getElementById('timerNumber').textContent = totalTime;
+
+  const circumference = 2 * Math.PI * 90; // ~565
+  const progressFill = document.getElementById('progressFill');
+  progressFill.style.strokeDasharray = circumference;
+  progressFill.style.strokeDashoffset = 0;
+
+  let timeLeft = totalTime;
+
+  function getUrgency(remaining, total) {
+    const pct = remaining / total;
+    if (pct > 0.5) return 'urgency-green';
+    if (pct > 0.2) return 'urgency-yellow';
+    return 'urgency-red';
+  }
+
+  function updateTimer() {
+    const timerNumber = document.getElementById('timerNumber');
+    const timerRing = document.getElementById('timerRing');
+
+    timerNumber.textContent = timeLeft;
+
+    // Update progress ring
+    const offset = circumference * (1 - timeLeft / totalTime);
+    progressFill.style.strokeDashoffset = offset;
+
+    // Update urgency
+    timerRing.className = 'timer-ring ' + getUrgency(timeLeft, totalTime);
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      triggerReveal();
+      return;
+    }
+    timeLeft--;
+  }
+
+  function triggerReveal() {
+    // Flash
+    const overlay = document.getElementById('revealOverlay');
+    overlay.classList.add('active');
+
+    // Burst particles
+    for (let i = 0; i < 20; i++) {
+      const p = document.createElement('div');
+      p.className = 'burst-particle';
+      p.style.left = '50%';
+      p.style.top = '60%';
+      const angle = (Math.PI * 2 * i) / 20;
+      const dist = 200 + Math.random() * 300;
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist;
+      p.style.transition = 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
+      p.style.background = ['#ffd700', '#ff6b35', '#cc2222', '#fff'][Math.floor(Math.random() * 4)];
+      document.body.appendChild(p);
+      requestAnimationFrame(function() {
+        p.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+        p.style.opacity = '0';
+      });
+      setTimeout(function() { p.remove(); }, 1000);
+    }
+
+    // Reveal text
+    setTimeout(function() {
+      document.getElementById('revealText').classList.add('active');
+    }, 300);
+  }
+
+  // Start countdown
+  const timerInterval = setInterval(updateTimer, 1000);
+  updateTimer();
+</script>
+</body>
+</html>

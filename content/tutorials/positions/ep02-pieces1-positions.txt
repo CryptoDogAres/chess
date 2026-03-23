@@ -1,0 +1,13 @@
+# Episode 2: Meet the Pieces Part 1 -- Chariot, Horse, Cannon
+# 第二集：认识棋子（上）——车马炮
+# Practice positions for chariot movement, horse blocking, and cannon jumping capture
+# 练习车的走法、蹩马腿、炮翻山吃子
+
+4k4/9/9/9/4R4/9/9/9/9/4K4 w - - 0 1 # Chariot range 车的活动范围 — Red Chariot in center controls up to 17 intersections; trace all reachable squares 红车在中央可控制17个点，标出所有可达位置
+4k4/4a4/4a4/9/9/9/9/9/4R4/4K4 w - - 0 1 # Chariot attack 车的攻击力 — Red Chariot on back rank ready to invade along the e-file 红车在底线准备沿e线进攻
+4k4/9/9/9/4p4/4N4/9/9/9/4K4 w - - 0 1 # Horse blocking 蹩马腿演示 — Red Horse on e5 blocked upward by Black Pawn on e6; find available jumps 红马e5被e6黑卒挡住，找出可跳方向
+4k4/9/9/9/9/4N4/9/9/9/4K4 w - - 0 1 # Horse full range 马的完整跳法 — Red Horse on e5 with no blocking; mark all 8 possible destinations 无蹩腿时红马e5的全部8个跳位
+3ak4/9/4e4/9/9/9/4P4/4C4/9/4K4 w - - 0 1 # Cannon capture 炮翻山吃子 — Red Cannon on e3 uses Red Pawn on e4 as platform to capture Black Elephant 红炮e3用红兵e4做炮架吃黑象
+4k4/9/9/9/4p4/9/4C4/9/9/4K4 w - - 0 1 # Cannon movement vs capture 炮走与吃的区别 — Cannon on e4 can move freely in straight lines but needs a platform to capture 炮走时像车，吃时必须翻山
+4k4/9/3pe4/9/4n4/4N4/3PC4/3R5/9/4K4 w - - 0 1 # Combined puzzle 车马炮综合练习 — find one capture for each: Chariot, Horse, and Cannon 分别用车马炮各吃一个黑子
+r2ak4/4a4/4e4/p3p4/2n6/4P4/P3N4/2C1C4/4A4/2RAK4 w - - 0 1 # Midgame roles 中局各子作用 — identify how each Chariot, Horse, and Cannon contributes in this position 分析车马炮各自发挥的作用

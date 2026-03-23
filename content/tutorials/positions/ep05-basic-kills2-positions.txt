@@ -1,0 +1,11 @@
+# Episode 5: Basic Checkmates Part 2 -- Smothered Mate, Iron Door Bolt & Double Cannon
+# 第五集：基本杀法（下）——闷宫、铁门栓与重炮
+# Mate-in-1 and mate-in-2 puzzles for smothered checkmate and iron door bolt patterns
+# 一步杀和两步杀练习，掌握闷宫杀和铁门栓杀法
+
+3ka4/3a5/4e4/3C5/9/9/9/9/9/4K4 w - - 0 1 # Smothered mate basic 闷宫杀基本型 — Black King trapped by own pieces; Cannon uses Elephant as platform to mate 黑将被己方子围住，炮以象做架闷宫杀
+2eak4/4a4/9/4C4/9/9/9/9/9/4K4 w - - 0 1 # Smothered mate puzzle 闷宫杀练习 — Cannon to e10 using Elephant on e8 as platform; King smothered by Advisor and Elephant 炮走e10以e8象做架将杀，将被士象堵死
+3k5/4a4/3ae4/4C4/9/9/9/9/9/4K4 w - - 0 1 # Creating smothered mate 制造闷宫 — force Black to block own King first, then deliver the smothered mate 先逼黑方堵住自己的将，再闷宫
+3k5/9/9/3R5/4P4/9/9/9/9/4K4 w - - 0 1 # Iron Door Bolt basic 铁门栓基本型 — Chariot controls rank, Pawn advances to check; King bolted shut 车控制横线，兵前进将军，铁门栓
+4k4/9/4C4/5P3/9/9/9/9/9/4K4 w - - 0 1 # Iron Door Bolt with Cannon 炮的铁门栓 — Cannon locks the file, Pawn checks from the side 炮锁住竖线，兵从侧面将军
+4k4/4a4/9/4C4/4C4/9/9/9/9/4K4 w - - 0 1 # Double Cannon 重炮杀法 — two Cannons stacked on e-file; rear Cannon jumps over front for mate 双炮同列，后炮翻前炮将杀

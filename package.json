@@ -1,0 +1,32 @@
+{
+  "name": "chessdao-xiangqi-studio",
+  "version": "1.0.0",
+  "description": "The ultimate toolkit for building a Chinese Chess (Xiangqi) commentary channel",
+  "main": "index.html",
+  "scripts": {
+    "start": "open index.html",
+    "dashboard": "open dashboard.html",
+    "engine": "cd engine && python3 server.py --port 8080 --threads 4 --hash 256",
+    "analyze": "cd engine && python3 analyze.py --file positions.txt --depth 14",
+    "setup": "bash setup.sh",
+    "status": "python3 manage.py status",
+    "serve": "python3 -m http.server 3000"
+  },
+  "keywords": [
+    "xiangqi",
+    "chinese-chess",
+    "象棋",
+    "chess",
+    "commentary",
+    "pikafish",
+    "analysis",
+    "streaming",
+    "content-creation"
+  ],
+  "author": "ChessDAO",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/changchunshi/chess.git"
+  }
+}

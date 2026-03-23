@@ -1,0 +1,71 @@
+{
+  "id": "tech-software",
+  "title": "软件安装 Core Software Installation",
+  "description": "Install and configure the complete production stack — total cost: $0 for core tools",
+  "folder": "tech-setup",
+  "priority": "critical",
+  "status": "completed",
+  "progress": 100,
+  "tasks": [
+    {
+      "id": "ts1",
+      "text": "Download and install Pikafish engine (latest from pikafish.com)",
+      "done": true,
+      "priority": "critical"
+    },
+    {
+      "id": "ts2",
+      "text": "Download and install 象棋巫师 Xiangqi Wizard",
+      "done": true,
+      "priority": "critical"
+    },
+    {
+      "id": "ts3",
+      "text": "Connect Pikafish to Xiangqi Wizard via UCCI protocol",
+      "done": true,
+      "priority": "critical"
+    },
+    {
+      "id": "ts4",
+      "text": "Download and install OBS Studio",
+      "done": true,
+      "priority": "critical"
+    },
+    {
+      "id": "ts5",
+      "text": "Configure OBS: Window Capture (board) + Audio Input (mic) + scenes",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "ts6",
+      "text": "Install 剪映 (Jianying/CapCut) for short-form editing",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "ts7",
+      "text": "Install or set up Premiere Pro / Vegas Pro for long-form editing",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "ts8",
+      "text": "Install 天天象棋 on mobile for playing + AI review features",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "ts9",
+      "text": "Set up xiangqi.com account for online analysis board",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "ts10",
+      "text": "Test full recording pipeline: board → OBS → edit → export",
+      "done": true,
+      "priority": "high"
+    }
+  ]
+}

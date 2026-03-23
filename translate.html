@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" rel="stylesheet">
+<title>中英翻译 — Bilingual Tools</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0f1117; --surface: #1e2130; --surface2: #282c3e; --surface3: #323752;
+  --border: #3a3f55; --text: #e4e4e8; --text2: #9ca3b4; --accent: #4a9eff;
+  --accent2: #3a7fd5; --green: #4caf7c; --red: #e05555; --orange: #e8a840;
+  --yellow: #f0d060; --purple: #9b7aed; --cyan: #06b6d4;
+}
+body { font-family: 'LXGW WenKai', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: var(--text); }
+input, textarea, select { font-family: inherit; background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; outline: none; }
+input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+textarea { resize: vertical; }
+
+/* Header */
+.header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+.header-left { display: flex; align-items: center; gap: 16px; }
+.header h1 { font-size: 20px; font-weight: 600; }
+.header h1 span { color: var(--text2); font-weight: 400; font-size: 15px; }
+.back-link { color: var(--text2); font-size: 14px; display: flex; align-items: center; gap: 4px; }
+.back-link:hover { color: var(--accent); text-decoration: none; }
+
+/* Buttons */
+.btn { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-secondary { background: var(--surface2); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--surface3); }
+.btn-success { background: var(--green); color: #fff; }
+.btn-success:hover { background: #3d9066; }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-orange { background: var(--orange); color: #fff; }
+.btn-purple { background: var(--purple); color: #fff; }
+
+/* Tabs */
+.tab-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; overflow-x: auto; }
+.tab-btn { padding: 12px 20px; font-size: 14px; color: var(--text2); border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; background: var(--green); color: #fff; border-radius: 8px; font-size: 14px; z-index: 2000; transform: translateY(80px); opacity: 0; transition: all 0.3s; pointer-events: none; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* Main content */
+.tab-content { display: none; padding: 20px 24px; min-height: calc(100vh - 110px); }
+.tab-content.active { display: block; }
+
+/* Dictionary */
+.dict-controls { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.dict-controls input[type="text"] { flex: 1; min-width: 200px; }
+.dict-controls select { min-width: 160px; }
+.dict-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+.dict-entry { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; transition: border-color 0.15s; }
+.dict-entry:hover { border-color: var(--accent); }
+.dict-zh { font-size: 16px; font-weight: 600; color: var(--yellow); }
+.dict-en { font-size: 14px; color: var(--text2); margin-left: 8px; }
+.dict-cat { font-size: 11px; color: var(--purple); background: rgba(155,122,237,0.1); padding: 2px 8px; border-radius: 10px; }
+.dict-actions { display: flex; gap: 4px; }
+.dict-actions button { padding: 4px 8px; font-size: 11px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); }
+.dict-actions button:hover { border-color: var(--accent); color: var(--accent); }
+.dict-count { color: var(--text2); font-size: 13px; }
+
+/* Two-column editor */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.col-header { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+.col-header .label { display: flex; align-items: center; gap: 6px; }
+.col-zh .col-header .label { color: var(--yellow); }
+.col-en .col-header .label { color: var(--cyan); }
+.editor-box { width: 100%; min-height: 300px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 15px; line-height: 1.8; color: var(--text); }
+.editor-box:focus { border-color: var(--accent); }
+.editor-actions { display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
+
+/* Highlighted terms */
+.term-highlight { background: rgba(74,158,255,0.15); border-bottom: 1px dashed var(--accent); padding: 0 2px; border-radius: 2px; cursor: help; position: relative; }
+
+/* Subtitle */
+.sub-lines { margin-top: 16px; }
+.sub-line { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; }
+.sub-line .line-num { color: var(--accent); font-weight: 600; font-size: 14px; padding-top: 4px; min-width: 30px; }
+.sub-time { display: flex; gap: 4px; align-items: center; font-size: 12px; }
+.sub-time input { width: 90px; font-size: 12px; padding: 4px 6px; text-align: center; }
+.sub-time span { color: var(--text2); }
+.sub-texts { display: flex; flex-direction: column; gap: 4px; }
+.sub-texts textarea { min-height: 40px; font-size: 13px; padding: 6px 10px; }
+.sub-preview { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-top: 16px; white-space: pre-wrap; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; max-height: 400px; overflow-y: auto; line-height: 1.6; }
+
+/* Notation */
+.notation-input-area { display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-start; }
+.notation-input-area textarea { flex: 1; min-height: 100px; }
+.notation-results { margin-top: 12px; }
+.notation-row { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: grid; grid-template-columns: 1fr 1fr 1fr 2fr; gap: 12px; align-items: center; }
+.notation-row .n-label { font-size: 11px; color: var(--text2); margin-bottom: 2px; }
+.notation-row .n-val { font-size: 14px; font-weight: 500; }
+.notation-row .n-zh { color: var(--yellow); }
+.notation-row .n-en { color: var(--cyan); }
+.notation-row .n-alg { color: var(--green); }
+.notation-row .n-desc { color: var(--text2); font-size: 13px; }
+
+/* Templates */
+.template-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.template-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.15s; }
+.template-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.template-card h3 { font-size: 15px; margin-bottom: 4px; }
+.template-card p { font-size: 12px; color: var(--text2); }
+.template-editor { display: none; }
+.template-editor.active { display: block; }
+.template-preview { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-top: 16px; }
+.template-preview table { width: 100%; border-collapse: collapse; }
+.template-preview th { font-size: 14px; padding: 8px 12px; border-bottom: 2px solid var(--border); text-align: left; }
+.template-preview td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.6; vertical-align: top; }
+.template-preview .zh-col { color: var(--yellow); width: 50%; }
+.template-preview .en-col { color: var(--cyan); width: 50%; }
+.template-preview .term-hl { background: rgba(155,122,237,0.15); padding: 1px 4px; border-radius: 3px; color: var(--purple); }
+
+/* Phrase bank */
+.phrase-categories { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.phrase-cat-btn { padding: 6px 14px; border-radius: 16px; font-size: 13px; background: var(--surface2); border: 1px solid var(--border); transition: all 0.15s; }
+.phrase-cat-btn:hover, .phrase-cat-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.phrase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 10px; }
+.phrase-entry { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.phrase-zh { font-size: 15px; color: var(--yellow); font-weight: 500; }
+.phrase-en { font-size: 13px; color: var(--text2); }
+.phrase-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.phrase-actions button { padding: 4px 8px; font-size: 11px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); white-space: nowrap; }
+.phrase-actions button:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Popup tooltip */
+.term-popup { position: absolute; background: var(--surface2); border: 1px solid var(--accent); border-radius: 6px; padding: 8px 12px; font-size: 13px; z-index: 1000; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+.term-popup .tp-zh { color: var(--yellow); font-weight: 600; }
+.term-popup .tp-en { color: var(--cyan); }
+.term-popup .tp-cat { color: var(--purple); font-size: 11px; }
+
+/* Responsive */
+@media(max-width: 768px) {
+  .two-col { grid-template-columns: 1fr; }
+  .notation-row { grid-template-columns: 1fr 1fr; }
+  .dict-grid { grid-template-columns: 1fr; }
+  .phrase-grid { grid-template-columns: 1fr; }
+  .tab-bar { padding: 0 12px; }
+  .tab-btn { padding: 10px 14px; font-size: 13px; }
+  .tab-content { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<nav style="background:#131520;border-bottom:1px solid rgba(255,255,255,0.06);padding:8px 16px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-family:-apple-system,sans-serif;">
+  <a href="dashboard.html" style="color:#ef4444;font-weight:700;text-decoration:none;font-size:0.82em;padding:4px 12px;">棋 Dashboard</a>
+  <a href="board-art.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Art Board</a>
+  <a href="board3d.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">3D Board</a>
+  <a href="board.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Board</a>
+  <a href="games.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Games</a>
+  <a href="explain.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Explain</a>
+  <a href="analyze.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analyze</a>
+  <a href="calendar.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Calendar</a>
+  <a href="scripts.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Scripts</a>
+  <a href="analytics.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analytics</a>
+  <a href="branding.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Branding</a>
+  <a href="seo.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">SEO</a>
+  <a href="translate.html" style="color:#fff;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);">Translate</a>
+  <a href="report.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Report</a>
+</nav>
+
+<div class="header">
+  <div class="header-left">
+    <h1><span data-zh="中英翻译" data-en="Bilingual Tools">中英翻译</span> <span data-zh="" data-en="">— Bilingual Tools</span></h1>
+  </div>
+  <div class="lang-toggle" style="display:inline-flex;gap:3px;margin-left:auto;">
+  <button onclick="setPageLang('zh')" class="lt-btn lt-active" data-lang="zh" style="background:rgba(240,192,96,0.9);color:#1a1d2e;border:none;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">中文</button>
+  <button onclick="setPageLang('en')" class="lt-btn" data-lang="en" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">EN</button>
+  <button onclick="setPageLang('both')" class="lt-btn" data-lang="both" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">双语</button>
+</div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="dictionary" data-zh="术语词典" data-en="Dictionary">术语词典 Dictionary</button>
+  <button class="tab-btn" data-tab="translator" data-zh="解说翻译" data-en="Translator">解说翻译 Translator</button>
+  <button class="tab-btn" data-tab="subtitle" data-zh="字幕生成" data-en="Subtitles">字幕生成 Subtitles</button>
+  <button class="tab-btn" data-tab="notation" data-zh="棋谱翻译" data-en="Notation">棋谱翻译 Notation</button>
+  <button class="tab-btn" data-tab="templates" data-zh="双语模板" data-en="Templates">双语模板 Templates</button>
+  <button class="tab-btn" data-tab="phrases" data-zh="语句库" data-en="Phrases">语句库 Phrases</button>
+</div>
+
+<!-- ═══════════ TAB 1: DICTIONARY ═══════════ -->
+<div id="tab-dictionary" class="tab-content active">
+  <div class="dict-controls">
+    <input type="text" id="dictSearch" placeholder="Search Chinese or English..." oninput="filterDict()">
+    <select id="dictCatFilter" onchange="filterDict()">
+      <option value="">All Categories</option>
+      <option value="pieces">棋子 Pieces</option>
+      <option value="board">棋盘 Board</option>
+      <option value="moves">走法 Moves</option>
+      <option value="tactics">战术 Tactics</option>
+      <option value="openings">开局 Openings</option>
+      <option value="endgame">残局 Endgame</option>
+      <option value="checkmate">杀法 Checkmate Patterns</option>
+      <option value="commentary">解说 Commentary</option>
+      <option value="titles">头衔 Titles</option>
+    </select>
+    <span class="dict-count" id="dictCount"></span>
+  </div>
+  <div class="dict-grid" id="dictGrid"></div>
+</div>
+
+<!-- ═══════════ TAB 2: COMMENTARY TRANSLATOR ═══════════ -->
+<div id="tab-translator" class="tab-content">
+  <div class="editor-actions">
+    <button class="btn btn-primary" onclick="autoTranslateTerms()">Auto-translate Terms</button>
+    <button class="btn btn-secondary" onclick="highlightTerms()">Highlight Terms</button>
+    <button class="btn btn-secondary" onclick="clearTranslator()">Clear</button>
+    <button class="btn btn-success" onclick="exportTranslation('zh')">Export Chinese</button>
+    <button class="btn btn-success" onclick="exportTranslation('en')">Export English</button>
+    <button class="btn btn-orange" onclick="exportTranslation('both')">Export Both</button>
+  </div>
+  <div class="two-col">
+    <div class="col-zh">
+      <div class="col-header">
+        <span class="label">&#x4E2D;&#x6587; Chinese</span>
+        <span style="font-size:12px;color:var(--text2)" id="zhCharCount">0 chars</span>
+      </div>
+      <textarea class="editor-box" id="zhEditor" placeholder="Type Chinese commentary here..." oninput="onZhInput()"></textarea>
+    </div>
+    <div class="col-en">
+      <div class="col-header">
+        <span class="label">English</span>
+        <span style="font-size:12px;color:var(--text2)" id="enCharCount">0 chars</span>
+      </div>
+      <textarea class="editor-box" id="enEditor" placeholder="English translation will appear here..."></textarea>
+    </div>
+  </div>
+  <div id="termSuggestions" style="margin-top:12px;display:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;">
+    <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Detected xiangqi terms:</div>
+    <div id="termSugList" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 3: SUBTITLE GENERATOR ═══════════ -->
+<div id="tab-subtitle" class="tab-content">
+  <div style="margin-bottom:16px;">
+    <label style="font-size:14px;font-weight:600;">Input Chinese Script</label>
+    <textarea class="editor-box" id="subInput" style="min-height:150px;margin-top:8px;" placeholder="Paste full Chinese commentary script here..."></textarea>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+    <label style="font-size:13px;color:var(--text2);">Mode:</label>
+    <select id="subMode" onchange="toggleSubMode()">
+      <option value="auto">Auto-split</option>
+      <option value="manual">Manual timing</option>
+    </select>
+    <div id="autoOpts" style="display:flex;gap:8px;align-items:center;">
+      <label style="font-size:13px;color:var(--text2);">Chars per segment:</label>
+      <input type="number" id="subCharsPerSeg" value="20" min="5" max="100" style="width:70px;">
+      <label style="font-size:13px;color:var(--text2);">Sec per segment:</label>
+      <input type="number" id="subSecPerSeg" value="3" min="1" max="30" step="0.5" style="width:70px;">
+    </div>
+    <select id="subFormat">
+      <option value="bilingual">Bilingual (ZH + EN)</option>
+      <option value="zh_inline">Chinese with inline English terms</option>
+      <option value="zh_only">Chinese only</option>
+      <option value="en_only">English only</option>
+    </select>
+    <button class="btn btn-primary" onclick="generateSubtitles()">Generate Subtitles</button>
+    <button class="btn btn-success" onclick="downloadSRT()">Download .srt</button>
+  </div>
+  <div id="subManualArea" style="display:none;">
+    <div class="sub-lines" id="subLines"></div>
+    <button class="btn btn-secondary" onclick="addSubLine()">+ Add Line</button>
+  </div>
+  <div style="font-size:14px;font-weight:600;margin-bottom:8px;">Preview</div>
+  <div class="sub-preview" id="subPreview">SRT preview will appear here...</div>
+</div>
+
+<!-- ═══════════ TAB 4: NOTATION TRANSLATOR ═══════════ -->
+<div id="tab-notation" class="tab-content">
+  <div style="margin-bottom:12px;font-size:13px;color:var(--text2);">
+    Enter Chinese notation (e.g., "炮二平五", "車1進3") — single move or paste a full game.
+  </div>
+  <div class="notation-input-area">
+    <textarea id="notationInput" placeholder="炮二平五&#10;馬八進七&#10;車九平八&#10;..." style="min-height:150px;"></textarea>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn btn-primary" onclick="translateNotation()">Translate</button>
+      <button class="btn btn-secondary" onclick="clearNotation()">Clear</button>
+      <button class="btn btn-success" onclick="exportNotation()">Export</button>
+    </div>
+  </div>
+  <div id="notationHeader" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 16px;margin-bottom:8px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 2fr;gap:12px;font-size:12px;color:var(--text2);font-weight:600;">
+      <span>中文 Chinese</span><span>English</span><span>Algebraic</span><span>Description</span>
+    </div>
+  </div>
+  <div class="notation-results" id="notationResults"></div>
+</div>
+
+<!-- ═══════════ TAB 5: TEMPLATES ═══════════ -->
+<div id="tab-templates" class="tab-content">
+  <div class="template-list" id="templateList"></div>
+  <div class="template-editor" id="templateEditor">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 id="templateTitle" style="font-size:18px;"></h3>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary" onclick="backToTemplates()">Back</button>
+        <button class="btn btn-primary" onclick="saveTemplate()">Save</button>
+        <button class="btn btn-success" onclick="exportTemplate()">Export Printable</button>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="col-zh">
+        <div class="col-header"><span class="label">中文 Chinese Script</span></div>
+        <textarea class="editor-box" id="tplZh" style="min-height:350px;"></textarea>
+      </div>
+      <div class="col-en">
+        <div class="col-header"><span class="label">English Script</span></div>
+        <textarea class="editor-box" id="tplEn" style="min-height:350px;"></textarea>
+      </div>
+    </div>
+    <div style="margin-top:12px;">
+      <button class="btn btn-purple" onclick="autoTranslateTemplate()">Auto-translate Terms in Template</button>
+    </div>
+    <div class="template-preview" id="tplPreview" style="display:none;margin-top:16px;"></div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 6: PHRASE BANK ═══════════ -->
+<div id="tab-phrases" class="tab-content">
+  <div class="phrase-categories" id="phraseCats"></div>
+  <div class="phrase-grid" id="phraseGrid"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+// XIANGQI DICTIONARY DATA (200+ entries)
+// ══════════════════════════════════════
+const DICTIONARY = [
+  // ── PIECES ──
+  {zh:'車',en:'Chariot/Rook',cat:'pieces'},{zh:'车',en:'Chariot/Rook',cat:'pieces'},
+  {zh:'馬',en:'Horse/Knight',cat:'pieces'},{zh:'马',en:'Horse/Knight',cat:'pieces'},
+  {zh:'炮',en:'Cannon',cat:'pieces'},{zh:'砲',en:'Cannon',cat:'pieces'},
+  {zh:'兵',en:'Soldier/Pawn',cat:'pieces'},{zh:'卒',en:'Soldier/Pawn',cat:'pieces'},
+  {zh:'將',en:'General/King',cat:'pieces'},{zh:'帅',en:'General/King',cat:'pieces'},
+  {zh:'帥',en:'General/King',cat:'pieces'},{zh:'将',en:'General/King',cat:'pieces'},
+  {zh:'士',en:'Advisor/Guard',cat:'pieces'},{zh:'仕',en:'Advisor/Guard',cat:'pieces'},
+  {zh:'象',en:'Elephant/Bishop',cat:'pieces'},{zh:'相',en:'Elephant/Bishop',cat:'pieces'},
+  {zh:'红方',en:'Red side',cat:'pieces'},{zh:'黑方',en:'Black side',cat:'pieces'},
+  {zh:'红棋',en:'Red pieces',cat:'pieces'},{zh:'黑棋',en:'Black pieces',cat:'pieces'},
+  {zh:'子力',en:'Material/Pieces',cat:'pieces'},{zh:'大子',en:'Major piece',cat:'pieces'},
+  {zh:'小子',en:'Minor piece',cat:'pieces'},
+
+  // ── BOARD ──
+  {zh:'楚河汉界',en:'River (Chu-Han border)',cat:'board'},{zh:'九宫',en:'Palace',cat:'board'},
+  {zh:'九宮',en:'Palace',cat:'board'},{zh:'花心',en:'Star points/Center',cat:'board'},
+  {zh:'河界',en:'River boundary',cat:'board'},{zh:'棋盘',en:'Board',cat:'board'},
+  {zh:'棋盤',en:'Board',cat:'board'},{zh:'宫顶',en:'Palace top',cat:'board'},
+  {zh:'宫底',en:'Palace bottom',cat:'board'},{zh:'仕角',en:'Advisor corner',cat:'board'},
+  {zh:'象眼',en:'Elephant eye (diagonal center)',cat:'board'},{zh:'象口',en:'Elephant mouth',cat:'board'},
+  {zh:'马腿',en:'Horse leg (blocking square)',cat:'board'},{zh:'肋道',en:'Rib files (files 4 & 6)',cat:'board'},
+  {zh:'底线',en:'Back rank',cat:'board'},{zh:'巡河',en:'Riverbank patrol',cat:'board'},
+  {zh:'过河',en:'Cross the river',cat:'board'},{zh:'河口',en:'River crossing point',cat:'board'},
+  {zh:'中路',en:'Central file',cat:'board'},{zh:'边路',en:'Edge file',cat:'board'},
+  {zh:'线',en:'File/Line',cat:'board'},{zh:'路',en:'File/Column',cat:'board'},
+  {zh:'前',en:'Front/Forward',cat:'board'},{zh:'后',en:'Rear/Back',cat:'board'},
+
+  // ── MOVES ──
+  {zh:'进',en:'Advance',cat:'moves'},{zh:'進',en:'Advance',cat:'moves'},
+  {zh:'退',en:'Retreat',cat:'moves'},{zh:'平',en:'Traverse',cat:'moves'},
+  {zh:'吃',en:'Capture',cat:'moves'},{zh:'将军',en:'Check',cat:'moves'},
+  {zh:'將軍',en:'Check',cat:'moves'},{zh:'将杀',en:'Checkmate',cat:'moves'},
+  {zh:'杀',en:'Checkmate/Kill',cat:'moves'},{zh:'和',en:'Draw',cat:'moves'},
+  {zh:'和棋',en:'Draw',cat:'moves'},{zh:'认输',en:'Resign',cat:'moves'},
+  {zh:'走棋',en:'Make a move',cat:'moves'},{zh:'一步棋',en:'One move',cat:'moves'},
+  {zh:'着法',en:'Move/Play',cat:'moves'},{zh:'应着',en:'Response move',cat:'moves'},
+  {zh:'兑',en:'Exchange',cat:'moves'},{zh:'挡',en:'Block',cat:'moves'},
+  {zh:'拦',en:'Intercept',cat:'moves'},{zh:'支',en:'Support',cat:'moves'},
+  {zh:'飞',en:'Fly (diagonal move)',cat:'moves'},{zh:'跳',en:'Jump (horse move)',cat:'moves'},
+  {zh:'横',en:'Horizontal move',cat:'moves'},{zh:'冲',en:'Charge forward',cat:'moves'},
+  {zh:'拱',en:'Push (pawn)',cat:'moves'},{zh:'沉底',en:'Sink to back rank',cat:'moves'},
+  {zh:'升变',en:'Promotion',cat:'moves'},{zh:'悔棋',en:'Take back move',cat:'moves'},
+
+  // ── TACTICS ──
+  {zh:'抽将',en:'Discovered check',cat:'tactics'},{zh:'捉双',en:'Fork',cat:'tactics'},
+  {zh:'牵制',en:'Pin',cat:'tactics'},{zh:'闪击',en:'Discovered attack',cat:'tactics'},
+  {zh:'弃子',en:'Sacrifice',cat:'tactics'},{zh:'兑子',en:'Exchange (pieces)',cat:'tactics'},
+  {zh:'做杀',en:'Set up checkmate',cat:'tactics'},{zh:'解杀',en:'Escape checkmate',cat:'tactics'},
+  {zh:'困毙',en:'Stalemate to death',cat:'tactics'},{zh:'闷杀',en:'Smothered checkmate',cat:'tactics'},
+  {zh:'串打',en:'Skewer',cat:'tactics'},{zh:'双将',en:'Double check',cat:'tactics'},
+  {zh:'连将',en:'Consecutive checks',cat:'tactics'},{zh:'连杀',en:'Consecutive checkmates',cat:'tactics'},
+  {zh:'叫将',en:'Give check',cat:'tactics'},{zh:'叫杀',en:'Threaten checkmate',cat:'tactics'},
+  {zh:'要杀',en:'Threaten mate',cat:'tactics'},{zh:'解将',en:'Parry check',cat:'tactics'},
+  {zh:'反击',en:'Counterattack',cat:'tactics'},{zh:'攻势',en:'Offensive',cat:'tactics'},
+  {zh:'防守',en:'Defense',cat:'tactics'},{zh:'控制',en:'Control',cat:'tactics'},
+  {zh:'封锁',en:'Blockade',cat:'tactics'},{zh:'运子',en:'Maneuver pieces',cat:'tactics'},
+  {zh:'调运',en:'Redeploy',cat:'tactics'},{zh:'集中',en:'Concentrate (forces)',cat:'tactics'},
+  {zh:'突破',en:'Breakthrough',cat:'tactics'},{zh:'入局',en:'Enter the attack',cat:'tactics'},
+
+  // ── OPENINGS ──
+  {zh:'中炮',en:'Central Cannon',cat:'openings'},{zh:'飞相',en:'Flying Elephant',cat:'openings'},
+  {zh:'飞象',en:'Flying Elephant',cat:'openings'},{zh:'仙人指路',en:"Immortal's Guide (P7+1)",cat:'openings'},
+  {zh:'过宫炮',en:'Palace Cannon',cat:'openings'},{zh:'起马',en:'Horse Opening',cat:'openings'},
+  {zh:'屏风马',en:'Screen Horse Defense',cat:'openings'},{zh:'反宫马',en:'Reversed Palace Horse',cat:'openings'},
+  {zh:'顺炮',en:'Same-direction Cannons',cat:'openings'},{zh:'列炮',en:'Opposed Cannons',cat:'openings'},
+  {zh:'当头炮',en:'Central Cannon',cat:'openings'},{zh:'单提马',en:'Single Horse Defense',cat:'openings'},
+  {zh:'对兵局',en:'Pawn Opening',cat:'openings'},{zh:'士角炮',en:'Advisor Corner Cannon',cat:'openings'},
+  {zh:'中炮对屏风马',en:'Central Cannon vs Screen Horse',cat:'openings'},
+  {zh:'中炮对反宫马',en:'Central Cannon vs Reversed Palace Horse',cat:'openings'},
+  {zh:'五六炮',en:'56 Cannon',cat:'openings'},{zh:'五七炮',en:'57 Cannon',cat:'openings'},
+  {zh:'五八炮',en:'58 Cannon',cat:'openings'},{zh:'三步虎',en:'Three-step Tiger',cat:'openings'},
+  {zh:'鸳鸯炮',en:'Mandarin Duck Cannons',cat:'openings'},{zh:'龟背炮',en:'Turtle Back Cannon',cat:'openings'},
+  {zh:'金钩炮',en:'Golden Hook Cannon',cat:'openings'},{zh:'左正马',en:'Left Proper Horse',cat:'openings'},
+  {zh:'右正马',en:'Right Proper Horse',cat:'openings'},{zh:'巡河炮',en:'Riverbank Cannon',cat:'openings'},
+  {zh:'骑河车',en:'Riverbank Chariot',cat:'openings'},{zh:'横车',en:'Horizontal Chariot',cat:'openings'},
+  {zh:'直车',en:'Straight Chariot',cat:'openings'},{zh:'边马',en:'Edge Horse',cat:'openings'},
+  {zh:'盘头马',en:'Coiled Horse',cat:'openings'},{zh:'窝心马',en:'Stifled Horse',cat:'openings'},
+  {zh:'左中炮',en:'Left Central Cannon',cat:'openings'},{zh:'右中炮',en:'Right Central Cannon',cat:'openings'},
+
+  // ── ENDGAME ──
+  {zh:'残局',en:'Endgame',cat:'endgame'},{zh:'例胜',en:'Theoretical win',cat:'endgame'},
+  {zh:'例和',en:'Theoretical draw',cat:'endgame'},{zh:'巧胜',en:'Clever win',cat:'endgame'},
+  {zh:'巧和',en:'Clever draw',cat:'endgame'},{zh:'实用残局',en:'Practical endgame',cat:'endgame'},
+  {zh:'单车',en:'Lone Chariot',cat:'endgame'},{zh:'单马',en:'Lone Horse',cat:'endgame'},
+  {zh:'单炮',en:'Lone Cannon',cat:'endgame'},{zh:'单兵',en:'Lone Pawn',cat:'endgame'},
+  {zh:'车马',en:'Chariot and Horse',cat:'endgame'},{zh:'车炮',en:'Chariot and Cannon',cat:'endgame'},
+  {zh:'马炮',en:'Horse and Cannon',cat:'endgame'},{zh:'双车',en:'Double Chariots',cat:'endgame'},
+  {zh:'双马',en:'Double Horses',cat:'endgame'},{zh:'双炮',en:'Double Cannons',cat:'endgame'},
+  {zh:'车马兵',en:'Chariot, Horse & Pawn',cat:'endgame'},{zh:'车炮兵',en:'Chariot, Cannon & Pawn',cat:'endgame'},
+  {zh:'高兵',en:'High Pawn (advanced)',cat:'endgame'},{zh:'低兵',en:'Low Pawn',cat:'endgame'},
+  {zh:'底兵',en:'Bottom Pawn',cat:'endgame'},{zh:'老兵',en:'Old Pawn (deep)',cat:'endgame'},
+
+  // ── CHECKMATE PATTERNS ──
+  {zh:'马后炮',en:'Cannon behind Horse (Smothered mate)',cat:'checkmate'},
+  {zh:'天地炮',en:'Heaven & Earth Cannons',cat:'checkmate'},
+  {zh:'闷宫',en:'Smothered checkmate (Palace smother)',cat:'checkmate'},
+  {zh:'铁门栓',en:'Iron Door Bolt',cat:'checkmate'},
+  {zh:'大胆穿心',en:'Bold Heart Piercer',cat:'checkmate'},
+  {zh:'双车错',en:'Double Chariot Interweave',cat:'checkmate'},
+  {zh:'卧槽马',en:'Crouching Horse checkmate',cat:'checkmate'},
+  {zh:'挂角马',en:'Corner Horse checkmate',cat:'checkmate'},
+  {zh:'八角马',en:'Octagonal Horse',cat:'checkmate'},
+  {zh:'钓鱼马',en:'Fishing Horse',cat:'checkmate'},
+  {zh:'拔簧马',en:'Spring-pulling Horse',cat:'checkmate'},
+  {zh:'双马饮泉',en:'Double Horses at the Spring',cat:'checkmate'},
+  {zh:'白脸将',en:'Face-to-face Generals (Opposition)',cat:'checkmate'},
+  {zh:'闷杀',en:'Smothered mate',cat:'checkmate'},
+  {zh:'海底捞月',en:'Scooping the Moon from the Sea',cat:'checkmate'},
+  {zh:'重炮',en:'Double Cannon (stacked)',cat:'checkmate'},
+  {zh:'夹车炮',en:'Chariot-Cannon Sandwich',cat:'checkmate'},
+  {zh:'三子归边',en:'Three pieces to the edge',cat:'checkmate'},
+
+  // ── COMMENTARY PHRASES ──
+  {zh:'好棋',en:'Good move',cat:'commentary'},{zh:'败着',en:'Blunder',cat:'commentary'},
+  {zh:'妙手',en:'Brilliant move',cat:'commentary'},{zh:'先手',en:'Initiative/Tempo',cat:'commentary'},
+  {zh:'后手',en:'Passive/Response',cat:'commentary'},{zh:'缓手',en:'Slow move',cat:'commentary'},
+  {zh:'恶手',en:'Bad move',cat:'commentary'},{zh:'疑问手',en:'Dubious move',cat:'commentary'},
+  {zh:'强手',en:'Strong move',cat:'commentary'},{zh:'正着',en:'Correct move',cat:'commentary'},
+  {zh:'变招',en:'Variation',cat:'commentary'},{zh:'定式',en:'Set pattern/Joseki',cat:'commentary'},
+  {zh:'布局',en:'Opening setup',cat:'commentary'},{zh:'中局',en:'Middlegame',cat:'commentary'},
+  {zh:'优势',en:'Advantage',cat:'commentary'},{zh:'劣势',en:'Disadvantage',cat:'commentary'},
+  {zh:'均势',en:'Equal position',cat:'commentary'},{zh:'形势',en:'Position/Situation',cat:'commentary'},
+  {zh:'局面',en:'Position',cat:'commentary'},{zh:'胜势',en:'Winning position',cat:'commentary'},
+  {zh:'败势',en:'Losing position',cat:'commentary'},{zh:'复杂',en:'Complex',cat:'commentary'},
+  {zh:'简单',en:'Simple',cat:'commentary'},{zh:'精彩',en:'Brilliant/Wonderful',cat:'commentary'},
+  {zh:'激烈',en:'Intense/Fierce',cat:'commentary'},{zh:'对攻',en:'Mutual attack',cat:'commentary'},
+  {zh:'稳健',en:'Solid/Steady',cat:'commentary'},{zh:'积极',en:'Aggressive/Active',cat:'commentary'},
+  {zh:'保守',en:'Conservative',cat:'commentary'},{zh:'速胜',en:'Quick victory',cat:'commentary'},
+  {zh:'长考',en:'Long think',cat:'commentary'},{zh:'读秒',en:'Time pressure/Byo-yomi',cat:'commentary'},
+  {zh:'超时',en:'Time forfeit',cat:'commentary'},{zh:'棋谱',en:'Game record/Score sheet',cat:'commentary'},
+  {zh:'复盘',en:'Post-game review',cat:'commentary'},{zh:'拆棋',en:'Analysis',cat:'commentary'},
+  {zh:'胜',en:'Win',cat:'commentary'},{zh:'负',en:'Loss',cat:'commentary'},
+  {zh:'平',en:'Draw (result)',cat:'commentary'},
+
+  // ── TITLES ──
+  {zh:'特级大师',en:'Grandmaster',cat:'titles'},{zh:'大师',en:'Master',cat:'titles'},
+  {zh:'棋手',en:'Player',cat:'titles'},{zh:'冠军',en:'Champion',cat:'titles'},
+  {zh:'棋王',en:'Chess King/Champion',cat:'titles'},{zh:'棋后',en:'Chess Queen/Women\'s Champion',cat:'titles'},
+  {zh:'国手',en:'National player',cat:'titles'},{zh:'新秀',en:'Rising star/Newcomer',cat:'titles'},
+  {zh:'名手',en:'Famous player',cat:'titles'},{zh:'高手',en:'Expert/Strong player',cat:'titles'},
+  {zh:'业余',en:'Amateur',cat:'titles'},{zh:'专业',en:'Professional',cat:'titles'},
+  {zh:'段位',en:'Rank/Dan',cat:'titles'},{zh:'等级分',en:'Rating',cat:'titles'},
+  {zh:'全国冠军',en:'National Champion',cat:'titles'},{zh:'世界冠军',en:'World Champion',cat:'titles'},
+  {zh:'象棋协会',en:'Xiangqi Association',cat:'titles'},{zh:'裁判',en:'Arbiter/Referee',cat:'titles'},
+  {zh:'教练',en:'Coach',cat:'titles'},{zh:'解说',en:'Commentator',cat:'titles'},
+  {zh:'棋协大师',en:'Association Master',cat:'titles'},{zh:'候补大师',en:'Candidate Master',cat:'titles'},
+  {zh:'女子特级大师',en:"Women's Grandmaster",cat:'titles'},{zh:'少年冠军',en:'Junior Champion',cat:'titles'},
+
+  // ── MORE TACTICS ──
+  {zh:'伏杀',en:'Hidden mate threat',cat:'tactics'},{zh:'先弃后取',en:'Sacrifice then recapture',cat:'tactics'},
+  {zh:'弃车',en:'Sacrifice the Chariot',cat:'tactics'},{zh:'弃马',en:'Sacrifice the Horse',cat:'tactics'},
+  {zh:'弃炮',en:'Sacrifice the Cannon',cat:'tactics'},{zh:'围点打援',en:'Besiege and ambush reinforcements',cat:'tactics'},
+  {zh:'声东击西',en:'Feint east, strike west',cat:'tactics'},{zh:'以退为进',en:'Retreat to advance',cat:'tactics'},
+  {zh:'调虎离山',en:'Lure the tiger from the mountain',cat:'tactics'},{zh:'暗渡陈仓',en:'Secret maneuver',cat:'tactics'},
+  {zh:'空头炮',en:'Open-file Cannon (aimed at General)',cat:'tactics'},
+  {zh:'担子炮',en:'Carrying Pole Cannons (two cannons protecting each other)',cat:'tactics'},
+
+  // ── MORE MOVES / POSITIONS ──
+  {zh:'开局',en:'Opening',cat:'moves'},{zh:'先走',en:'Move first',cat:'moves'},
+  {zh:'后走',en:'Move second',cat:'moves'},{zh:'对弈',en:'Play a game',cat:'moves'},
+  {zh:'下棋',en:'Play chess',cat:'moves'},{zh:'摆棋',en:'Set up position',cat:'moves'},
+  {zh:'让子',en:'Handicap (remove pieces)',cat:'moves'},{zh:'让先',en:'Give first move',cat:'moves'},
+
+  // ── MORE BOARD ──
+  {zh:'天元',en:'Center point',cat:'board'},{zh:'将位',en:'General position',cat:'board'},
+  {zh:'兵行线',en:'Pawn rank',cat:'board'},{zh:'卒林线',en:'Soldier rank',cat:'board'},
+
+  // ── MORE OPENINGS ──
+  {zh:'两头蛇',en:'Two-headed Snake',cat:'openings'},{zh:'铁滑车',en:'Iron Sliding Chariot',cat:'openings'},
+  {zh:'穿宫马',en:'Palace-crossing Horse',cat:'openings'},{zh:'拐角马',en:'Corner-turning Horse',cat:'openings'},
+  {zh:'河口马',en:'River-mouth Horse',cat:'openings'},{zh:'边炮',en:'Edge Cannon',cat:'openings'},
+  {zh:'叠炮',en:'Stacked Cannons',cat:'openings'},{zh:'进兵局',en:'Advancing Pawn Opening',cat:'openings'},
+
+  // ── MORE ENDGAME ──
+  {zh:'车马冷着',en:'Chariot-Horse zugzwang',cat:'endgame'},{zh:'炮打空头',en:'Cannon on open file',cat:'endgame'},
+  {zh:'马踏八方',en:'Horse covering eight squares',cat:'endgame'},{zh:'老卒擒王',en:'Old soldier captures king',cat:'endgame'},
+  {zh:'车正胜士象全',en:'Proper Chariot wins vs full Advisors & Elephants',cat:'endgame'},
+  {zh:'单车和士象全',en:'Lone Chariot draws vs full Advisors & Elephants',cat:'endgame'},
+  {zh:'炮双士',en:'Cannon with double Advisors',cat:'endgame'},
+  {zh:'马双士',en:'Horse with double Advisors',cat:'endgame'},
+
+  // ── MORE CHECKMATE ──
+  {zh:'二鬼拍门',en:'Two Ghosts Knocking (double Pawns at palace)',cat:'checkmate'},
+  {zh:'三车闹士',en:'Three-Chariot Advisor Assault',cat:'checkmate'},
+  {zh:'车马冷着杀',en:'Chariot-Horse cold checkmate',cat:'checkmate'},
+  {zh:'双杯献酒',en:'Double Cups Offering Wine',cat:'checkmate'},
+  {zh:'三子夺帅',en:'Three Pieces Seize the General',cat:'checkmate'},
+
+  // ── MORE COMMENTARY ──
+  {zh:'绝杀',en:'Forced checkmate',cat:'commentary'},{zh:'抢先',en:'Seize initiative',cat:'commentary'},
+  {zh:'反先',en:'Counter-initiative',cat:'commentary'},{zh:'主动',en:'Active/Initiative',cat:'commentary'},
+  {zh:'被动',en:'Passive',cat:'commentary'},{zh:'软着',en:'Soft/weak move',cat:'commentary'},
+  {zh:'硬着',en:'Hard/forcing move',cat:'commentary'},{zh:'急着',en:'Hasty move',cat:'commentary'},
+  {zh:'等着',en:'Waiting move',cat:'commentary'},{zh:'闲着',en:'Idle/neutral move',cat:'commentary'},
+  {zh:'妙着',en:'Subtle/brilliant move',cat:'commentary'},{zh:'毒着',en:'Poisonous/tricky move',cat:'commentary'},
+  {zh:'棋风',en:'Playing style',cat:'commentary'},{zh:'攻杀',en:'Attacking play',cat:'commentary'},
+  {zh:'弃子攻杀',en:'Sacrificial attack',cat:'commentary'},{zh:'计算',en:'Calculation',cat:'commentary'},
+  {zh:'判断',en:'Judgment/Assessment',cat:'commentary'},
+
+  // ── COMPETITION / EVENTS ──
+  {zh:'比赛',en:'Competition/Match',cat:'titles'},{zh:'联赛',en:'League',cat:'titles'},
+  {zh:'锦标赛',en:'Championship/Tournament',cat:'titles'},{zh:'邀请赛',en:'Invitational',cat:'titles'},
+  {zh:'擂台赛',en:'Challenge match',cat:'titles'},{zh:'团体赛',en:'Team competition',cat:'titles'},
+  {zh:'个人赛',en:'Individual competition',cat:'titles'},{zh:'循环赛',en:'Round-robin',cat:'titles'},
+  {zh:'淘汰赛',en:'Knockout/Elimination',cat:'titles'},{zh:'决赛',en:'Final',cat:'titles'},
+  {zh:'半决赛',en:'Semi-final',cat:'titles'},{zh:'预赛',en:'Preliminary round',cat:'titles'},
+
+  // ── ADDITIONAL TERMS ──
+  {zh:'象棋',en:'Xiangqi (Chinese Chess)',cat:'board'},{zh:'中国象棋',en:'Chinese Chess (Xiangqi)',cat:'board'},
+  {zh:'棋局',en:'Game/Match',cat:'commentary'},{zh:'执红',en:'Playing Red',cat:'commentary'},
+  {zh:'执黑',en:'Playing Black',cat:'commentary'},{zh:'对局',en:'Game/Encounter',cat:'commentary'},
+  {zh:'棋钟',en:'Chess clock',cat:'commentary'},{zh:'用时',en:'Time used',cat:'commentary'},
+  {zh:'限时',en:'Time control',cat:'commentary'},{zh:'快棋',en:'Rapid/Blitz',cat:'commentary'},
+  {zh:'慢棋',en:'Classical/Standard',cat:'commentary'},
+  {zh:'棋规',en:'Rules',cat:'commentary'},{zh:'违规',en:'Rule violation',cat:'commentary'},
+  {zh:'长将',en:'Perpetual check',cat:'tactics'},{zh:'长捉',en:'Perpetual chase',cat:'tactics'},
+  {zh:'长拦',en:'Perpetual block',cat:'tactics'},{zh:'一将一杀',en:'Check then checkmate',cat:'tactics'},
+  {zh:'打二还一',en:'Capture two, return one',cat:'tactics'},
+  {zh:'四两拨千斤',en:'Using little force to achieve much',cat:'tactics'},
+  {zh:'险棋',en:'Risky move',cat:'commentary'},{zh:'稳棋',en:'Safe/solid move',cat:'commentary'},
+  {zh:'大局观',en:'Positional sense/Big picture',cat:'commentary'},
+  {zh:'基本功',en:'Fundamentals',cat:'commentary'},
+  {zh:'实战',en:'Actual game/Practice',cat:'commentary'},
+  {zh:'棋力',en:'Chess strength/Playing level',cat:'commentary'},
+  {zh:'棋艺',en:'Chess artistry/Skill',cat:'commentary'},
+  {zh:'着数',en:'Number of moves',cat:'commentary'},
+  {zh:'步数',en:'Move count',cat:'commentary'},
+  {zh:'回合',en:'Round/Turn',cat:'commentary'},
+  {zh:'右象',en:'Right Elephant',cat:'openings'},{zh:'左象',en:'Left Elephant',cat:'openings'},
+  {zh:'底炮',en:'Back-rank Cannon',cat:'endgame'},{zh:'高炮',en:'High Cannon',cat:'endgame'},
+  {zh:'低炮',en:'Low Cannon',cat:'endgame'},{zh:'过河兵',en:'River-crossing Pawn',cat:'endgame'},
+  {zh:'过河卒',en:'River-crossing Soldier',cat:'endgame'},{zh:'车碾丹砂',en:'Chariot Grinding Cinnabar',cat:'checkmate'},
+  {zh:'小刀剜心',en:'Small Blade Heart Pierce',cat:'checkmate'},{zh:'双将',en:'Double check mate',cat:'checkmate'},
+  {zh:'侧面虎',en:'Side Tiger',cat:'openings'},{zh:'对面笑',en:'Face-to-face Laugh (opposition)',cat:'checkmate'},
+];
+
+// Category labels
+const CAT_LABELS = {
+  pieces:'棋子 Pieces', board:'棋盘 Board', moves:'走法 Moves', tactics:'战术 Tactics',
+  openings:'开局 Openings', endgame:'残局 Endgame', checkmate:'杀法 Checkmate',
+  commentary:'解说 Commentary', titles:'头衔 Titles'
+};
+
+// Build lookup maps
+const zhToEn = {};
+const enToZh = {};
+DICTIONARY.forEach(d => {
+  zhToEn[d.zh] = {en: d.en, cat: d.cat};
+  const enLow = d.en.toLowerCase();
+  if(!enToZh[enLow]) enToZh[enLow] = {zh: d.zh, cat: d.cat};
+});
+
+// Sort dictionary entries by length descending for greedy matching
+const DICT_SORTED = [...DICTIONARY].sort((a,b) => b.zh.length - a.zh.length);
+
+// ══════════════════════════════════════
+// PHRASE BANK (50+ phrases)
+// ══════════════════════════════════════
+const PHRASES = [
+  // Opening / Introduction
+  {zh:'让我们看这盘棋',en:"Let's look at this game",cat:'opening'},
+  {zh:'欢迎来到今天的比赛',en:'Welcome to today\'s match',cat:'opening'},
+  {zh:'今天的对局非常精彩',en:'Today\'s game is very exciting',cat:'opening'},
+  {zh:'双方已经坐到了棋盘前',en:'Both players have taken their seats',cat:'opening'},
+  {zh:'比赛马上开始',en:'The match is about to begin',cat:'opening'},
+  {zh:'让我们看看双方的布局',en:"Let's look at both sides' opening setup",cat:'opening'},
+  {zh:'这是一场很有看点的对局',en:'This is a game worth watching',cat:'opening'},
+  {zh:'红方先走',en:'Red moves first',cat:'opening'},
+  {zh:'我们来看看今天的棋谱',en:"Let's look at today's game record",cat:'opening'},
+  {zh:'让我们进入今天的解说',en:"Let's start today's commentary",cat:'opening'},
+
+  // Analysis
+  {zh:'这步的关键在于',en:'The key to this move is',cat:'analysis'},
+  {zh:'现在的局面很复杂',en:'The current position is very complex',cat:'analysis'},
+  {zh:'红方占据了优势',en:'Red has gained the advantage',cat:'analysis'},
+  {zh:'黑方处于劣势',en:'Black is at a disadvantage',cat:'analysis'},
+  {zh:'双方势均力敌',en:'Both sides are evenly matched',cat:'analysis'},
+  {zh:'这步棋的目的是',en:'The purpose of this move is',cat:'analysis'},
+  {zh:'这是一个关键的时刻',en:'This is a critical moment',cat:'analysis'},
+  {zh:'让我们来分析一下',en:"Let's analyze this",cat:'analysis'},
+  {zh:'如果走这步的话',en:'If this move is played',cat:'analysis'},
+  {zh:'还有一个更好的选择',en:'There is a better option',cat:'analysis'},
+  {zh:'这步棋值得研究',en:'This move is worth studying',cat:'analysis'},
+  {zh:'形势发生了变化',en:'The situation has changed',cat:'analysis'},
+  {zh:'双方进入了中局',en:'Both sides have entered the middlegame',cat:'analysis'},
+  {zh:'现在进入了残局阶段',en:'We are now in the endgame phase',cat:'analysis'},
+
+  // Excitement
+  {zh:'太精彩了！',en:'What a brilliant move!',cat:'excitement'},
+  {zh:'不可思议！',en:'Unbelievable!',cat:'excitement'},
+  {zh:'绝妙的一手！',en:'An absolutely brilliant move!',cat:'excitement'},
+  {zh:'漂亮！',en:'Beautiful!',cat:'excitement'},
+  {zh:'这步棋太厉害了',en:'This move is incredibly strong',cat:'excitement'},
+  {zh:'精彩的弃子！',en:'A brilliant sacrifice!',cat:'excitement'},
+  {zh:'妙！妙！妙！',en:'Brilliant! Brilliant! Brilliant!',cat:'excitement'},
+  {zh:'一招制胜！',en:'A winning move!',cat:'excitement'},
+  {zh:'完美的计算',en:'Perfect calculation',cat:'excitement'},
+  {zh:'出乎意料的好棋',en:'An unexpectedly great move',cat:'excitement'},
+
+  // Teaching
+  {zh:'大家注意这里',en:'Pay attention here',cat:'teaching'},
+  {zh:'这是一个常见的战术',en:'This is a common tactic',cat:'teaching'},
+  {zh:'初学者要记住这个',en:'Beginners should remember this',cat:'teaching'},
+  {zh:'这就是为什么要这样走',en:"This is why you play it this way",cat:'teaching'},
+  {zh:'我们来看几个变化',en:"Let's look at a few variations",cat:'teaching'},
+  {zh:'这个定式很常用',en:'This set pattern is very common',cat:'teaching'},
+  {zh:'大家可以自己试试',en:'You can try this yourself',cat:'teaching'},
+  {zh:'记住这个基本原则',en:'Remember this basic principle',cat:'teaching'},
+  {zh:'这是入门必学的知识',en:'This is essential knowledge for beginners',cat:'teaching'},
+
+  // Mistakes
+  {zh:'这是一步败着',en:'This is a blunder',cat:'mistakes'},
+  {zh:'走错了',en:'A mistake',cat:'mistakes'},
+  {zh:'这步棋有问题',en:'There is a problem with this move',cat:'mistakes'},
+  {zh:'错失了好机会',en:'A missed opportunity',cat:'mistakes'},
+  {zh:'应该走另一步',en:'Should have played a different move',cat:'mistakes'},
+  {zh:'这步棋太慢了',en:'This move is too slow',cat:'mistakes'},
+  {zh:'漏掉了一个威胁',en:'Missed a threat',cat:'mistakes'},
+  {zh:'时间不够了',en:'Running out of time',cat:'mistakes'},
+  {zh:'形势急转直下',en:'The position collapsed suddenly',cat:'mistakes'},
+  {zh:'功亏一篑',en:'So close yet so far',cat:'mistakes'},
+
+  // Ending / Result
+  {zh:'红方获胜',en:'Red wins',cat:'ending'},
+  {zh:'黑方获胜',en:'Black wins',cat:'ending'},
+  {zh:'双方和棋',en:'The game is a draw',cat:'ending'},
+  {zh:'感谢大家的观看',en:'Thanks for watching',cat:'ending'},
+  {zh:'我们下期再见',en:"See you next time",cat:'ending'},
+  {zh:'恭喜红方获得胜利',en:'Congratulations to Red for the victory',cat:'ending'},
+  {zh:'比赛到此结束',en:'The match ends here',cat:'ending'},
+];
+
+const PHRASE_CATS = {
+  opening:'开场 Opening', analysis:'分析 Analysis', excitement:'激动 Excitement',
+  teaching:'教学 Teaching', mistakes:'失误 Mistakes', ending:'结束 Ending'
+};
+
+// ══════════════════════════════════════
+// TEMPLATES
+// ══════════════════════════════════════
+const DEFAULT_TEMPLATES = [
+  {
+    id:'puzzle', name:'残局谜题 Puzzle Video', desc:'Template for puzzle/problem videos',
+    zh:'大家好，欢迎来到今天的残局讲解。\n今天我们来看一个非常经典的马后炮杀法。\n红方先走，请大家想一想怎么赢。\n\n第一步：炮二平五，中炮将军！\n黑方只能将五退一。\n第二步：马三进五，马后炮！绝杀！\n\n这就是马后炮的经典用法。\n大家学会了吗？我们下期再见！',
+    en:"Hello everyone, welcome to today's endgame lesson.\nToday we'll look at a classic Cannon behind Horse checkmate.\nRed moves first — think about how to win.\n\nMove 1: Cannon traverses to file 5, Central Cannon check!\nBlack can only retreat the General.\nMove 2: Horse advances to file 5, Cannon behind Horse! Checkmate!\n\nThis is the classic application of the Cannon behind Horse.\nDid you learn it? See you next time!"
+  },
+  {
+    id:'analysis', name:'对局分析 Game Analysis', desc:'Template for full game breakdown',
+    zh:'今天我们来复盘一场精彩的对局。\n红方：[棋手名] 黑方：[棋手名]\n\n布局阶段：\n红方采用了中炮开局，黑方以屏风马应对。\n这是目前最流行的开局之一。\n\n中局阶段：\n红方的攻势非常猛烈，连续进攻。\n黑方防守得当，局面均势。\n\n残局阶段：\n最终红方凭借精准的计算取得了胜利。\n\n总结：这盘棋的关键在于中局的战术选择。',
+    en:"Today we'll review an exciting game.\nRed: [Player name] Black: [Player name]\n\nOpening phase:\nRed adopted the Central Cannon opening, Black responded with the Screen Horse Defense.\nThis is one of the most popular openings today.\n\nMiddlegame phase:\nRed's offensive was very fierce, with continuous attacks.\nBlack defended well, the position remained equal.\n\nEndgame phase:\nIn the end, Red won through precise calculation.\n\nSummary: The key to this game was the tactical choices in the middlegame."
+  },
+  {
+    id:'tutorial', name:'教学视频 Tutorial', desc:'Template for teaching specific concepts',
+    zh:'大家好，今天我们学习[主题]。\n\n什么是[术语]？\n[术语]是象棋中非常重要的战术。\n\n让我们看几个例子：\n\n例子一：\n这个局面中，红方可以走...\n大家注意这里的关键。\n\n例子二：\n这是一个更复杂的变化...\n\n总结：\n记住这个基本原则：...\n大家可以自己练习。\n感谢观看，我们下期再见！',
+    en:"Hello everyone, today we'll learn about [topic].\n\nWhat is [term]?\n[Term] is a very important tactic in xiangqi.\n\nLet's look at some examples:\n\nExample 1:\nIn this position, Red can play...\nPay attention to the key point here.\n\nExample 2:\nThis is a more complex variation...\n\nSummary:\nRemember this basic principle: ...\nYou can practice this on your own.\nThanks for watching, see you next time!"
+  },
+  {
+    id:'livestream', name:'直播解说 Live Stream', desc:'Quick callouts for live streaming',
+    zh:'[开场]\n各位观众朋友们大家好！\n欢迎来到今天的直播解说。\n\n[走棋提示]\n红方走了...，这是一步好棋/败着。\n黑方应着...，非常稳健/太慢了。\n\n[精彩时刻]\n太精彩了！这步妙手改变了局面！\n\n[互动]\n大家觉得下一步应该怎么走？\n弹幕告诉我你们的想法！\n\n[结束]\n今天的直播就到这里，感谢大家的支持！',
+    en:"[Opening]\nHello everyone!\nWelcome to today's live commentary.\n\n[Move callouts]\nRed played..., this is a good move/blunder.\nBlack responded with..., very solid/too slow.\n\n[Exciting moments]\nBrilliant! This brilliant move changed the position!\n\n[Interaction]\nWhat do you think the next move should be?\nLet me know in the chat!\n\n[Ending]\nThat's all for today's stream, thanks for your support!"
+  }
+];
+
+// ══════════════════════════════════════
+// TAB NAVIGATION
+// ══════════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ══════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ══════════════════════════════════════
+// 1. DICTIONARY
+// ══════════════════════════════════════
+function renderDict() {
+  const search = document.getElementById('dictSearch').value.toLowerCase();
+  const cat = document.getElementById('dictCatFilter').value;
+  const grid = document.getElementById('dictGrid');
+  let filtered = DICTIONARY.filter(d => {
+    if(cat && d.cat !== cat) return false;
+    if(search && !d.zh.toLowerCase().includes(search) && !d.en.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  document.getElementById('dictCount').textContent = filtered.length + ' / ' + DICTIONARY.length + ' entries';
+  grid.innerHTML = filtered.map(d => `
+    <div class="dict-entry">
+      <div>
+        <span class="dict-zh">${d.zh}</span>
+        <span class="dict-en">${d.en}</span>
+        <span class="dict-cat">${CAT_LABELS[d.cat]||d.cat}</span>
+      </div>
+      <div class="dict-actions">
+        <button onclick="copyText('${d.zh}')" title="Copy Chinese">中</button>
+        <button onclick="copyText('${escHtml(d.en)}')" title="Copy English">EN</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterDict() { renderDict(); }
+
+function escHtml(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast('Copied: ' + text));
+}
+
+// ══════════════════════════════════════
+// 2. COMMENTARY TRANSLATOR
+// ══════════════════════════════════════
+function findTermsInText(text) {
+  const found = [];
+  let remaining = text;
+  for(const d of DICT_SORTED) {
+    if(remaining.includes(d.zh)) {
+      found.push(d);
+      remaining = remaining.split(d.zh).join('');
+    }
+  }
+  return found;
+}
+
+function onZhInput() {
+  const text = document.getElementById('zhEditor').value;
+  document.getElementById('zhCharCount').textContent = text.length + ' chars';
+  // Show detected terms
+  const terms = findTermsInText(text);
+  const sugDiv = document.getElementById('termSuggestions');
+  const sugList = document.getElementById('termSugList');
+  if(terms.length > 0) {
+    sugDiv.style.display = 'block';
+    sugList.innerHTML = terms.map(d =>
+      `<span style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:13px;cursor:pointer;" onclick="copyText('${escHtml(d.en)}')" title="Click to copy English">
+        <span style="color:var(--yellow)">${d.zh}</span> <span style="color:var(--text2)">=</span> <span style="color:var(--cyan)">${d.en}</span>
+      </span>`
+    ).join('');
+  } else {
+    sugDiv.style.display = 'none';
+  }
+}
+
+function autoTranslateTerms() {
+  const text = document.getElementById('zhEditor').value;
+  if(!text) return;
+  let result = text;
+  for(const d of DICT_SORTED) {
+    if(result.includes(d.zh)) {
+      result = result.split(d.zh).join(d.en);
+    }
+  }
+  document.getElementById('enEditor').value = result;
+  document.getElementById('enCharCount').textContent = result.length + ' chars';
+  toast('Terms auto-translated');
+  saveTranslatorState();
+}
+
+function highlightTerms() {
+  const text = document.getElementById('zhEditor').value;
+  if(!text) return;
+  // Count terms found
+  const terms = findTermsInText(text);
+  toast('Found ' + terms.length + ' xiangqi terms');
+  onZhInput();
+}
+
+function clearTranslator() {
+  document.getElementById('zhEditor').value = '';
+  document.getElementById('enEditor').value = '';
+  document.getElementById('zhCharCount').textContent = '0 chars';
+  document.getElementById('enCharCount').textContent = '0 chars';
+  document.getElementById('termSuggestions').style.display = 'none';
+  saveTranslatorState();
+}
+
+function exportTranslation(mode) {
+  const zh = document.getElementById('zhEditor').value;
+  const en = document.getElementById('enEditor').value;
+  let content = '';
+  if(mode === 'zh') content = zh;
+  else if(mode === 'en') content = en;
+  else content = '=== 中文 Chinese ===\n' + zh + '\n\n=== English ===\n' + en;
+  downloadFile('translation_' + mode + '.txt', content);
+}
+
+function saveTranslatorState() {
+  localStorage.setItem('xq_translator', JSON.stringify({
+    zh: document.getElementById('zhEditor').value,
+    en: document.getElementById('enEditor').value
+  }));
+}
+function loadTranslatorState() {
+  const d = JSON.parse(localStorage.getItem('xq_translator') || '{}');
+  if(d.zh) { document.getElementById('zhEditor').value = d.zh; onZhInput(); }
+  if(d.en) { document.getElementById('enEditor').value = d.en; document.getElementById('enCharCount').textContent = d.en.length + ' chars'; }
+}
+
+// Auto-save on input
+document.getElementById('zhEditor').addEventListener('input', saveTranslatorState);
+document.getElementById('enEditor').addEventListener('input', function() {
+  document.getElementById('enCharCount').textContent = this.value.length + ' chars';
+  saveTranslatorState();
+});
+
+// ══════════════════════════════════════
+// 3. SUBTITLE GENERATOR
+// ══════════════════════════════════════
+let subLineData = [];
+
+function toggleSubMode() {
+  const mode = document.getElementById('subMode').value;
+  document.getElementById('autoOpts').style.display = mode === 'auto' ? 'flex' : 'none';
+  document.getElementById('subManualArea').style.display = mode === 'manual' ? 'block' : 'none';
+}
+
+function addSubLine() {
+  const idx = subLineData.length;
+  subLineData.push({start:'00:00:00,000', end:'00:00:03,000', zh:'', en:''});
+  renderSubLines();
+}
+
+function renderSubLines() {
+  const container = document.getElementById('subLines');
+  container.innerHTML = subLineData.map((l, i) => `
+    <div class="sub-line">
+      <div class="line-num">${i+1}</div>
+      <div style="flex:1;">
+        <div class="sub-time">
+          <input value="${l.start}" onchange="subLineData[${i}].start=this.value" placeholder="00:00:00,000">
+          <span>--></span>
+          <input value="${l.end}" onchange="subLineData[${i}].end=this.value" placeholder="00:00:03,000">
+        </div>
+        <div class="sub-texts" style="margin-top:6px;">
+          <textarea placeholder="Chinese..." onchange="subLineData[${i}].zh=this.value">${l.zh}</textarea>
+          <textarea placeholder="English..." onchange="subLineData[${i}].en=this.value">${l.en}</textarea>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-danger" onclick="subLineData.splice(${i},1);renderSubLines();" style="align-self:start;margin-top:4px;">X</button>
+    </div>
+  `).join('');
+}
+
+function translateTermsInline(text) {
+  let result = text;
+  for(const d of DICT_SORTED) {
+    if(result.includes(d.zh)) {
+      result = result.split(d.zh).join(d.zh + ' (' + d.en + ')');
+    }
+  }
+  return result;
+}
+
+function translateTermsToEn(text) {
+  let result = text;
+  for(const d of DICT_SORTED) {
+    if(result.includes(d.zh)) {
+      result = result.split(d.zh).join(d.en);
+    }
+  }
+  return result;
+}
+
+function formatTime(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = Math.floor(sec % 60);
+  const ms = Math.round((sec % 1) * 1000);
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') + ',' + String(ms).padStart(3,'0');
+}
+
+function generateSubtitles() {
+  const mode = document.getElementById('subMode').value;
+  const format = document.getElementById('subFormat').value;
+
+  if(mode === 'auto') {
+    const text = document.getElementById('subInput').value.trim();
+    if(!text) { toast('Please enter Chinese script'); return; }
+    const charsPerSeg = parseInt(document.getElementById('subCharsPerSeg').value) || 20;
+    const secPerSeg = parseFloat(document.getElementById('subSecPerSeg').value) || 3;
+
+    // Split into segments
+    const lines = text.split(/\n/).filter(l => l.trim());
+    subLineData = [];
+    let time = 0;
+    for(const line of lines) {
+      if(line.length <= charsPerSeg) {
+        subLineData.push({
+          start: formatTime(time),
+          end: formatTime(time + secPerSeg),
+          zh: line,
+          en: translateTermsToEn(line)
+        });
+        time += secPerSeg;
+      } else {
+        // Split long lines
+        for(let i = 0; i < line.length; i += charsPerSeg) {
+          const seg = line.substring(i, i + charsPerSeg);
+          subLineData.push({
+            start: formatTime(time),
+            end: formatTime(time + secPerSeg),
+            zh: seg,
+            en: translateTermsToEn(seg)
+          });
+          time += secPerSeg;
+        }
+      }
+    }
+    renderSubLines();
+  }
+
+  // Generate SRT preview
+  let srt = '';
+  subLineData.forEach((l, i) => {
+    srt += (i + 1) + '\n';
+    srt += l.start + ' --> ' + l.end + '\n';
+    if(format === 'bilingual') {
+      srt += l.zh + '\n' + l.en + '\n';
+    } else if(format === 'zh_inline') {
+      srt += translateTermsInline(l.zh) + '\n';
+    } else if(format === 'zh_only') {
+      srt += l.zh + '\n';
+    } else if(format === 'en_only') {
+      srt += l.en + '\n';
+    }
+    srt += '\n';
+  });
+
+  document.getElementById('subPreview').textContent = srt || 'No subtitles generated.';
+  localStorage.setItem('xq_subtitles', JSON.stringify(subLineData));
+  toast('Generated ' + subLineData.length + ' subtitle lines');
+}
+
+function downloadSRT() {
+  const content = document.getElementById('subPreview').textContent;
+  if(!content || content === 'SRT preview will appear here...') { toast('Generate subtitles first'); return; }
+  downloadFile('subtitles.srt', content);
+}
+
+// ══════════════════════════════════════
+// 4. NOTATION TRANSLATOR
+// ══════════════════════════════════════
+const CN_NUMS = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'１':1,'２':2,'３':3,'４':4,'５':5,'６':6,'７':7,'８':8,'９':9};
+const PIECE_MAP = {'車':'R','车':'R','馬':'N','马':'N','炮':'C','砲':'C','兵':'P','卒':'P','將':'K','帅':'K','帥':'K','将':'K','士':'A','仕':'A','象':'E','相':'E'};
+const PIECE_EN = {'車':'Chariot','车':'Chariot','馬':'Horse','马':'Horse','炮':'Cannon','砲':'Cannon','兵':'Soldier','卒':'Soldier','將':'General','帅':'General','帥':'General','将':'General','士':'Advisor','仕':'Advisor','象':'Elephant','相':'Elephant'};
+const ACTION_MAP = {'进':'+','進':'+','退':'-','平':'='};
+const ACTION_EN = {'进':'advances','進':'advances','退':'retreats','平':'traverses to file'};
+const SIMPLE_PIECE = {'C':'Cannon','R':'Chariot','N':'Horse','P':'Soldier','K':'General','A':'Advisor','E':'Elephant'};
+
+function parseNum(ch) {
+  if(CN_NUMS[ch]) return CN_NUMS[ch];
+  const n = parseInt(ch);
+  return isNaN(n) ? null : n;
+}
+
+function translateOneNotation(move) {
+  move = move.trim();
+  if(!move) return null;
+
+  // Try Chinese traditional notation: piece + file + action + number
+  // e.g., 炮二平五, 車1進3, 前馬退六
+  let piece = '', fromFile = '', action = '', toNum = '';
+  let prefix = ''; // 前/后
+
+  let idx = 0;
+  // Check for prefix (前/后)
+  if(move[0] === '前' || move[0] === '后' || move[0] === '後') {
+    prefix = move[0];
+    idx = 1;
+  }
+
+  // Piece character
+  if(PIECE_MAP[move[idx]]) {
+    piece = move[idx]; idx++;
+  } else if(SIMPLE_PIECE[move[idx]]) {
+    // Simplified like C2=5
+    piece = move[idx]; idx++;
+    fromFile = parseNum(move[idx]); idx++;
+    const actChar = move[idx]; idx++;
+    toNum = parseNum(move[idx]);
+    const actSym = actChar === '=' ? '=' : actChar === '+' ? '+' : actChar === '-' ? '-' : actChar;
+    const algNotation = piece + fromFile + actSym + toNum;
+    const enAction = actChar === '=' ? 'traverses to file' : actChar === '+' ? 'advances' : 'retreats';
+    const desc = SIMPLE_PIECE[piece] + ' from file ' + fromFile + ' ' + enAction + ' ' + toNum;
+    return {
+      zh: move,
+      en: SIMPLE_PIECE[piece] + ' ' + fromFile + actSym.replace('+','f').replace('-','b').replace('=','t') + toNum,
+      alg: algNotation,
+      desc: desc
+    };
+  }
+
+  if(!piece && !PIECE_MAP[piece]) return { zh: move, en: move, alg: move, desc: 'Unable to parse' };
+
+  // From file number
+  fromFile = parseNum(move[idx]);
+  if(fromFile) idx++;
+
+  // Action
+  action = move[idx] || '';
+  idx++;
+
+  // To number
+  toNum = parseNum(move[idx]);
+  if(!toNum && move[idx]) toNum = parseNum(move[idx]);
+
+  const pieceCode = PIECE_MAP[piece] || '?';
+  const actSym = ACTION_MAP[action] || '?';
+  const algNotation = (prefix ? (prefix === '前' ? '+' : '-') : '') + pieceCode + (fromFile || '?') + actSym + (toNum || '?');
+
+  const pieceEn = PIECE_EN[piece] || piece;
+  const actEn = ACTION_EN[action] || action;
+  const prefixEn = prefix === '前' ? 'Front ' : prefix === '后' || prefix === '後' ? 'Rear ' : '';
+
+  let enNotation = prefixEn + pieceEn + ' ' + (fromFile || '') + actSym + (toNum || '');
+  let description = prefixEn + pieceEn + ' from file ' + (fromFile || '?') + ' ' + actEn + ' ' + (toNum || '?');
+
+  // Add opening detection
+  let openingNote = '';
+  if(piece === '炮' && fromFile === 2 && action === '平' && toNum === 5) openingNote = ' (Central Cannon opening)';
+  if(piece === '炮' && fromFile === 8 && action === '平' && toNum === 5) openingNote = ' (Central Cannon opening)';
+  if(piece === '相' && action === '进') openingNote = ' (Flying Elephant opening)';
+  if(piece === '象' && action === '进') openingNote = ' (Flying Elephant opening)';
+  if(piece === '兵' && fromFile === 7 && action === '进' && toNum === 1) openingNote = " (Immortal's Guide opening)";
+  if(piece === '兵' && fromFile === 3 && action === '进' && toNum === 1) openingNote = " (Immortal's Guide opening)";
+  if(piece === '马' && action === '进') openingNote = ' (Horse Opening)';
+  if(piece === '馬' && action === '进') openingNote = ' (Horse Opening)';
+
+  description += openingNote;
+
+  return { zh: move, en: enNotation, alg: algNotation, desc: description };
+}
+
+function translateNotation() {
+  const input = document.getElementById('notationInput').value.trim();
+  if(!input) return;
+
+  // Split by newlines, commas, spaces, or Chinese punctuation
+  const moves = input.split(/[\n,，、;；\s]+/).filter(m => m.trim());
+  const results = moves.map(m => translateOneNotation(m)).filter(r => r);
+
+  document.getElementById('notationHeader').style.display = results.length ? 'block' : 'none';
+  document.getElementById('notationResults').innerHTML = results.map(r => `
+    <div class="notation-row">
+      <div><div class="n-label">中文</div><div class="n-val n-zh">${r.zh}</div></div>
+      <div><div class="n-label">English</div><div class="n-val n-en">${r.en}</div></div>
+      <div><div class="n-label">Algebraic</div><div class="n-val n-alg">${r.alg}</div></div>
+      <div><div class="n-label">Description</div><div class="n-val n-desc">${r.desc}</div></div>
+    </div>
+  `).join('');
+
+  toast('Translated ' + results.length + ' moves');
+}
+
+function clearNotation() {
+  document.getElementById('notationInput').value = '';
+  document.getElementById('notationResults').innerHTML = '';
+  document.getElementById('notationHeader').style.display = 'none';
+}
+
+function exportNotation() {
+  const rows = document.querySelectorAll('.notation-row');
+  if(!rows.length) { toast('Translate moves first'); return; }
+  let text = 'Chinese\tEnglish\tAlgebraic\tDescription\n';
+  rows.forEach(r => {
+    const vals = r.querySelectorAll('.n-val');
+    text += Array.from(vals).map(v => v.textContent).join('\t') + '\n';
+  });
+  downloadFile('notation_translation.txt', text);
+}
+
+// ══════════════════════════════════════
+// 5. TEMPLATES
+// ══════════════════════════════════════
+let templates = [];
+let currentTemplate = null;
+
+function loadTemplates() {
+  const saved = JSON.parse(localStorage.getItem('xq_templates') || 'null');
+  templates = saved || [...DEFAULT_TEMPLATES];
+  renderTemplateList();
+}
+
+function renderTemplateList() {
+  const list = document.getElementById('templateList');
+  list.innerHTML = templates.map((t, i) => `
+    <div class="template-card" onclick="openTemplate(${i})">
+      <h3>${t.name}</h3>
+      <p>${t.desc}</p>
+    </div>
+  `).join('');
+  document.getElementById('templateEditor').classList.remove('active');
+  document.getElementById('templateList').style.display = '';
+}
+
+function openTemplate(idx) {
+  currentTemplate = idx;
+  const t = templates[idx];
+  document.getElementById('templateTitle').textContent = t.name;
+  document.getElementById('tplZh').value = t.zh;
+  document.getElementById('tplEn').value = t.en;
+  document.getElementById('templateList').style.display = 'none';
+  document.getElementById('templateEditor').classList.add('active');
+  document.getElementById('tplPreview').style.display = 'none';
+}
+
+function backToTemplates() { renderTemplateList(); }
+
+function saveTemplate() {
+  if(currentTemplate === null) return;
+  templates[currentTemplate].zh = document.getElementById('tplZh').value;
+  templates[currentTemplate].en = document.getElementById('tplEn').value;
+  localStorage.setItem('xq_templates', JSON.stringify(templates));
+  toast('Template saved');
+}
+
+function autoTranslateTemplate() {
+  const zh = document.getElementById('tplZh').value;
+  if(!zh) return;
+  let result = zh;
+  for(const d of DICT_SORTED) {
+    if(result.includes(d.zh)) {
+      result = result.split(d.zh).join(d.en);
+    }
+  }
+  document.getElementById('tplEn').value = result;
+  toast('Template terms auto-translated');
+}
+
+function exportTemplate() {
+  const zh = document.getElementById('tplZh').value;
+  const en = document.getElementById('tplEn').value;
+  if(!zh && !en) { toast('No content to export'); return; }
+
+  const zhLines = zh.split('\n');
+  const enLines = en.split('\n');
+  const maxLen = Math.max(zhLines.length, enLines.length);
+
+  // Build printable HTML
+  let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Bilingual Script</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;padding:40px;max-width:1000px;margin:0 auto;color:#333;}
+h1{text-align:center;margin-bottom:24px;font-size:22px;}
+table{width:100%;border-collapse:collapse;}
+th{background:#f0f0f0;padding:10px 16px;text-align:left;border:1px solid #ddd;font-size:14px;}
+td{padding:10px 16px;border:1px solid #ddd;font-size:14px;line-height:1.8;vertical-align:top;width:50%;}
+tr:nth-child(even) td{background:#fafafa;}
+.zh{color:#b45309;} .en{color:#1e6091;}
+@media print{body{padding:20px;}}
+</style></head><body>
+<h1>${templates[currentTemplate]?.name || 'Bilingual Script'}</h1>
+<table><thead><tr><th class="zh">中文 Chinese</th><th class="en">English</th></tr></thead><tbody>`;
+
+  for(let i = 0; i < maxLen; i++) {
+    const zl = zhLines[i] || '';
+    const el = enLines[i] || '';
+    if(!zl.trim() && !el.trim()) {
+      html += '<tr><td>&nbsp;</td><td>&nbsp;</td></tr>';
+    } else {
+      html += `<tr><td class="zh">${escHtmlContent(zl)}</td><td class="en">${escHtmlContent(el)}</td></tr>`;
+    }
+  }
+
+  html += '</tbody></table><script>
+// Universal language toggle
+(function() {
+  let pageLang = localStorage.getItem('pageLang') || 'zh';
+  
+  window.setPageLang = function(lang) {
+    pageLang = lang;
+    localStorage.setItem('pageLang', lang);
+    document.querySelectorAll('.lt-btn').forEach(b => {
+      const isActive = b.dataset.lang === lang;
+      b.style.background = isActive ? 'rgba(240,192,96,0.9)' : 'rgba(255,255,255,0.08)';
+      b.style.color = isActive ? '#1a1d2e' : '#9ca0b8';
+      b.style.border = isActive ? 'none' : '1px solid rgba(255,255,255,0.06)';
+    });
+    applyLang();
+  };
+  
+  function applyLang() {
+    document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+      if (pageLang === 'zh') el.textContent = el.dataset.zh;
+      else if (pageLang === 'en') el.textContent = el.dataset.en;
+      else el.textContent = el.dataset.zh + ' ' + el.dataset.en;
+    });
+  }
+  
+  // Apply on load
+  setTimeout(() => {
+    setPageLang(pageLang);
+  }, 100);
+})();
+</script>
+</body></html>';
+
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'bilingual_script.html';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Exported printable layout');
+}
+
+function escHtmlContent(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Show preview
+document.getElementById('tplZh').addEventListener('input', updateTplPreview);
+document.getElementById('tplEn').addEventListener('input', updateTplPreview);
+
+function updateTplPreview() {
+  const zh = document.getElementById('tplZh').value;
+  const en = document.getElementById('tplEn').value;
+  if(!zh && !en) { document.getElementById('tplPreview').style.display = 'none'; return; }
+
+  document.getElementById('tplPreview').style.display = 'block';
+  const zhLines = zh.split('\n');
+  const enLines = en.split('\n');
+  const maxLen = Math.max(zhLines.length, enLines.length);
+
+  let tableHtml = '<table><thead><tr><th class="zh-col">中文 Chinese</th><th class="en-col">English</th></tr></thead><tbody>';
+  for(let i = 0; i < maxLen; i++) {
+    let zl = escHtmlContent(zhLines[i] || '');
+    let el = escHtmlContent(enLines[i] || '');
+    // Highlight terms in preview
+    for(const d of DICT_SORTED) {
+      const zhEsc = escHtmlContent(d.zh);
+      if(zl.includes(zhEsc)) {
+        zl = zl.split(zhEsc).join('<span class="term-hl">' + zhEsc + '</span>');
+      }
+    }
+    tableHtml += `<tr><td class="zh-col">${zl || '&nbsp;'}</td><td class="en-col">${el || '&nbsp;'}</td></tr>`;
+  }
+  tableHtml += '</tbody></table>';
+  document.getElementById('tplPreview').innerHTML = tableHtml;
+}
+
+// ══════════════════════════════════════
+// 6. PHRASE BANK
+// ══════════════════════════════════════
+let activePhraseCat = '';
+
+function renderPhraseCats() {
+  const cats = document.getElementById('phraseCats');
+  cats.innerHTML = '<button class="phrase-cat-btn active" onclick="filterPhrases(\'\',this)">All</button>' +
+    Object.entries(PHRASE_CATS).map(([k,v]) =>
+      `<button class="phrase-cat-btn" onclick="filterPhrases('${k}',this)">${v}</button>`
+    ).join('');
+}
+
+function filterPhrases(cat, btn) {
+  activePhraseCat = cat;
+  document.querySelectorAll('.phrase-cat-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderPhrases();
+}
+
+function renderPhrases() {
+  const grid = document.getElementById('phraseGrid');
+  const filtered = activePhraseCat ? PHRASES.filter(p => p.cat === activePhraseCat) : PHRASES;
+  grid.innerHTML = filtered.map(p => `
+    <div class="phrase-entry">
+      <div>
+        <div class="phrase-zh">${p.zh}</div>
+        <div class="phrase-en">${p.en}</div>
+      </div>
+      <div class="phrase-actions">
+        <button onclick="copyText('${escHtml(p.zh)}')">中</button>
+        <button onclick="copyText('${escHtml(p.en)}')">EN</button>
+        <button onclick="copyText('${escHtml(p.zh)}\\n${escHtml(p.en)}')">Both</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════
+// UTILITY: Download file
+// ══════════════════════════════════════
+function downloadFile(filename, content) {
+  const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Downloaded ' + filename);
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+renderDict();
+loadTranslatorState();
+loadTemplates();
+renderPhraseCats();
+renderPhrases();
+
+// Load saved subtitles
+const savedSub = JSON.parse(localStorage.getItem('xq_subtitles') || '[]');
+if(savedSub.length) {
+  subLineData = savedSub;
+  renderSubLines();
+}
+</script>
+</body>
+</html>

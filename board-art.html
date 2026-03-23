@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>棋 · Art Board — Museum-Quality Xiangqi</title>
+<!-- Premium Chinese fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Long+Cang&family=Liu+Jian+Mao+Cao&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@200;300;400;500;600;700;900&family=ZCOOL+QingKe+HuangYou&family=ZCOOL+XiaoWei&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
+<!-- LXGW WenKai — the most beautiful modern Chinese font (open source, Song/Kai hybrid) -->
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   CSS RESET & VARIABLES
+   ══════════════════════════════════════ */
+:root {
+  --bg-light: #f5efe0;
+  --bg-dark: #0e0d12;
+  --surface-light: rgba(0,0,0,0.04);
+  --surface-dark: rgba(255,255,255,0.06);
+  --text-light: #2a2520;
+  --text-dark: #e8e4dd;
+  --vermillion: #c1272d;
+  --hidden-blue: #2e4e7e;
+  --gilded-gold: #c9a84c;
+  --moon-white: #d6ecf0;
+  --indigo-black: #4a4266;
+  --panel-light: rgba(255,255,255,0.7);
+  --panel-dark: rgba(22,20,30,0.85);
+  --border-light: rgba(0,0,0,0.1);
+  --border-dark: rgba(255,255,255,0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'LXGW WenKai', 'Noto Serif SC', 'STSong', 'SimSun', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.6s ease, color 0.6s ease;
+}
+body.light {
+  background: var(--bg-light);
+  color: var(--text-light);
+}
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+/* Rice paper / silk texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.6s;
+}
+body.light::before {
+  opacity: 0.25;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  background-size: 150px 150px;
+}
+body.dark::before {
+  opacity: 0.15;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 250px 250px;
+}
+
+/* Vignette */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+body.light::after {
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(80,60,40,0.15) 100%);
+}
+body.dark::after {
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%);
+}
+
+/* ══════════════════════════════════════
+   HEADER
+   ══════════════════════════════════════ */
+header {
+  position: relative;
+  z-index: 10;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(12px);
+  transition: background 0.4s, border-color 0.4s;
+}
+body.light header { background: rgba(245,239,224,0.8); border-bottom: 1px solid rgba(0,0,0,0.08); }
+body.dark header { background: rgba(14,13,18,0.8); border-bottom: 1px solid rgba(255,255,255,0.06); }
+
+header h1 {
+  font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', 'LXGW WenKai', serif;
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: 10px;
+  color: var(--gilded-gold);
+  text-shadow: 0 2px 8px rgba(201,168,76,0.35);
+}
+header h1 .sub {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  opacity: 0.45;
+  margin-left: 16px;
+  font-weight: 300;
+}
+.header-links {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.header-links a, .header-links button {
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: 1px solid;
+  background: transparent;
+  font-family: inherit;
+}
+body.light .header-links a, body.light .header-links button {
+  color: var(--hidden-blue);
+  border-color: rgba(46,78,126,0.3);
+}
+body.light .header-links a:hover, body.light .header-links button:hover {
+  background: rgba(46,78,126,0.08);
+}
+body.dark .header-links a, body.dark .header-links button {
+  color: #8fafd7;
+  border-color: rgba(143,175,215,0.2);
+}
+body.dark .header-links a:hover, body.dark .header-links button:hover {
+  background: rgba(143,175,215,0.08);
+}
+.header-links button.active-mode {
+  background: var(--gilded-gold) !important;
+  color: #1a1500 !important;
+  border-color: var(--gilded-gold) !important;
+}
+
+/* ══════════════════════════════════════
+   LAYOUT
+   ══════════════════════════════════════ */
+.app-layout {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  max-width: 1500px;
+  margin: 0 auto;
+  align-items: flex-start;
+  justify-content: center;
+}
+.board-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.side-col {
+  flex: 0 1 340px;
+  min-width: 260px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.panel {
+  border-radius: 10px;
+  padding: 14px;
+  backdrop-filter: blur(8px);
+  transition: background 0.4s, border-color 0.4s;
+}
+body.light .panel { background: var(--panel-light); border: 1px solid var(--border-light); }
+body.dark .panel { background: var(--panel-dark); border: 1px solid var(--border-dark); }
+
+.panel-title {
+  font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+  font-size: 14px;
+  color: var(--gilded-gold);
+  margin-bottom: 8px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  border-bottom: 1px solid;
+  padding-bottom: 6px;
+}
+body.light .panel-title { border-color: rgba(0,0,0,0.08); }
+body.dark .panel-title { border-color: rgba(255,255,255,0.06); }
+
+/* ══════════════════════════════════════
+   BOARD CANVAS
+   ══════════════════════════════════════ */
+.board-wrap {
+  position: relative;
+  display: inline-block;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+}
+canvas#board {
+  display: block;
+  cursor: default;
+}
+
+/* Hover glow on pieces */
+canvas#board.piece-hover { cursor: grab; }
+canvas#board.piece-dragging { cursor: grabbing; }
+
+/* ══════════════════════════════════════
+   CONTROLS
+   ══════════════════════════════════════ */
+.controls {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.controls button, .controls select {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+body.light .controls button, body.light .controls select {
+  background: rgba(0,0,0,0.05);
+  color: var(--text-light);
+  border: 1px solid rgba(0,0,0,0.12);
+}
+body.light .controls button:hover { background: rgba(0,0,0,0.1); }
+body.dark .controls button, body.dark .controls select {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-dark);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+body.dark .controls button:hover { background: rgba(255,255,255,0.12); }
+.controls button.active {
+  background: var(--gilded-gold) !important;
+  color: #1a1500 !important;
+  border-color: var(--gilded-gold) !important;
+}
+
+/* FEN input */
+.fen-row {
+  display: flex;
+  gap: 6px;
+}
+.fen-row input {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+body.light .fen-row input {
+  background: rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.12);
+  color: var(--text-light);
+}
+body.dark .fen-row input {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-dark);
+}
+.fen-row button {
+  background: var(--gilded-gold);
+  color: #1a1500;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+}
+.fen-row button:hover { filter: brightness(1.1); }
+
+/* Presets */
+.presets { display: flex; flex-wrap: wrap; gap: 5px; }
+.presets button {
+  padding: 4px 9px;
+  border-radius: 5px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+body.light .presets button {
+  background: rgba(0,0,0,0.04);
+  color: var(--text-light);
+  border: 1px solid rgba(0,0,0,0.1);
+}
+body.light .presets button:hover { background: rgba(0,0,0,0.08); color: var(--vermillion); }
+body.dark .presets button {
+  background: rgba(255,255,255,0.05);
+  color: #bbb;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+body.dark .presets button:hover { background: rgba(255,255,255,0.1); color: var(--gilded-gold); }
+
+/* Move list */
+.move-list {
+  max-height: 260px;
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.move-list::-webkit-scrollbar { width: 4px; }
+.move-list::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.3); border-radius: 2px; }
+.move-entry {
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-block;
+  transition: background 0.15s;
+}
+.move-entry:hover { background: rgba(201,168,76,0.15); }
+.move-entry.current { background: rgba(201,168,76,0.25); font-weight: 600; }
+
+/* Comment area */
+.comment-display {
+  font-size: 12px;
+  min-height: 32px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  line-height: 1.6;
+  font-style: italic;
+  opacity: 0.8;
+}
+.comment-input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 40px;
+}
+body.light .comment-input {
+  background: rgba(0,0,0,0.03);
+  border: 1px solid rgba(0,0,0,0.1);
+  color: var(--text-light);
+}
+body.dark .comment-input {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text-dark);
+}
+
+/* Engine */
+.engine-lines { display: flex; flex-direction: column; gap: 4px; }
+.engine-line {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+body.light .engine-line { background: rgba(0,0,0,0.03); }
+body.dark .engine-line { background: rgba(255,255,255,0.04); }
+.engine-line .eval-score {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 13px;
+  min-width: 52px;
+  text-align: center;
+  font-family: 'SF Mono', monospace;
+}
+.eval-score.positive { background: rgba(80,180,80,0.15); color: #4a4; }
+.eval-score.negative { background: rgba(200,80,80,0.15); color: #c55; }
+.eval-score.neutral { background: rgba(150,150,150,0.15); color: #999; }
+.engine-line .line-moves { color: #888; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.engine-status { font-size: 12px; text-align: center; padding: 8px; opacity: 0.5; }
+
+/* ══════════════════════════════════════
+   GALLERY MODE
+   ══════════════════════════════════════ */
+body.gallery-mode header,
+body.gallery-mode .side-col {
+  display: none !important;
+}
+body.gallery-mode .app-layout {
+  padding: 0;
+  max-width: none;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+body.gallery-mode .board-col .controls,
+body.gallery-mode .board-col .panel {
+  display: none !important;
+}
+body.gallery-mode .board-wrap {
+  box-shadow: 0 12px 60px rgba(0,0,0,0.4);
+}
+.gallery-overlay {
+  display: none;
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  padding: 16px 36px;
+  border-radius: 12px;
+  font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+  font-size: 20px;
+  letter-spacing: 4px;
+  backdrop-filter: blur(16px);
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+  text-align: center;
+  min-width: 200px;
+}
+body.light .gallery-overlay {
+  background: rgba(245,239,224,0.85);
+  color: var(--text-light);
+  border: 1px solid rgba(0,0,0,0.08);
+}
+body.dark .gallery-overlay {
+  background: rgba(20,18,28,0.85);
+  color: var(--text-dark);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+body.gallery-mode .gallery-overlay { display: block; }
+.gallery-overlay.fade-out { opacity: 0; }
+
+/* Exit gallery hint */
+.gallery-exit-hint {
+  display: none;
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  opacity: 0.4;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: opacity 0.3s;
+}
+.gallery-exit-hint:hover { opacity: 0.9; }
+body.gallery-mode .gallery-exit-hint { display: block; }
+body.light .gallery-exit-hint { background: rgba(0,0,0,0.06); color: var(--text-light); }
+body.dark .gallery-exit-hint { background: rgba(255,255,255,0.06); color: var(--text-dark); }
+
+/* Dust particles */
+.dust-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.25); border-radius: 3px; }
+</style>
+</head>
+<body class="light">
+
+<!-- Dust particle canvas -->
+<canvas class="dust-canvas" id="dustCanvas"></canvas>
+
+<!-- Gallery overlay for move notation -->
+<div class="gallery-overlay" id="galleryOverlay"></div>
+<div class="gallery-exit-hint" id="galleryExitHint" onclick="toggleGallery()">ESC to exit</div>
+
+<nav style="background:#131520;border-bottom:1px solid rgba(255,255,255,0.06);padding:8px 16px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-family:-apple-system,sans-serif;">
+  <a href="dashboard.html" style="color:#ef4444;font-weight:700;text-decoration:none;font-size:0.82em;padding:4px 12px;">棋 Dashboard</a>
+  <a href="board-art.html" style="color:#fff;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);">Art Board</a>
+  <a href="board3d.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">3D Board</a>
+  <a href="board.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Board</a>
+  <a href="games.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Games</a>
+  <a href="explain.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Explain</a>
+  <a href="analyze.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analyze</a>
+  <a href="calendar.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Calendar</a>
+  <a href="scripts.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Scripts</a>
+  <a href="analytics.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analytics</a>
+  <a href="branding.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Branding</a>
+  <a href="seo.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">SEO</a>
+  <a href="translate.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Translate</a>
+  <a href="report.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Report</a>
+</nav>
+
+<header>
+  <h1><span data-zh="棋 · 艺术棋盘" data-en="Art Board">棋 · Art Board</span><span class="sub" data-zh="博物馆级象棋" data-en="Museum-Quality Xiangqi">Museum-Quality Xiangqi</span></h1>
+  <div class="lang-toggle" style="display:inline-flex;gap:3px;margin-left:auto;">
+  <button onclick="setPageLang('zh')" class="lt-btn lt-active" data-lang="zh" style="background:rgba(240,192,96,0.9);color:#1a1d2e;border:none;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">中文</button>
+  <button onclick="setPageLang('en')" class="lt-btn" data-lang="en" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">EN</button>
+  <button onclick="setPageLang('both')" class="lt-btn" data-lang="both" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">双语</button>
+</div>
+  <div class="header-links">
+    <button onclick="toggleGallery()" id="galleryBtn">Gallery</button>
+    <button onclick="toggleTheme()" id="themeBtn">Dark</button>
+  </div>
+</header>
+
+<div class="app-layout">
+  <div class="board-col">
+    <div class="board-wrap">
+      <canvas id="board" width="1200" height="1360"></canvas>
+    </div>
+    <div class="controls">
+      <button onclick="navFirst()" title="First">⏮</button>
+      <button onclick="navPrev()" title="Previous">◀</button>
+      <button onclick="navNext()" title="Next">▶</button>
+      <button onclick="navLast()" title="Last">⏭</button>
+      <span style="width:8px"></span>
+      <button onclick="flipBoard()" title="Flip board">Flip</button>
+      <select id="woodSelect" onchange="changeWood(this.value)" title="Wood type">
+        <option value="zitan">紫檀 Zitan</option>
+        <option value="huanghuali" selected>黄花梨 Huanghuali</option>
+        <option value="nanmu">金丝楠 Nanmu</option>
+        <option value="ebony">乌木 Ebony</option>
+      </select>
+      <select id="pieceStyleSelect" onchange="changePieceStyle(this.value)" title="Piece material">
+        <option value="jade" selected>玉石 Jade</option>
+        <option value="rosewood">紫檀木 Rosewood</option>
+        <option value="bronze">铜制 Bronze</option>
+      </select>
+      <select id="pieceFontSelect" onchange="changePieceFont(this.value)" title="Character font style">
+        <option value="wenkai" selected>文楷 WenKai</option>
+        <option value="song">宋体 Song</option>
+        <option value="calligraphy">书法 Calligraphy</option>
+        <option value="artistic">黄油 Artistic</option>
+      </select>
+      <select id="highlightColor" title="Annotation color">
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+        <option value="gold">Gold</option>
+      </select>
+      <button onclick="clearAnnotations()">Clear marks</button>
+    </div>
+  </div>
+
+  <div class="side-col">
+    <!-- FEN -->
+    <div class="panel">
+      <div class="panel-title" data-zh="棋局" data-en="Position FEN">棋 局 FEN</div>
+      <div class="fen-row">
+        <input type="text" id="fenInput" value="rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w">
+        <button onclick="loadFenFromInput()">Load</button>
+      </div>
+      <div style="height:8px"></div>
+      <div class="presets" id="presetButtons"></div>
+    </div>
+
+    <!-- Moves -->
+    <div class="panel">
+      <div class="panel-title" data-zh="棋谱" data-en="Moves">棋 谱 Moves</div>
+      <div class="move-list" id="moveList"><span style="opacity:0.4;font-size:12px">No moves yet</span></div>
+    </div>
+
+    <!-- Commentary -->
+    <div class="panel">
+      <div class="panel-title" data-zh="评注" data-en="Commentary">评 注 Commentary</div>
+      <div class="comment-display" id="commentDisplay">Load a position or make moves to begin.</div>
+      <textarea class="comment-input" id="commentInput" placeholder="Add commentary for current move..." oninput="saveComment()"></textarea>
+    </div>
+
+    <!-- Engine -->
+    <div class="panel">
+      <div class="panel-title" data-zh="引擎" data-en="Engine">引 擎 Engine</div>
+      <div class="controls" style="margin-bottom:8px">
+        <button onclick="analyzePosition()" id="analyzeBtn">Analyze</button>
+        <button onclick="toggleAutoAnalyze()" id="autoAnalyzeBtn">Auto</button>
+      </div>
+      <div id="enginePanel">
+        <div class="engine-status" id="engineStatus">Click "Analyze" to evaluate</div>
+        <div class="engine-lines" id="engineLines"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--
+  ══════════════════════════════════════
+  SOUND PLACEHOLDERS
+  ══════════════════════════════════════
+  To enable sounds, add actual audio file paths:
+  <audio id="sndPlace" src="sounds/place.mp3" preload="auto"></audio>
+  <audio id="sndCapture" src="sounds/capture.mp3" preload="auto"></audio>
+  <audio id="sndCheck" src="sounds/check.mp3" preload="auto"></audio>
+  Then call: document.getElementById('sndPlace').play()
+  in the relevant game action handlers.
+-->
+
+<script>
+// ════════════════════════════════════════════════════════════
+// CONSTANTS & STATE
+// ════════════════════════════════════════════════════════════
+const COLS = 9, ROWS = 10;
+const START_FEN = 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w';
+
+// Piece chars → display names
+const PIECE_NAMES = {
+  'K': '帥', 'A': '仕', 'B': '相', 'N': '傌', 'R': '俥', 'C': '炮', 'P': '兵',
+  'k': '將', 'a': '士', 'b': '象', 'n': '馬', 'r': '車', 'c': '砲', 'p': '卒'
+};
+
+let boardState = [];
+let currentTurn = 'w';
+let flipped = false;
+let selectedPiece = null; // {row, col}
+let dragPiece = null; // {row, col, piece, x, y}
+let moveHistory = [];
+let currentMoveIndex = -1;
+let comments = {};
+let highlights = {};
+let arrows = [];
+let rightDragStart = null;
+let lastMove = null;
+let engineBestMove = null;
+let analyzing = false;
+let autoAnalyze = false;
+let engineAvailable = null;
+
+// Visual settings
+let currentWood = 'huanghuali';
+let currentPieceStyle = 'jade';
+let currentPieceFont = 'wenkai';
+const PIECE_FONTS = {
+  wenkai: "'LXGW WenKai', 'Noto Serif SC', 'STSong', serif",
+  song: "'Noto Serif SC', 'STSong', 'SimSun', serif",
+  calligraphy: "'Ma Shan Zheng', 'Liu Jian Mao Cao', 'STKaiti', serif",
+  artistic: "'ZCOOL QingKe HuangYou', 'Zhi Mang Xing', 'LXGW WenKai', serif"
+};
+let isDark = false;
+let isGallery = false;
+
+// Animation state
+let animatingPiece = null; // {piece, fromX, fromY, toX, toY, startTime, duration, capturedPiece}
+let hoverCell = null;
+
+// Board geometry (will be computed based on canvas)
+const DPR = window.devicePixelRatio || 1;
+const CANVAS_SCALE = 2; // Always render at 2x for retina
+let cellSize, boardLeft, boardTop, frameWidth;
+
+// Precomputed caches
+let woodTextureCache = {};
+let frameTextureCache = null;
+
+// ════════════════════════════════════════════════════════════
+// WOOD TEXTURE GENERATION
+// ════════════════════════════════════════════════════════════
+const WOOD_CONFIGS = {
+  zitan: {
+    name: '紫檀 Zitan',
+    base: [62, 30, 42],
+    mid: [78, 35, 50],
+    light: [90, 42, 55],
+    grain: [50, 22, 35],
+    knot: [40, 18, 28],
+    grainDensity: 0.8,
+    grainWidth: 0.6,
+    variation: 0.08,
+  },
+  huanghuali: {
+    name: '黄花梨 Huanghuali',
+    base: [175, 130, 65],
+    mid: [190, 145, 75],
+    light: [210, 168, 95],
+    grain: [145, 100, 45],
+    knot: [120, 78, 35],
+    grainDensity: 0.5,
+    grainWidth: 1.2,
+    variation: 0.15,
+  },
+  nanmu: {
+    name: '金丝楠 Nanmu',
+    base: [185, 155, 85],
+    mid: [198, 170, 100],
+    light: [218, 192, 125],
+    grain: [165, 135, 68],
+    knot: [150, 118, 55],
+    grainDensity: 0.4,
+    grainWidth: 1.5,
+    variation: 0.18,
+  },
+  ebony: {
+    name: '乌木 Ebony',
+    base: [30, 26, 24],
+    mid: [38, 33, 30],
+    light: [50, 42, 38],
+    grain: [22, 18, 16],
+    knot: [18, 15, 14],
+    grainDensity: 0.9,
+    grainWidth: 0.5,
+    variation: 0.06,
+  }
+};
+
+function generateWoodTexture(offCanvas, w, h, config) {
+  const octx = offCanvas.getContext('2d');
+  offCanvas.width = w;
+  offCanvas.height = h;
+
+  // Base color fill
+  const [br, bg, bb] = config.base;
+  octx.fillStyle = `rgb(${br},${bg},${bb})`;
+  octx.fillRect(0, 0, w, h);
+
+  // Layer 1: broad color variation (sapwood / heartwood)
+  for (let i = 0; i < 6; i++) {
+    const y = Math.random() * h;
+    const spread = 40 + Math.random() * 100;
+    const [lr, lg, lb] = i % 2 === 0 ? config.mid : config.light;
+    const grad = octx.createLinearGradient(0, y - spread, 0, y + spread);
+    grad.addColorStop(0, 'transparent');
+    grad.addColorStop(0.5, `rgba(${lr},${lg},${lb},${0.15 + Math.random() * 0.12})`);
+    grad.addColorStop(1, 'transparent');
+    octx.fillStyle = grad;
+    octx.fillRect(0, 0, w, h);
+  }
+
+  // Layer 2: horizontal grain lines
+  octx.globalAlpha = 0.35;
+  const [gr, gg, gb] = config.grain;
+  for (let y = 0; y < h; y += 1) {
+    if (Math.random() > config.grainDensity) continue;
+    const alpha = 0.03 + Math.random() * 0.12;
+    const thickness = 0.3 + Math.random() * config.grainWidth;
+    octx.strokeStyle = `rgba(${gr},${gg},${gb},${alpha})`;
+    octx.lineWidth = thickness;
+    octx.beginPath();
+    octx.moveTo(0, y);
+    // Slightly wavy grain
+    let cx = 0;
+    while (cx < w) {
+      const step = 20 + Math.random() * 60;
+      cx += step;
+      const dy = (Math.random() - 0.5) * 3;
+      octx.lineTo(Math.min(cx, w), y + dy);
+    }
+    octx.stroke();
+  }
+  octx.globalAlpha = 1;
+
+  // Layer 3: ghost face / chatoyancy patterns (especially for huanghuali and nanmu)
+  if (config.variation > 0.1) {
+    for (let i = 0; i < 8; i++) {
+      const cx = Math.random() * w;
+      const cy = Math.random() * h;
+      const rx = 30 + Math.random() * 80;
+      const ry = 15 + Math.random() * 40;
+      const [lr, lg, lb] = config.light;
+      const grad = octx.createRadialGradient(cx, cy, 0, cx, cy, rx);
+      grad.addColorStop(0, `rgba(${lr},${lg},${lb},${0.06 + Math.random() * 0.08})`);
+      grad.addColorStop(1, 'transparent');
+      octx.save();
+      octx.scale(1, ry / rx);
+      octx.fillStyle = grad;
+      octx.fillRect(cx - rx, (cy * rx / ry) - rx, rx * 2, rx * 2);
+      octx.restore();
+    }
+  }
+
+  // Layer 4: darker knots
+  const [kr, kg, kb] = config.knot;
+  for (let i = 0; i < 3; i++) {
+    const cx = Math.random() * w;
+    const cy = Math.random() * h;
+    const r = 8 + Math.random() * 20;
+    const grad = octx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    grad.addColorStop(0, `rgba(${kr},${kg},${kb},0.2)`);
+    grad.addColorStop(1, 'transparent');
+    octx.fillStyle = grad;
+    octx.fillRect(cx - r, cy - r, r * 2, r * 2);
+  }
+
+  // Layer 5: nanmu shimmer (chatoyancy)
+  if (currentWood === 'nanmu') {
+    for (let i = 0; i < 12; i++) {
+      const x = Math.random() * w;
+      const y = Math.random() * h;
+      const len = 40 + Math.random() * 100;
+      const grad = octx.createLinearGradient(x, y, x + len, y);
+      grad.addColorStop(0, 'transparent');
+      grad.addColorStop(0.5, `rgba(240,220,160,${0.04 + Math.random() * 0.06})`);
+      grad.addColorStop(1, 'transparent');
+      octx.fillStyle = grad;
+      octx.fillRect(x, y - 2, len, 4);
+    }
+  }
+
+  return offCanvas;
+}
+
+// ════════════════════════════════════════════════════════════
+// BOARD GEOMETRY
+// ════════════════════════════════════════════════════════════
+function computeGeometry() {
+  const canvas = document.getElementById('board');
+  // Display size
+  const displayW = Math.min(600, window.innerWidth - (isGallery ? 40 : 400));
+  const displayH = displayW * (1360 / 1200);
+  canvas.style.width = displayW + 'px';
+  canvas.style.height = displayH + 'px';
+  canvas.width = Math.round(displayW * CANVAS_SCALE);
+  canvas.height = Math.round(displayH * CANVAS_SCALE);
+
+  const W = canvas.width;
+  const H = canvas.height;
+  frameWidth = Math.round(W * 0.065);
+  const playAreaW = W - frameWidth * 2;
+  const playAreaH = H - frameWidth * 2;
+  cellSize = Math.min(playAreaW / (COLS - 1 + 1.2), playAreaH / (ROWS - 1 + 1.2));
+  const innerPad = cellSize * 0.6;
+  boardLeft = frameWidth + innerPad;
+  boardTop = frameWidth + innerPad;
+
+  // Invalidate wood cache
+  woodTextureCache = {};
+  frameTextureCache = null;
+}
+
+function boardX(col) { return boardLeft + (flipped ? (COLS - 1 - col) : col) * cellSize; }
+function boardY(row) { return boardTop + (flipped ? (ROWS - 1 - row) : row) * cellSize; }
+function gridFromPixel(px, py) {
+  const s = CANVAS_SCALE;
+  px *= s; py *= s;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const dx = px - boardX(c);
+      const dy = py - boardY(r);
+      if (dx * dx + dy * dy < (cellSize * 0.48) * (cellSize * 0.48)) return { row: r, col: c };
+    }
+  }
+  return null;
+}
+
+// ════════════════════════════════════════════════════════════
+// FEN PARSING
+// ════════════════════════════════════════════════════════════
+function parseFen(fen) {
+  const parts = fen.trim().split(/\s+/);
+  const rows = parts[0].split('/');
+  const board = [];
+  for (let r = 0; r < ROWS; r++) {
+    board[r] = [];
+    let c = 0;
+    for (const ch of (rows[r] || '')) {
+      if (ch >= '1' && ch <= '9') { for (let i = 0; i < parseInt(ch); i++) board[r][c++] = null; }
+      else board[r][c++] = ch;
+    }
+    while (c < COLS) board[r][c++] = null;
+  }
+  currentTurn = (parts[1] || 'w') === 'b' ? 'b' : 'w';
+  return board;
+}
+
+function boardToFen(board, turn) {
+  let fen = '';
+  for (let r = 0; r < ROWS; r++) {
+    let empty = 0;
+    for (let c = 0; c < COLS; c++) {
+      if (board[r][c]) {
+        if (empty) { fen += empty; empty = 0; }
+        fen += board[r][c];
+      } else empty++;
+    }
+    if (empty) fen += empty;
+    if (r < ROWS - 1) fen += '/';
+  }
+  return fen + ' ' + turn;
+}
+
+function cloneBoard(b) { return b.map(r => [...r]); }
+
+function isRed(p) { return p && p === p.toUpperCase(); }
+
+// ════════════════════════════════════════════════════════════
+// DRAWING — FRAME & BOARD
+// ════════════════════════════════════════════════════════════
+function getOrCreateWoodTexture(canvas, w, h, config, key) {
+  if (woodTextureCache[key]) return woodTextureCache[key];
+  const off = document.createElement('canvas');
+  generateWoodTexture(off, w, h, config);
+  woodTextureCache[key] = off;
+  return off;
+}
+
+function drawFrame(ctx, W, H) {
+  const fw = frameWidth;
+  // Frame wood — always darker
+  const frameCfg = {
+    base: [35, 28, 22], mid: [45, 36, 28], light: [55, 44, 35],
+    grain: [25, 18, 14], knot: [20, 14, 10], grainDensity: 0.7, grainWidth: 0.8, variation: 0.05
+  };
+  const frameTex = getOrCreateWoodTexture(document.createElement('canvas'), W, H, frameCfg, 'frame');
+  ctx.drawImage(frameTex, 0, 0);
+
+  // Cut out center (playing surface area)
+  ctx.clearRect(fw, fw, W - fw * 2, H - fw * 2);
+
+  // Bevel effect on inner edge of frame
+  // Top edge bevel
+  const bevelSize = fw * 0.3;
+  // Top
+  let g = ctx.createLinearGradient(0, fw - bevelSize, 0, fw);
+  g.addColorStop(0, 'rgba(255,255,255,0.08)');
+  g.addColorStop(1, 'rgba(0,0,0,0.15)');
+  ctx.fillStyle = g;
+  ctx.fillRect(fw, fw - bevelSize, W - fw * 2, bevelSize);
+  // Bottom
+  g = ctx.createLinearGradient(0, H - fw, 0, H - fw + bevelSize);
+  g.addColorStop(0, 'rgba(0,0,0,0.15)');
+  g.addColorStop(1, 'rgba(255,255,255,0.08)');
+  ctx.fillStyle = g;
+  ctx.fillRect(fw, H - fw, W - fw * 2, bevelSize);
+  // Left
+  g = ctx.createLinearGradient(fw - bevelSize, 0, fw, 0);
+  g.addColorStop(0, 'rgba(255,255,255,0.08)');
+  g.addColorStop(1, 'rgba(0,0,0,0.15)');
+  ctx.fillStyle = g;
+  ctx.fillRect(fw - bevelSize, fw, bevelSize, H - fw * 2);
+  // Right
+  g = ctx.createLinearGradient(W - fw, 0, W - fw + bevelSize, 0);
+  g.addColorStop(0, 'rgba(0,0,0,0.15)');
+  g.addColorStop(1, 'rgba(255,255,255,0.08)');
+  ctx.fillStyle = g;
+  ctx.fillRect(W - fw, fw, bevelSize, H - fw * 2);
+
+  // Golden inlay line
+  ctx.strokeStyle = 'rgba(201,168,76,0.6)';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(fw + 1, fw + 1, W - fw * 2 - 2, H - fw * 2 - 2);
+  ctx.strokeStyle = 'rgba(201,168,76,0.25)';
+  ctx.lineWidth = 0.5;
+  ctx.strokeRect(fw + 3, fw + 3, W - fw * 2 - 6, H - fw * 2 - 6);
+
+  // Corner decorations — small traditional cloud/scroll patterns
+  drawCornerDecoration(ctx, fw * 0.5, fw * 0.5, fw * 0.3, 0);
+  drawCornerDecoration(ctx, W - fw * 0.5, fw * 0.5, fw * 0.3, 1);
+  drawCornerDecoration(ctx, fw * 0.5, H - fw * 0.5, fw * 0.3, 3);
+  drawCornerDecoration(ctx, W - fw * 0.5, H - fw * 0.5, fw * 0.3, 2);
+
+  // Outer edge highlight
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, 0.5, W - 1, H - 1);
+}
+
+function drawCornerDecoration(ctx, cx, cy, size, rotation) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rotation * Math.PI / 2);
+  ctx.strokeStyle = 'rgba(201,168,76,0.4)';
+  ctx.lineWidth = 1.2;
+  ctx.lineCap = 'round';
+
+  // Simple cloud scroll motif
+  const s = size;
+  ctx.beginPath();
+  ctx.moveTo(-s, -s * 0.3);
+  ctx.quadraticCurveTo(-s * 0.5, -s, 0, -s * 0.5);
+  ctx.quadraticCurveTo(s * 0.3, -s * 0.1, s * 0.2, s * 0.3);
+  ctx.quadraticCurveTo(0, s * 0.6, -s * 0.4, s * 0.3);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.6, s * 0.1);
+  ctx.quadraticCurveTo(-s * 0.2, -s * 0.3, s * 0.1, -s * 0.1);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawBoardSurface(ctx, W, H) {
+  const config = WOOD_CONFIGS[currentWood];
+  const surfW = W - frameWidth * 2;
+  const surfH = H - frameWidth * 2;
+  const tex = getOrCreateWoodTexture(document.createElement('canvas'), surfW, surfH, config, 'surface_' + currentWood);
+  ctx.drawImage(tex, frameWidth, frameWidth);
+}
+
+function drawBoardLines(ctx) {
+  const lineColor = currentWood === 'ebony' ? 'rgba(180,160,140,' : 'rgba(40,25,15,';
+
+  // Engraved line technique: dark line + light offset
+  function engravedLine(x1, y1, x2, y2, width, alpha) {
+    // Dark cut
+    ctx.strokeStyle = lineColor + (alpha || 0.7) + ')';
+    ctx.lineWidth = width || 1.6;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    // Light highlight (1px offset down-right)
+    const hlAlpha = currentWood === 'ebony' ? 0.12 : 0.2;
+    ctx.strokeStyle = `rgba(255,245,220,${hlAlpha})`;
+    ctx.lineWidth = (width || 1.6) * 0.6;
+    ctx.beginPath();
+    ctx.moveTo(x1 + 0.8, y1 + 0.8);
+    ctx.lineTo(x2 + 0.8, y2 + 0.8);
+    ctx.stroke();
+  }
+
+  // Grid lines
+  const left = boardX(0);
+  const right = boardX(8);
+  const top = boardY(0);
+  const bottom = boardY(9);
+
+  // Horizontal lines
+  for (let r = 0; r < ROWS; r++) {
+    engravedLine(left, boardY(r), right, boardY(r));
+  }
+
+  // Vertical lines — full only on edges, broken by river in middle
+  for (let c = 0; c < COLS; c++) {
+    if (c === 0 || c === 8) {
+      engravedLine(boardX(c), top, boardX(c), bottom);
+    } else {
+      // Top half
+      engravedLine(boardX(c), top, boardX(c), boardY(4));
+      // Bottom half
+      engravedLine(boardX(c), boardY(5), boardX(c), bottom);
+    }
+  }
+
+  // Palace diagonals — thinner, more delicate
+  const palaceWidth = 1.1;
+  // Top palace (rows 0-2, cols 3-5)
+  engravedLine(boardX(3), boardY(0), boardX(5), boardY(2), palaceWidth, 0.5);
+  engravedLine(boardX(5), boardY(0), boardX(3), boardY(2), palaceWidth, 0.5);
+  // Bottom palace (rows 7-9, cols 3-5)
+  engravedLine(boardX(3), boardY(7), boardX(5), boardY(9), palaceWidth, 0.5);
+  engravedLine(boardX(5), boardY(7), boardX(3), boardY(9), palaceWidth, 0.5);
+
+  // Star points (花心) — carved rosettes
+  const starPoints = [
+    [2, 1], [2, 7], [3, 0], [3, 2], [3, 4], [3, 6], [3, 8],
+    [6, 0], [6, 2], [6, 4], [6, 6], [6, 8], [7, 1], [7, 7]
+  ];
+  for (const [r, c] of starPoints) {
+    drawStarPoint(ctx, boardX(c), boardY(r));
+  }
+
+  // River text — calligraphy style
+  drawRiverText(ctx);
+}
+
+function drawStarPoint(ctx, x, y) {
+  const s = cellSize * 0.12;
+  const lineAlpha = currentWood === 'ebony' ? 0.5 : 0.55;
+  const hlAlpha = currentWood === 'ebony' ? 0.1 : 0.15;
+  ctx.strokeStyle = currentWood === 'ebony' ? `rgba(180,160,140,${lineAlpha})` : `rgba(40,25,15,${lineAlpha})`;
+  ctx.lineWidth = 1.2;
+
+  // Four L-shaped marks forming a cross/rosette
+  const gap = s * 0.3;
+  const len = s * 1.0;
+  const dirs = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
+  for (const [dx, dy] of dirs) {
+    ctx.beginPath();
+    ctx.moveTo(x + dx * gap, y + dy * (gap + len));
+    ctx.lineTo(x + dx * gap, y + dy * gap);
+    ctx.lineTo(x + dx * (gap + len), y + dy * gap);
+    ctx.stroke();
+    // Highlight
+    ctx.strokeStyle = `rgba(255,245,220,${hlAlpha})`;
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(x + dx * gap + 0.6, y + dy * (gap + len) + 0.6);
+    ctx.lineTo(x + dx * gap + 0.6, y + dy * gap + 0.6);
+    ctx.lineTo(x + dx * (gap + len) + 0.6, y + dy * gap + 0.6);
+    ctx.stroke();
+    ctx.strokeStyle = currentWood === 'ebony' ? `rgba(180,160,140,${lineAlpha})` : `rgba(40,25,15,${lineAlpha})`;
+    ctx.lineWidth = 1.2;
+  }
+}
+
+function drawRiverText(ctx) {
+  const riverY = (boardY(4) + boardY(5)) / 2;
+  const leftX = boardX(1);
+  const rightX = boardX(7);
+  const fontSize = cellSize * 0.6;
+
+  // We'll draw the characters with a brush-stroke effect
+  ctx.save();
+  const baseAlpha = currentWood === 'ebony' ? 0.5 : 0.55;
+  ctx.fillStyle = currentWood === 'ebony' ? `rgba(180,160,140,${baseAlpha})` : `rgba(40,25,15,${baseAlpha})`;
+  ctx.font = `${fontSize}px 'Ma Shan Zheng', 'ZCOOL XiaoWei', 'STKaiti', 'KaiTi', serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // 楚河 on left side
+  const chuheX = (boardX(1) + boardX(2)) / 2;
+  ctx.fillText('楚', boardX(1) + cellSize * 0.3, riverY);
+  ctx.fillText('河', boardX(2) + cellSize * 0.3, riverY);
+
+  // 汉界 on right side
+  ctx.fillText('漢', boardX(6) - cellSize * 0.3, riverY);
+  ctx.fillText('界', boardX(7) - cellSize * 0.3, riverY);
+
+  // Highlight shadow for engraved look
+  const hlAlpha = currentWood === 'ebony' ? 0.08 : 0.15;
+  ctx.fillStyle = `rgba(255,245,220,${hlAlpha})`;
+  ctx.fillText('楚', boardX(1) + cellSize * 0.3 + 1, riverY + 1);
+  ctx.fillText('河', boardX(2) + cellSize * 0.3 + 1, riverY + 1);
+  ctx.fillText('漢', boardX(6) - cellSize * 0.3 + 1, riverY + 1);
+  ctx.fillText('界', boardX(7) - cellSize * 0.3 + 1, riverY + 1);
+
+  ctx.restore();
+}
+
+// ════════════════════════════════════════════════════════════
+// DRAWING — PIECES
+// ════════════════════════════════════════════════════════════
+
+function drawJadePiece(ctx, x, y, piece, radius, opts = {}) {
+  const red = isRed(piece);
+  const scale = opts.scale || 1;
+  const r = radius * scale;
+  const glow = opts.glow || 0;
+  const lift = opts.lift || 0;
+
+  ctx.save();
+
+  // Glow
+  if (glow > 0) {
+    ctx.shadowColor = red ? 'rgba(193,39,45,0.3)' : 'rgba(40,100,60,0.3)';
+    ctx.shadowBlur = glow * 15;
+  }
+
+  // Shadow (lift effect)
+  if (lift > 0) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x + lift * 3, y + lift * 4, r * 0.95, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,0,0,${0.15 + lift * 0.15})`;
+    ctx.fill();
+    ctx.restore();
+  } else {
+    // Normal shadow
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x + 2, y + 3, r * 0.95, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Main jade body
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+
+  if (red) {
+    // Hetian jade — warm white/cream with green hints
+    const grad = ctx.createRadialGradient(x - r * 0.2, y - r * 0.2, r * 0.1, x, y, r);
+    grad.addColorStop(0, 'rgba(248,245,235,0.98)');
+    grad.addColorStop(0.3, 'rgba(238,232,215,0.95)');
+    grad.addColorStop(0.7, 'rgba(220,215,195,0.92)');
+    grad.addColorStop(1, 'rgba(195,190,170,0.95)');
+    ctx.fillStyle = grad;
+  } else {
+    // Jasper — deep green
+    const grad = ctx.createRadialGradient(x - r * 0.2, y - r * 0.2, r * 0.1, x, y, r);
+    grad.addColorStop(0, 'rgba(75,110,75,0.98)');
+    grad.addColorStop(0.3, 'rgba(55,90,55,0.95)');
+    grad.addColorStop(0.7, 'rgba(40,72,42,0.92)');
+    grad.addColorStop(1, 'rgba(28,55,30,0.95)');
+    ctx.fillStyle = grad;
+  }
+  ctx.fill();
+
+  // Internal veining
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, r - 1, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.globalAlpha = red ? 0.06 : 0.08;
+  ctx.strokeStyle = red ? 'rgba(140,160,130,1)' : 'rgba(120,160,100,1)';
+  ctx.lineWidth = 0.6;
+  // Random vein paths seeded by piece position
+  const seed = (x * 7 + y * 13) % 1000;
+  for (let i = 0; i < 5; i++) {
+    const sx = x - r + ((seed + i * 137) % 100) / 100 * r * 2;
+    const sy = y - r + ((seed + i * 239) % 100) / 100 * r * 2;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    for (let j = 0; j < 4; j++) {
+      const nx = sx + (j + 1) * r * 0.4 * ((seed + i + j) % 3 - 1);
+      const ny = sy + (j + 1) * r * 0.3;
+      ctx.lineTo(nx, ny);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Polished surface highlight (light reflection)
+  ctx.beginPath();
+  const hlX = x - r * 0.28;
+  const hlY = y - r * 0.28;
+  const hlR = r * 0.35;
+  const hlGrad = ctx.createRadialGradient(hlX, hlY, 0, hlX, hlY, hlR);
+  hlGrad.addColorStop(0, red ? 'rgba(255,255,250,0.45)' : 'rgba(200,255,200,0.3)');
+  hlGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = hlGrad;
+  ctx.arc(hlX, hlY, hlR, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Rounded edge/lip ring
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  const edgeGrad = ctx.createRadialGradient(x, y, r * 0.85, x, y, r);
+  edgeGrad.addColorStop(0, 'transparent');
+  edgeGrad.addColorStop(0.5, red ? 'rgba(180,175,160,0.15)' : 'rgba(20,50,20,0.2)');
+  edgeGrad.addColorStop(1, red ? 'rgba(150,145,130,0.3)' : 'rgba(10,30,10,0.4)');
+  ctx.fillStyle = edgeGrad;
+  ctx.fill();
+
+  // Character — carved into jade (recessed)
+  const char = PIECE_NAMES[piece];
+  const fontSize = r * 1.15;
+  ctx.font = `700 ${fontSize}px ${PIECE_FONTS[currentPieceFont]}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // Shadow (top-left dark = carved in)
+  ctx.fillStyle = red ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.3)';
+  ctx.fillText(char, x - 0.8, y - 0.6);
+  // Highlight (bottom-right)
+  ctx.fillStyle = red ? 'rgba(255,255,240,0.25)' : 'rgba(200,255,200,0.2)';
+  ctx.fillText(char, x + 0.8, y + 0.8);
+  // Main character
+  ctx.fillStyle = red ? 'rgba(160,40,35,0.85)' : 'rgba(220,215,195,0.9)';
+  ctx.fillText(char, x, y + 1);
+
+  ctx.restore();
+}
+
+function drawRosewoodPiece(ctx, x, y, piece, radius, opts = {}) {
+  const red = isRed(piece);
+  const scale = opts.scale || 1;
+  const r = radius * scale;
+  const glow = opts.glow || 0;
+  const lift = opts.lift || 0;
+
+  ctx.save();
+
+  if (glow > 0) {
+    ctx.shadowColor = red ? 'rgba(180,80,40,0.3)' : 'rgba(60,50,40,0.3)';
+    ctx.shadowBlur = glow * 12;
+  }
+
+  // Shadow
+  ctx.beginPath();
+  ctx.arc(x + 2 + lift * 2, y + 3 + lift * 3, r * 0.95, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(0,0,0,${0.2 + lift * 0.15})`;
+  ctx.fill();
+
+  // Piece thickness (bottom edge)
+  ctx.beginPath();
+  ctx.arc(x, y + 2.5, r, 0, Math.PI * 2);
+  ctx.fillStyle = red ? 'rgba(60,25,18,0.9)' : 'rgba(20,16,14,0.9)';
+  ctx.fill();
+
+  // Main body
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  if (red) {
+    const grad = ctx.createRadialGradient(x - r * 0.15, y - r * 0.15, 0, x, y, r);
+    grad.addColorStop(0, 'rgb(140,55,35)');
+    grad.addColorStop(0.6, 'rgb(110,40,28)');
+    grad.addColorStop(1, 'rgb(80,28,18)');
+    ctx.fillStyle = grad;
+  } else {
+    const grad = ctx.createRadialGradient(x - r * 0.15, y - r * 0.15, 0, x, y, r);
+    grad.addColorStop(0, 'rgb(50,42,38)');
+    grad.addColorStop(0.6, 'rgb(35,28,25)');
+    grad.addColorStop(1, 'rgb(22,18,16)');
+    ctx.fillStyle = grad;
+  }
+  ctx.fill();
+
+  // Wood grain on piece
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, r - 1, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.globalAlpha = 0.15;
+  for (let i = -r; i < r; i += 2) {
+    const alpha = 0.3 + Math.random() * 0.5;
+    ctx.strokeStyle = red ? `rgba(180,100,60,${alpha})` : `rgba(80,65,55,${alpha})`;
+    ctx.lineWidth = 0.5 + Math.random() * 0.8;
+    ctx.beginPath();
+    ctx.moveTo(x - r, y + i);
+    ctx.lineTo(x + r, y + i + (Math.random() - 0.5) * 3);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Surface highlight
+  const hlGrad = ctx.createRadialGradient(x - r * 0.25, y - r * 0.25, 0, x - r * 0.25, y - r * 0.25, r * 0.4);
+  hlGrad.addColorStop(0, 'rgba(255,255,255,0.12)');
+  hlGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = hlGrad;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Character — gold/silver inlay
+  const char = PIECE_NAMES[piece];
+  const fontSize = r * 1.1;
+  ctx.font = `900 ${fontSize}px ${PIECE_FONTS[currentPieceFont]}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // Gold/silver metallic gradient
+  if (red) {
+    const tg = ctx.createLinearGradient(x - r * 0.3, y - r * 0.3, x + r * 0.3, y + r * 0.3);
+    tg.addColorStop(0, '#d4a843');
+    tg.addColorStop(0.5, '#f0d78c');
+    tg.addColorStop(1, '#b8922e');
+    ctx.fillStyle = tg;
+  } else {
+    const tg = ctx.createLinearGradient(x - r * 0.3, y - r * 0.3, x + r * 0.3, y + r * 0.3);
+    tg.addColorStop(0, '#a0a0a0');
+    tg.addColorStop(0.5, '#d8d8d8');
+    tg.addColorStop(1, '#909090');
+    ctx.fillStyle = tg;
+  }
+  ctx.fillText(char, x, y + 1);
+
+  ctx.restore();
+}
+
+function drawBronzePiece(ctx, x, y, piece, radius, opts = {}) {
+  const red = isRed(piece);
+  const scale = opts.scale || 1;
+  const r = radius * scale;
+  const glow = opts.glow || 0;
+  const lift = opts.lift || 0;
+
+  ctx.save();
+
+  if (glow > 0) {
+    ctx.shadowColor = red ? 'rgba(200,160,60,0.3)' : 'rgba(80,120,100,0.3)';
+    ctx.shadowBlur = glow * 12;
+  }
+
+  // Shadow
+  ctx.beginPath();
+  ctx.arc(x + 2 + lift * 2, y + 4 + lift * 3, r * 0.95, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(0,0,0,${0.25 + lift * 0.15})`;
+  ctx.fill();
+
+  // Main body
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  if (red) {
+    // Warm brass
+    const grad = ctx.createLinearGradient(x - r, y - r, x + r, y + r);
+    grad.addColorStop(0, 'rgb(180,145,55)');
+    grad.addColorStop(0.3, 'rgb(200,170,80)');
+    grad.addColorStop(0.5, 'rgb(220,190,100)');
+    grad.addColorStop(0.7, 'rgb(190,155,65)');
+    grad.addColorStop(1, 'rgb(160,125,45)');
+    ctx.fillStyle = grad;
+  } else {
+    // Dark bronze with verdigris
+    const grad = ctx.createLinearGradient(x - r, y - r, x + r, y + r);
+    grad.addColorStop(0, 'rgb(65,70,55)');
+    grad.addColorStop(0.3, 'rgb(80,85,65)');
+    grad.addColorStop(0.5, 'rgb(90,95,75)');
+    grad.addColorStop(0.7, 'rgb(70,75,58)');
+    grad.addColorStop(1, 'rgb(55,58,48)');
+    ctx.fillStyle = grad;
+  }
+  ctx.fill();
+
+  // Aged texture — speckle overlay
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, r - 1, 0, Math.PI * 2);
+  ctx.clip();
+  const seed = Math.round(x * 3 + y * 7);
+  for (let i = 0; i < 60; i++) {
+    const px = x - r + ((seed + i * 131) % 200) / 200 * r * 2;
+    const py = y - r + ((seed + i * 197) % 200) / 200 * r * 2;
+    const dx = px - x, dy = py - y;
+    if (dx * dx + dy * dy > r * r) continue;
+    ctx.fillStyle = red
+      ? `rgba(${120 + (i % 40)},${90 + (i % 30)},${30},${0.06 + (i % 5) * 0.02})`
+      : `rgba(${50 + (i % 30)},${80 + (i % 20)},${60 + (i % 20)},${0.08 + (i % 4) * 0.02})`;
+    ctx.fillRect(px, py, 1.5, 1.5);
+  }
+  ctx.restore();
+
+  // Metallic sheen highlight
+  const hlGrad = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, 0, x, y, r);
+  hlGrad.addColorStop(0, 'rgba(255,255,255,0.18)');
+  hlGrad.addColorStop(0.4, 'rgba(255,255,255,0.05)');
+  hlGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = hlGrad;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Edge ring
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.strokeStyle = red ? 'rgba(140,110,40,0.5)' : 'rgba(40,50,35,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Character — deeply stamped (strong emboss)
+  const char = PIECE_NAMES[piece];
+  const fontSize = r * 1.1;
+  ctx.font = `900 ${fontSize}px ${PIECE_FONTS[currentPieceFont]}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // Deep stamp shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillText(char, x - 1, y - 0.5);
+  // Light stamp edge
+  ctx.fillStyle = red ? 'rgba(255,240,200,0.25)' : 'rgba(180,200,180,0.2)';
+  ctx.fillText(char, x + 1, y + 1.5);
+  // Main text
+  ctx.fillStyle = red ? 'rgba(80,40,10,0.9)' : 'rgba(200,210,195,0.85)';
+  ctx.fillText(char, x, y + 1);
+
+  ctx.restore();
+}
+
+function drawPiece(ctx, x, y, piece, radius, opts) {
+  if (currentPieceStyle === 'jade') drawJadePiece(ctx, x, y, piece, radius, opts);
+  else if (currentPieceStyle === 'rosewood') drawRosewoodPiece(ctx, x, y, piece, radius, opts);
+  else drawBronzePiece(ctx, x, y, piece, radius, opts);
+}
+
+// ════════════════════════════════════════════════════════════
+// DRAWING — ANNOTATIONS
+// ════════════════════════════════════════════════════════════
+function getHighlightRGBA(color) {
+  const map = {
+    red: 'rgba(193,39,45,0.25)',
+    blue: 'rgba(46,78,126,0.25)',
+    green: 'rgba(34,197,94,0.25)',
+    gold: 'rgba(201,168,76,0.25)',
+  };
+  return map[color] || map.red;
+}
+
+function drawAnnotations(ctx) {
+  // Highlights
+  for (const key in highlights) {
+    const [r, c] = key.split(',').map(Number);
+    const x = boardX(c), y = boardY(r);
+    ctx.fillStyle = getHighlightRGBA(highlights[key]);
+    ctx.fillRect(x - cellSize * 0.48, y - cellSize * 0.48, cellSize * 0.96, cellSize * 0.96);
+  }
+
+  // Last move highlight
+  if (lastMove) {
+    ctx.fillStyle = 'rgba(201,168,76,0.15)';
+    const x1 = boardX(lastMove.fromC), y1 = boardY(lastMove.fromR);
+    ctx.fillRect(x1 - cellSize * 0.48, y1 - cellSize * 0.48, cellSize * 0.96, cellSize * 0.96);
+    const x2 = boardX(lastMove.toC), y2 = boardY(lastMove.toR);
+    ctx.fillRect(x2 - cellSize * 0.48, y2 - cellSize * 0.48, cellSize * 0.96, cellSize * 0.96);
+  }
+
+  // Arrows
+  for (const ar of arrows) {
+    drawArrow(ctx, boardX(ar.fromC), boardY(ar.fromR), boardX(ar.toC), boardY(ar.toR), ar.color);
+  }
+
+  // Engine best move arrow
+  if (engineBestMove) {
+    drawArrow(ctx, boardX(engineBestMove.fromC), boardY(engineBestMove.fromR),
+      boardX(engineBestMove.toC), boardY(engineBestMove.toR), 'engine');
+  }
+}
+
+function drawArrow(ctx, x1, y1, x2, y2, color) {
+  const colorMap = {
+    red: 'rgba(193,39,45,0.6)',
+    blue: 'rgba(46,78,126,0.6)',
+    green: 'rgba(34,197,94,0.6)',
+    gold: 'rgba(201,168,76,0.6)',
+    engine: 'rgba(100,180,255,0.5)',
+  };
+  ctx.save();
+  ctx.strokeStyle = colorMap[color] || colorMap.red;
+  ctx.fillStyle = colorMap[color] || colorMap.red;
+  ctx.lineWidth = cellSize * 0.08;
+  ctx.lineCap = 'round';
+
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  const headLen = cellSize * 0.2;
+
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2 - Math.cos(angle) * headLen * 0.7, y2 - Math.sin(angle) * headLen * 0.7);
+  ctx.stroke();
+
+  // Arrowhead
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - headLen * Math.cos(angle - 0.4), y2 - headLen * Math.sin(angle - 0.4));
+  ctx.lineTo(x2 - headLen * Math.cos(angle + 0.4), y2 - headLen * Math.sin(angle + 0.4));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+// ════════════════════════════════════════════════════════════
+// MAIN DRAW
+// ════════════════════════════════════════════════════════════
+let lastFrameTime = 0;
+let breathPhase = 0;
+
+function draw(timestamp) {
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  breathPhase += 0.02;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // 1. Board surface
+  drawBoardSurface(ctx, W, H);
+
+  // 2. Annotations (below lines and pieces)
+  drawAnnotations(ctx);
+
+  // 3. Board lines
+  drawBoardLines(ctx);
+
+  // 4. Frame (on top of surface)
+  drawFrame(ctx, W, H);
+
+  // 5. Pieces
+  const pieceR = cellSize * 0.42;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const p = boardState[r][c];
+      if (!p) continue;
+      // Skip dragging piece
+      if (dragPiece && dragPiece.row === r && dragPiece.col === c) continue;
+      // Skip animating piece at destination (it's being animated)
+      if (animatingPiece && animatingPiece.destRow === r && animatingPiece.destCol === c && !animatingPiece.arrived) continue;
+
+      const x = boardX(c), y = boardY(r);
+      const isHover = hoverCell && hoverCell.row === r && hoverCell.col === c && !dragPiece;
+      const isSel = selectedPiece && selectedPiece.row === r && selectedPiece.col === c;
+      const glowVal = (isHover || isSel) ? 0.5 + Math.sin(breathPhase * 3) * 0.2 : 0;
+      drawPiece(ctx, x, y, p, pieceR, { glow: glowVal, scale: isSel ? 1.05 : 1 });
+    }
+  }
+
+  // 6. Animating piece
+  if (animatingPiece) {
+    const elapsed = (performance.now() - animatingPiece.startTime);
+    let t = Math.min(1, elapsed / animatingPiece.duration);
+    // Ease out cubic
+    t = 1 - Math.pow(1 - t, 3);
+
+    const ax = animatingPiece.fromX + (animatingPiece.toX - animatingPiece.fromX) * t;
+    const ay = animatingPiece.fromY + (animatingPiece.toY - animatingPiece.fromY) * t;
+
+    drawPiece(ctx, ax, ay, animatingPiece.piece, pieceR, { scale: 1 });
+
+    // Captured piece fade
+    if (animatingPiece.capturedPiece && t < 1) {
+      const fadeScale = 1 - t * 0.4;
+      ctx.globalAlpha = 1 - t;
+      drawPiece(ctx, animatingPiece.toX, animatingPiece.toY, animatingPiece.capturedPiece, pieceR, { scale: fadeScale });
+      ctx.globalAlpha = 1;
+    }
+
+    if (t >= 1) {
+      animatingPiece = null;
+    } else {
+      requestAnimationFrame(draw);
+      return;
+    }
+  }
+
+  // 7. Dragging piece
+  if (dragPiece) {
+    drawPiece(ctx, dragPiece.x * CANVAS_SCALE, dragPiece.y * CANVAS_SCALE, dragPiece.piece, pieceR, {
+      scale: 1.1, lift: 1, glow: 0.7
+    });
+  }
+
+  // Selected piece valid moves indicator (subtle dots)
+  if (selectedPiece) {
+    // We don't compute legal moves in this art board (keeping it simple)
+    // but we do show selection highlight
+  }
+
+  requestAnimationFrame(draw);
+}
+
+// ════════════════════════════════════════════════════════════
+// INPUT HANDLING
+// ════════════════════════════════════════════════════════════
+function setupInput() {
+  const canvas = document.getElementById('board');
+
+  canvas.addEventListener('mousedown', (e) => {
+    if (e.button === 2) {
+      // Right click start — annotation
+      const g = gridFromPixel(e.offsetX, e.offsetY);
+      if (g) rightDragStart = g;
+      return;
+    }
+    if (e.button !== 0) return;
+
+    const g = gridFromPixel(e.offsetX, e.offsetY);
+    if (!g) { selectedPiece = null; return; }
+
+    const piece = boardState[g.row][g.col];
+
+    if (selectedPiece) {
+      // Attempt move
+      if (g.row === selectedPiece.row && g.col === selectedPiece.col) {
+        selectedPiece = null;
+        return;
+      }
+      const sp = boardState[selectedPiece.row][selectedPiece.col];
+      if (sp && piece && isRed(sp) === isRed(piece)) {
+        // Switch selection
+        selectedPiece = g;
+        return;
+      }
+      if (sp) {
+        executeMove(selectedPiece.row, selectedPiece.col, g.row, g.col);
+        selectedPiece = null;
+        return;
+      }
+    }
+
+    if (piece) {
+      selectedPiece = g;
+      // Start drag
+      dragPiece = { row: g.row, col: g.col, piece, x: e.offsetX, y: e.offsetY };
+      canvas.classList.add('piece-dragging');
+    }
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (dragPiece) {
+      dragPiece.x = e.offsetX;
+      dragPiece.y = e.offsetY;
+      return;
+    }
+
+    // Hover detection
+    const g = gridFromPixel(e.offsetX, e.offsetY);
+    if (g && boardState[g.row][g.col]) {
+      hoverCell = g;
+      canvas.classList.add('piece-hover');
+    } else {
+      hoverCell = null;
+      canvas.classList.remove('piece-hover');
+    }
+  });
+
+  canvas.addEventListener('mouseup', (e) => {
+    if (e.button === 2 && rightDragStart) {
+      const g = gridFromPixel(e.offsetX, e.offsetY);
+      const color = document.getElementById('highlightColor').value;
+      if (g) {
+        if (g.row === rightDragStart.row && g.col === rightDragStart.col) {
+          // Toggle highlight
+          const key = `${g.row},${g.col}`;
+          if (highlights[key] === color) delete highlights[key];
+          else highlights[key] = color;
+        } else {
+          // Arrow
+          arrows.push({ fromR: rightDragStart.row, fromC: rightDragStart.col, toR: g.row, toC: g.col, color });
+        }
+      }
+      rightDragStart = null;
+      return;
+    }
+
+    if (dragPiece) {
+      canvas.classList.remove('piece-dragging');
+      const g = gridFromPixel(e.offsetX, e.offsetY);
+      if (g && !(g.row === dragPiece.row && g.col === dragPiece.col)) {
+        executeMove(dragPiece.row, dragPiece.col, g.row, g.col);
+      }
+      dragPiece = null;
+      selectedPiece = null;
+    }
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    if (dragPiece) {
+      dragPiece = null;
+      selectedPiece = null;
+      canvas.classList.remove('piece-dragging');
+    }
+    hoverCell = null;
+    canvas.classList.remove('piece-hover');
+  });
+
+  canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+}
+
+// ════════════════════════════════════════════════════════════
+// MOVE EXECUTION
+// ════════════════════════════════════════════════════════════
+function executeMove(fromR, fromC, toR, toC) {
+  const piece = boardState[fromR][fromC];
+  if (!piece) return;
+
+  const captured = boardState[toR][toC];
+
+  // Truncate future history if we went back
+  if (currentMoveIndex < moveHistory.length - 1) {
+    moveHistory = moveHistory.slice(0, currentMoveIndex + 1);
+    // Clean up future comments
+    for (const k of Object.keys(comments)) {
+      if (parseInt(k) > currentMoveIndex) delete comments[k];
+    }
+  }
+
+  // Record move
+  const move = {
+    fromR, fromC, toR, toC, piece, captured,
+    board: cloneBoard(boardState),
+    turn: currentTurn,
+    notation: getMoveNotation(piece, fromR, fromC, toR, toC, captured)
+  };
+  moveHistory.push(move);
+  currentMoveIndex = moveHistory.length - 1;
+
+  // Animate
+  const fromX = boardX(fromC), fromY = boardY(fromR);
+  const toX = boardX(toC), toY = boardY(toR);
+  animatingPiece = {
+    piece, fromX, fromY, toX, toY,
+    startTime: performance.now(),
+    duration: 250,
+    capturedPiece: captured,
+    destRow: toR, destCol: toC
+  };
+
+  // Execute on board
+  boardState[toR][toC] = piece;
+  boardState[fromR][fromC] = null;
+
+  lastMove = { fromR, fromC, toR, toC };
+  currentTurn = currentTurn === 'w' ? 'b' : 'w';
+  engineBestMove = null;
+
+  updateMoveList();
+  updateFenDisplay();
+  updateCommentDisplay();
+
+  if (autoAnalyze) requestAnalysis();
+
+  // Gallery overlay
+  if (isGallery) showGalleryNotation(move.notation);
+}
+
+function getMoveNotation(piece, fromR, fromC, toR, toC, captured) {
+  const name = PIECE_NAMES[piece] || piece;
+  const fromStr = String.fromCharCode(97 + fromC) + (9 - fromR);
+  const toStr = String.fromCharCode(97 + toC) + (9 - toR);
+  const cap = captured ? 'x' : '-';
+  return `${name}${fromStr}${cap}${toStr}`;
+}
+
+// ════════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════════
+function navFirst() {
+  if (moveHistory.length === 0) return;
+  currentMoveIndex = -1;
+  restorePosition();
+}
+function navPrev() {
+  if (currentMoveIndex < 0) return;
+  currentMoveIndex--;
+  restorePosition();
+}
+function navNext() {
+  if (currentMoveIndex >= moveHistory.length - 1) return;
+  currentMoveIndex++;
+  restorePosition();
+}
+function navLast() {
+  if (moveHistory.length === 0) return;
+  currentMoveIndex = moveHistory.length - 1;
+  restorePosition();
+}
+
+function restorePosition() {
+  if (currentMoveIndex < 0) {
+    // Initial position — replay from start fen
+    const fenInput = document.getElementById('fenInput');
+    boardState = parseFen(fenInput.value || START_FEN);
+    lastMove = null;
+  } else {
+    const move = moveHistory[currentMoveIndex];
+    boardState = cloneBoard(move.board);
+    // Execute the move on the cloned board
+    boardState[move.toR][move.toC] = move.piece;
+    boardState[move.fromR][move.fromC] = null;
+    currentTurn = move.turn === 'w' ? 'b' : 'w';
+    lastMove = { fromR: move.fromR, fromC: move.fromC, toR: move.toR, toC: move.toC };
+  }
+  engineBestMove = null;
+  updateMoveList();
+  updateFenDisplay();
+  updateCommentDisplay();
+  if (autoAnalyze && currentMoveIndex >= 0) requestAnalysis();
+  if (isGallery && currentMoveIndex >= 0) {
+    showGalleryNotation(moveHistory[currentMoveIndex].notation);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// UI UPDATES
+// ════════════════════════════════════════════════════════════
+function updateMoveList() {
+  const el = document.getElementById('moveList');
+  if (moveHistory.length === 0) {
+    el.innerHTML = '<span style="opacity:0.4;font-size:12px">No moves yet</span>';
+    return;
+  }
+  let html = '';
+  for (let i = 0; i < moveHistory.length; i++) {
+    const m = moveHistory[i];
+    const num = Math.floor(i / 2) + 1;
+    if (i % 2 === 0) html += `<span style="opacity:0.4;margin-right:2px">${num}.</span>`;
+    html += `<span class="move-entry${i === currentMoveIndex ? ' current' : ''}" onclick="goToMove(${i})">${m.notation}</span> `;
+  }
+  el.innerHTML = html;
+  // Scroll to current
+  const cur = el.querySelector('.current');
+  if (cur) cur.scrollIntoView({ block: 'nearest' });
+}
+
+function goToMove(idx) {
+  currentMoveIndex = idx;
+  restorePosition();
+}
+
+function updateFenDisplay() {
+  document.getElementById('fenInput').value = boardToFen(boardState, currentTurn);
+}
+
+function updateCommentDisplay() {
+  const display = document.getElementById('commentDisplay');
+  const input = document.getElementById('commentInput');
+  const key = currentMoveIndex;
+  if (comments[key]) {
+    display.textContent = comments[key];
+    input.value = comments[key];
+  } else {
+    display.textContent = currentMoveIndex < 0 ? 'Starting position.' : '';
+    input.value = '';
+  }
+}
+
+function saveComment() {
+  const input = document.getElementById('commentInput');
+  if (input.value.trim()) {
+    comments[currentMoveIndex] = input.value.trim();
+  } else {
+    delete comments[currentMoveIndex];
+  }
+  document.getElementById('commentDisplay').textContent = input.value.trim() || '';
+}
+
+// ════════════════════════════════════════════════════════════
+// FEN & PRESETS
+// ════════════════════════════════════════════════════════════
+function loadFen(fen) {
+  boardState = parseFen(fen);
+  selectedPiece = null;
+  dragPiece = null;
+  lastMove = null;
+  engineBestMove = null;
+  highlights = {};
+  arrows = [];
+  updateFenDisplay();
+}
+
+function loadFenFromInput() {
+  const fen = document.getElementById('fenInput').value.trim();
+  if (!fen) return;
+  loadFen(fen);
+  moveHistory = [];
+  currentMoveIndex = -1;
+  comments = {};
+  updateMoveList();
+  updateCommentDisplay();
+}
+
+const PRESETS = [
+  { name: '初始局面', fen: 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w', desc: '标准开局 — Standard starting position' },
+  { name: '马后炮杀', fen: '4k4/4a4/9/9/9/9/4n4/4C4/9/3K1N3 w', desc: '经典马后炮绝杀 — Classic "Horse behind Cannon" checkmate' },
+  { name: '天地炮', fen: 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C2C4/9/RNBAKABNR w', desc: '天地炮开局 — "Sky and Earth Cannons" setup' },
+  { name: '七星聚会', fen: '2baka3/9/4b4/9/2P1r4/9/9/C3C4/4p4/2BAKA3 w', desc: '选自《适情雅趣》— 七星聚会，古谱经典残局' },
+  { name: '铁门栓', fen: '3k5/3Pa4/4b4/9/9/9/9/4R4/9/4K4 w', desc: '铁门栓杀法 — "Iron Door Bolt" checkmate' },
+  { name: '双车错', fen: '3aka3/9/9/9/9/4R4/9/9/4R4/3AKA3 w', desc: '双车错经典杀法 — Two rooks alternating attack' },
+  { name: '大胆穿心', fen: '3ak4/4a4/4b4/9/2b6/3R5/9/9/9/3K5 w', desc: '车单挑入九宫——大胆穿心杀法' },
+  { name: '三子归边', fen: '1rbak4/4a4/2n1b4/p3p3p/9/P8/4P3P/2N1C4/4A4/2BAK4 w', desc: '实战残局 — 三子归边' },
+  { name: '空头炮', fen: '4k4/9/4b4/9/9/4C4/9/9/9/4K4 w', desc: '空头炮绝杀 — Cannon on open king file' },
+  { name: '大列手炮', fen: 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w', desc: '大列手炮开局 — Opposed Cannons opening' },
+];
+
+function loadPreset(idx) {
+  const p = PRESETS[idx];
+  loadFen(p.fen);
+  moveHistory = [];
+  currentMoveIndex = -1;
+  comments = {};
+  updateMoveList();
+  updateCommentDisplay();
+  document.getElementById('commentDisplay').textContent = p.desc;
+}
+
+function initPresets() {
+  const el = document.getElementById('presetButtons');
+  el.innerHTML = PRESETS.map((p, i) =>
+    `<button onclick="loadPreset(${i})">${p.name}</button>`
+  ).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// ENGINE INTEGRATION
+// ════════════════════════════════════════════════════════════
+function analyzePosition() {
+  if (analyzing) return;
+  requestAnalysis();
+}
+
+function toggleAutoAnalyze() {
+  autoAnalyze = !autoAnalyze;
+  document.getElementById('autoAnalyzeBtn').classList.toggle('active', autoAnalyze);
+  if (autoAnalyze) requestAnalysis();
+}
+
+async function requestAnalysis() {
+  analyzing = true;
+  document.getElementById('analyzeBtn').classList.add('active');
+  document.getElementById('engineStatus').textContent = 'Analyzing...';
+  document.getElementById('engineStatus').style.display = '';
+  document.getElementById('engineLines').innerHTML = '';
+
+  const fen = boardToFen(boardState, currentTurn);
+
+  try {
+    const resp = await fetch('http://localhost:8080/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fen, depth: 20, multipv: 3 })
+    });
+    if (!resp.ok) throw new Error('Server error');
+    const data = await resp.json();
+    engineAvailable = true;
+    displayEngineResult(data);
+  } catch (err) {
+    engineAvailable = false;
+    document.getElementById('engineStatus').textContent = 'Engine offline — start server at localhost:8080';
+    document.getElementById('engineStatus').style.display = '';
+    document.getElementById('engineLines').innerHTML = '';
+  }
+
+  analyzing = false;
+  document.getElementById('analyzeBtn').classList.remove('active');
+}
+
+function displayEngineResult(data) {
+  document.getElementById('engineStatus').style.display = 'none';
+  const lines = data.lines || data.pvs || (data.bestmove ? [data] : []);
+  const linesEl = document.getElementById('engineLines');
+  let html = '';
+  let mainEval = 0;
+
+  if (lines.length === 0 && data.score !== undefined) {
+    mainEval = parseFloat(data.score) || 0;
+    const bestMoveStr = data.bestmove || data.best_move || '';
+    html += formatEngineLine(mainEval, bestMoveStr, data.depth || 0);
+    if (bestMoveStr) engineBestMove = parseMoveString(bestMoveStr);
+  } else {
+    for (let i = 0; i < Math.min(lines.length, 3); i++) {
+      const line = lines[i];
+      const score = parseFloat(line.score || line.cp || 0);
+      if (i === 0) mainEval = score;
+      const moves = line.pv || line.moves || '';
+      html += formatEngineLine(score / 100, moves, line.depth || 0);
+      if (i === 0 && line.pv) {
+        const firstMove = (typeof line.pv === 'string' ? line.pv.split(' ')[0] : line.pv[0]) || '';
+        if (firstMove) engineBestMove = parseMoveString(firstMove);
+      }
+    }
+  }
+
+  linesEl.innerHTML = html || '<div class="engine-status">No analysis data</div>';
+}
+
+function formatEngineLine(score, moves, depth) {
+  const cls = score > 0.1 ? 'positive' : score < -0.1 ? 'negative' : 'neutral';
+  const scoreStr = (score > 0 ? '+' : '') + score.toFixed(2);
+  const movesStr = typeof moves === 'string' ? moves : (Array.isArray(moves) ? moves.join(' ') : '');
+  return `<div class="engine-line"><span class="eval-score ${cls}">${scoreStr}</span><span class="line-moves">${movesStr} (d${depth})</span></div>`;
+}
+
+function parseMoveString(str) {
+  // Parse "a0b1" or "a0-b1" format
+  str = str.replace(/[^a-i0-9]/g, '');
+  if (str.length < 4) return null;
+  const fromC = str.charCodeAt(0) - 97;
+  const fromR = 9 - parseInt(str[1]);
+  const toC = str.charCodeAt(2) - 97;
+  const toR = 9 - parseInt(str[3]);
+  if (fromC < 0 || fromC > 8 || toC < 0 || toC > 8) return null;
+  if (fromR < 0 || fromR > 9 || toR < 0 || toR > 9) return null;
+  return { fromR, fromC, toR, toC };
+}
+
+// ════════════════════════════════════════════════════════════
+// BOARD CONTROLS
+// ════════════════════════════════════════════════════════════
+function flipBoard() {
+  flipped = !flipped;
+}
+
+function changeWood(type) {
+  currentWood = type;
+  woodTextureCache = {};
+}
+
+function changePieceStyle(style) {
+  currentPieceStyle = style;
+}
+
+function changePieceFont(font) {
+  currentPieceFont = font;
+}
+
+function clearAnnotations() {
+  highlights = {};
+  arrows = [];
+  engineBestMove = null;
+}
+
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark', isDark);
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('themeBtn').textContent = isDark ? 'Light' : 'Dark';
+}
+
+// ════════════════════════════════════════════════════════════
+// GALLERY MODE
+// ════════════════════════════════════════════════════════════
+function toggleGallery() {
+  isGallery = !isGallery;
+  document.body.classList.toggle('gallery-mode', isGallery);
+  document.getElementById('galleryBtn').classList.toggle('active', isGallery);
+  computeGeometry();
+  woodTextureCache = {};
+}
+
+let galleryFadeTimeout = null;
+function showGalleryNotation(text) {
+  const el = document.getElementById('galleryOverlay');
+  el.textContent = text;
+  el.classList.remove('fade-out');
+  clearTimeout(galleryFadeTimeout);
+  galleryFadeTimeout = setTimeout(() => {
+    el.classList.add('fade-out');
+  }, 2000);
+}
+
+// ════════════════════════════════════════════════════════════
+// DUST PARTICLES
+// ════════════════════════════════════════════════════════════
+const DUST_COUNT = 30;
+let dustParticles = [];
+
+function initDust() {
+  const canvas = document.getElementById('dustCanvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  dustParticles = [];
+  for (let i = 0; i < DUST_COUNT; i++) {
+    dustParticles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: 0.5 + Math.random() * 1.5,
+      speedX: (Math.random() - 0.5) * 0.15,
+      speedY: -0.05 - Math.random() * 0.1,
+      opacity: 0.1 + Math.random() * 0.2,
+      phase: Math.random() * Math.PI * 2,
+    });
+  }
+}
+
+function drawDust() {
+  const canvas = document.getElementById('dustCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (const p of dustParticles) {
+    p.x += p.speedX + Math.sin(p.phase) * 0.05;
+    p.y += p.speedY;
+    p.phase += 0.005;
+
+    if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+    if (p.x < -10) p.x = canvas.width + 10;
+    if (p.x > canvas.width + 10) p.x = -10;
+
+    const alpha = p.opacity * (isDark ? 0.6 : 0.4);
+    ctx.fillStyle = isDark ? `rgba(220,210,180,${alpha})` : `rgba(120,100,60,${alpha})`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  requestAnimationFrame(drawDust);
+}
+
+// ════════════════════════════════════════════════════════════
+// KEYBOARD
+// ════════════════════════════════════════════════════════════
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowLeft') { e.preventDefault(); navPrev(); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); navNext(); }
+  else if (e.key === 'Home') { e.preventDefault(); navFirst(); }
+  else if (e.key === 'End') { e.preventDefault(); navLast(); }
+  else if (e.key === 'Escape' && isGallery) { toggleGallery(); }
+  else if (e.key === 'f' || e.key === 'F') { flipBoard(); }
+  else if (e.key === 'g' || e.key === 'G') { toggleGallery(); }
+});
+
+// ════════════════════════════════════════════════════════════
+// RESIZE
+// ════════════════════════════════════════════════════════════
+window.addEventListener('resize', () => {
+  computeGeometry();
+  woodTextureCache = {};
+  const dustCanvas = document.getElementById('dustCanvas');
+  dustCanvas.width = window.innerWidth;
+  dustCanvas.height = window.innerHeight;
+});
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+function init() {
+  computeGeometry();
+  boardState = parseFen(START_FEN);
+  initPresets();
+  setupInput();
+  updateMoveList();
+  updateCommentDisplay();
+  initDust();
+  requestAnimationFrame(draw);
+  requestAnimationFrame(drawDust);
+}
+
+init();
+</script>
+<script>
+// Universal language toggle
+(function() {
+  let pageLang = localStorage.getItem('pageLang') || 'zh';
+  
+  window.setPageLang = function(lang) {
+    pageLang = lang;
+    localStorage.setItem('pageLang', lang);
+    document.querySelectorAll('.lt-btn').forEach(b => {
+      const isActive = b.dataset.lang === lang;
+      b.style.background = isActive ? 'rgba(240,192,96,0.9)' : 'rgba(255,255,255,0.08)';
+      b.style.color = isActive ? '#1a1d2e' : '#9ca0b8';
+      b.style.border = isActive ? 'none' : '1px solid rgba(255,255,255,0.06)';
+    });
+    applyLang();
+  };
+  
+  function applyLang() {
+    document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+      if (pageLang === 'zh') el.textContent = el.dataset.zh;
+      else if (pageLang === 'en') el.textContent = el.dataset.en;
+      else el.textContent = el.dataset.zh + ' ' + el.dataset.en;
+    });
+  }
+  
+  // Apply on load
+  setTimeout(() => {
+    setPageLang(pageLang);
+  }, 100);
+})();
+</script>
+</body>
+</html>

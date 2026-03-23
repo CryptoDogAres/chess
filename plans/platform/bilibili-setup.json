@@ -1,0 +1,59 @@
+{
+  "id": "platform-bilibili",
+  "title": "B站频道 Bilibili Channel Setup",
+  "description": "Education-focused long-form content. Younger audience, strong community features.",
+  "folder": "platform",
+  "priority": "high",
+  "status": "in_progress",
+  "progress": 50,
+  "tasks": [
+    {
+      "id": "pb1",
+      "text": "Register Bilibili UP creator account",
+      "done": false,
+      "priority": "high"
+    },
+    {
+      "id": "pb2",
+      "text": "Design cover image template: 封面大粗字 (large bold text covers)",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "pb3",
+      "text": "Set up 16:9 recording workflow for long-form content",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "pb4",
+      "text": "Learn MediaCoder for pre-upload compression (avoid quality loss)",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "pb5",
+      "text": "Publish first 3 videos, optimize for 5:30 PM posting time",
+      "done": false,
+      "priority": "high"
+    },
+    {
+      "id": "pb6",
+      "text": "Reach 1K followers or 100K views (unlock Creation Incentive)",
+      "done": false,
+      "priority": "medium"
+    },
+    {
+      "id": "pb7",
+      "text": "Create QQ group for community engagement",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "pb8",
+      "text": "Register on 花火 (Huahuo) when eligible for brand deals",
+      "done": false,
+      "priority": "low"
+    }
+  ]
+}

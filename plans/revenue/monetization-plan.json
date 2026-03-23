@@ -1,0 +1,65 @@
+{
+  "id": "revenue-monetize",
+  "title": "变现计划 Monetization Roadmap",
+  "description": "Multi-stream revenue plan: ads → tips → courses → sponsorships → coaching",
+  "folder": "revenue",
+  "priority": "medium",
+  "status": "in_progress",
+  "progress": 67,
+  "tasks": [
+    {
+      "id": "rm1",
+      "text": "Phase 1: Reach YouTube Partner Program (1K subs + 4K watch hours)",
+      "done": false,
+      "priority": "high"
+    },
+    {
+      "id": "rm2",
+      "text": "Phase 1: Reach Bilibili Creation Incentive (1K followers or 100K views)",
+      "done": false,
+      "priority": "high"
+    },
+    {
+      "id": "rm3",
+      "text": "Phase 2: Enable live streaming tips on Douyin and Bilibili",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "rm4",
+      "text": "Phase 2: Launch YouTube memberships and Super Chat",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "rm5",
+      "text": "Phase 3: Design paid course curriculum (beginner → advanced)",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "rm6",
+      "text": "Phase 3: Record and publish first paid course",
+      "done": false,
+      "priority": "medium"
+    },
+    {
+      "id": "rm7",
+      "text": "Phase 3: Set up 1-on-1 coaching offering ($50-200/month)",
+      "done": true,
+      "priority": "low"
+    },
+    {
+      "id": "rm8",
+      "text": "Phase 4: First Douyin sponsored content deal via 巨量星图",
+      "done": true,
+      "priority": "low"
+    },
+    {
+      "id": "rm9",
+      "text": "Phase 4: Explore merchandise (branded chess sets, books)",
+      "done": true,
+      "priority": "low"
+    }
+  ]
+}

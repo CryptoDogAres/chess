@@ -1,0 +1,53 @@
+{
+  "id": "content-series",
+  "title": "招牌栏目 Signature Series Development",
+  "description": "Develop recurring series that viewers return for — the key to habit-forming audiences",
+  "folder": "content",
+  "priority": "medium",
+  "status": "completed",
+  "progress": 100,
+  "tasks": [
+    {
+      "id": "cs1",
+      "text": "Design \"这步你会走吗？\" (Would You Play This?) format — interactive puzzle",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "cs2",
+      "text": "Design \"引擎 vs 大师\" (Engine vs Grandmaster) format — compare engine lines to human choices",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "cs3",
+      "text": "Design \"名局故事\" (Famous Game Stories) format — cultural storytelling + analysis",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "cs4",
+      "text": "Create intro/outro templates for each series",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "cs5",
+      "text": "Record pilot episode for each series",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "cs6",
+      "text": "A/B test which series gets best retention",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "cs7",
+      "text": "Double down on winning series — commit to weekly cadence",
+      "done": true,
+      "priority": "low"
+    }
+  ]
+}

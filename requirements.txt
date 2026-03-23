@@ -1,0 +1,7 @@
+# ChessDAO Python dependencies
+# All core tools use only Python stdlib — no pip packages required.
+# This file exists for compatibility with standard Python workflows.
+#
+# Optional dependencies for enhanced features:
+# requests          # Alternative HTTP client for engine communication
+# rich              # Pretty terminal output for manage.py

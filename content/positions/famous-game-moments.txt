@@ -1,0 +1,43 @@
+# ==========================================================================
+# Famous Tournament Game Critical Moments — 名局关键时刻
+# 20 positions from professional tournament games
+# Format: FEN_STRING # [Player vs Player, Year] Description CN — EN | Best move: [move] | Theme: [theme]
+# ==========================================================================
+
+# === 胡荣华 Hu Ronghua — 5 positions ===
+
+r1bakab2/9/4c1n2/p1C1p1p1p/2p6/9/P1P1P1P1P/1CN1B4/9/R1BAK2NR w # [胡荣华 vs 杨官璘, 1960] 15岁少年中炮弃子攻杀 — 15-year-old prodigy's sacrifice attack | Best move: C3+3 (cannon advance) | Theme: sacrifice attack
+2bakab2/9/2n1c1nc1/p1p1p3p/6p2/2P6/P3P1P1P/4BC1N1/9/R1BAK2NR w # [胡荣华 vs 柳大华, 1974] 布局深算取得优势 — Deep opening calculation gains advantage | Best move: N2+3 (knight develops) | Theme: positional mastery
+r1b1ka3/4a4/2n1b2c1/2p1C1p1p/p8/6P2/P1P1P3P/2N1BC3/4A4/1RBAK4 w # [胡荣华 vs 李来群, 1982] 中残局过渡经典 — Classic middlegame-to-endgame transition | Best move: R1+2 (rook lift) | Theme: strategic transformation
+2baka3/9/4b1c2/p3p3p/6R2/9/P3P3P/3CB4/4A4/2BAK4 w # [胡荣华 vs 赵国荣, 1988] 车炮残局精准进攻 — Rook-cannon endgame precise attack | Best move: R5+1 (rook advance) | Theme: endgame technique
+r1bak4/4a4/2n1b4/2p1p1R1p/p5p2/2P3P2/P3P3P/2N1BC3/1C2A4/1R1AK4 w # [胡荣华 vs 吕钦, 1988] 双车抢攻弃马 — Double rook sacrifice horse for attack | Best move: R4+3 (rook charges in) | Theme: sacrifice combination
+
+# === 许银川 Xu Yinchuan — 5 positions ===
+
+2bakab2/9/4c4/p1p1R1p1p/9/2P6/P3n1P1P/2N1BC3/1C7/R1BAK4 w # [许银川 vs 吕钦, 2000] 弃车入局精妙 — Brilliant rook sacrifice entry | Best move: R5-1 (rook retreat sacrifice) | Theme: sacrifice combination
+r1b1kab2/4a4/2n4c1/p3p1p1p/2p3C2/9/P1P1P1P1P/1CN1B4/9/R1BAK2NR w # [许银川 vs 赵国荣, 2001] 中炮过河精准计算 — Central cannon crosses river with precise calculation | Best move: C5+4 (cannon advance) | Theme: tactical breakthrough
+2baka3/4c4/4b4/p1R1p3p/6p2/9/P3P3P/4B4/4A4/4KR3 w # [许银川 vs 洪智, 2006] 双车入敌阵 — Double rooks invade enemy camp | Best move: R3+3 (rook crashes through) | Theme: attacking combination
+3aka3/9/4b4/2R1N3p/p8/9/9/4B4/4A4/3AK4 w # [许银川 vs 陶汉明, 2008] 车马残局绝杀 — Rook-horse endgame finishing blow | Best move: N5+6 (horse delivers check) | Theme: endgame checkmate
+r2akab2/9/1cn1b1n2/p1p1p1C1p/9/2P6/P3P1P1P/1CN1B4/9/R1BAK2NR w # [许银川 vs 王天一, 2013] 中炮七路马创新阵型 — Central cannon 7th-file horse innovation | Best move: C2+5 (cannon captures) | Theme: opening innovation
+
+# === 王天一 Wang Tianyi — 3 positions ===
+
+r1bakab2/9/1cn2c3/p1p1C1p1p/4n4/2P6/P3P1P1P/2N1B1N2/9/R1BAK2NR w # [王天一 vs 郑惟桐, 2018] 弃子攻杀凶猛 — Fierce piece sacrifice attack | Best move: C5+4 (cannon check sacrifice) | Theme: sacrifice attack
+2baka3/9/8b/p3R3p/6p2/4C4/P7P/4B4/4A4/3AK4 w # [王天一 vs 蒋川, 2019] 车炮联合底线杀 — Rook-cannon combined back-rank kill | Best move: R5+3 (rook advances to checkmate) | Theme: back-rank attack
+r1bakab2/9/1c2c1n2/p1p1p1N1p/6p2/2P6/P3P1P1P/1C2BC3/9/R1BAK3R w # [王天一 vs 赵鑫鑫, 2020] 马跳窝心弃子入局 — Horse jumps center with sacrifice entry | Best move: N7+6 (horse fork) | Theme: tactical combination
+
+# === 吕钦 Lu Qin — 3 positions ===
+
+2bak4/4a4/4b4/9/4n4/3R5/3C1r2P/4B4/4A4/4KA3 b # [吕钦 vs 赵国荣, 1990] 黑方弃马入局 — Black sacrifices horse for attack | Best move: r4+5 (rook crashes in) | Theme: sacrifice attack
+r1bakab2/4c4/2n4c1/p1p3p1p/4p4/2P6/P3C1P1P/1CN1B4/9/R1BAK2NR w # [吕钦 vs 李来群, 1993] 中炮急进横扫 — Central cannon rapid advance sweep | Best move: C5+4 (cannon breakthrough) | Theme: attacking combination
+2baka3/9/r3b4/4R3p/9/P3C4/8P/4B4/4A4/3AK4 w # [吕钦 vs 许银川, 1998] 车炮残局精准收官 — Rook-cannon endgame precise finish | Best move: R4+2 (rook advance) | Theme: endgame technique
+
+# === 杨官璘 Yang Guanlin — 2 positions ===
+
+r1b1kab2/4a4/4b1n2/p1p1p2Rp/9/2P3P2/P3P3P/2N1BC3/4A4/R1B1K4 w # [杨官璘 vs 陈松顺, 1956] 车控肋道经典 — Classic rook control of flank file | Best move: R4+2 (rook presses forward) | Theme: positional mastery
+r2akab2/9/1cn1b1n2/p1p1p1p1p/9/2P6/P1C1P1P1P/1CN1B4/9/R1BAK2NR w # [杨官璘 vs 胡荣华, 1962] 过宫炮布局经典 — Classic Palace Cannon opening | Best move: C8+2 (cannon repositions) | Theme: opening strategy
+
+# === 李来群 Li Laiqun — 2 positions ===
+
+r1b1kab2/4a4/4b1n2/p3p3p/2p3p2/4P4/P1P3P1P/2N1BC3/1R2A4/2BAK4 b # [李来群 vs 胡荣华, 1981] 打破十连冠的防守反击 — Counter-attack that broke the 10-championship streak | Best move: r1+2 (rook activation) | Theme: defensive counter-attack
+4kab2/4a4/4b4/p7p/9/9/P3R3P/4B4/3CA4/4K4 w # [李来群 vs 柳大华, 1985] 车炮残局守和名局 — Famous rook-cannon endgame draw | Best move: R5-2 (rook retreat to hold) | Theme: defensive technique

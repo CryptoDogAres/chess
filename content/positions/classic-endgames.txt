@@ -1,0 +1,47 @@
+# ==========================================================================
+# Classic Endgame Positions from Ancient Manuals — 古谱残局精选
+# 30 positions from four legendary manuals
+# Format: FEN_STRING # [Source] Title CN — EN | Difficulty: stars | Theme: theme
+# ==========================================================================
+
+# ===《适情雅趣》(Elegant Pastime Manual, 1570, Ming Dynasty) — 10 positions ===
+
+3ak4/4a4/9/9/4R4/2P6/9/4C4/9/4K4 w # [适情雅趣] 第二局：车炮兵破士 — Rook-Cannon-Pawn vs Advisors | Difficulty: ★★ | Theme: chariot endgame
+4kab2/4a4/4b4/9/4P4/9/4R4/2C6/9/4K4 w # [适情雅趣] 第四局：车炮高兵攻士象全 — Rook-Cannon-High Pawn vs Full Defense | Difficulty: ★★★ | Theme: chariot vs full defense
+3ak4/4a4/4b4/4R4/9/9/9/4C4/9/3K5 w # [适情雅趣] 第六局：车炮妙用 — Rook-Cannon Finesse | Difficulty: ★★★ | Theme: sacrifice/checkmate
+2bak4/4a4/9/4N4/9/9/9/4C4/9/3K5 w # [适情雅趣] 第八局：马炮攻象士 — Horse-Cannon vs Elephants-Advisors | Difficulty: ★★★★ | Theme: horse and cannon coordination
+3aka3/9/4b4/9/2P6/9/p8/4C4/9/2B1K4 w # [适情雅趣] 第十局：炮兵巧胜 — Cannon-Pawn Clever Victory | Difficulty: ★★★ | Theme: pawn promotion
+3ak4/4a4/b3b4/3N5/9/6P2/9/9/4A4/4KR3 w # [适情雅趣] 第十二局：车马兵对满盘 — Rook-Horse-Pawn vs Full Guard | Difficulty: ★★★★ | Theme: chariot endgame
+4kab2/4a4/9/3R5/9/9/4p4/4B4/4A4/4K4 b # [适情雅趣] 第十八局：黑方巧和 — Black Draws Cleverly | Difficulty: ★★★★ | Theme: draw study
+3aka3/9/4b2b1/9/4N4/9/9/4R4/9/4K4 w # [适情雅趣] 第二十局：车马破士象全 — Rook-Horse Break Full Defense | Difficulty: ★★★ | Theme: chariot vs full defense
+3ak4/9/9/4C4/9/9/4P4/9/9/4K4 w # [适情雅趣] 第二十五局：炮高兵必胜单士 — Cannon-High Pawn Wins vs Single Advisor | Difficulty: ★★ | Theme: pawn promotion
+3ak4/4a4/2b1b4/9/4C4/9/9/1R7/9/4K4 w # [适情雅趣] 第三十局：大胆弃车 — Bold Rook Sacrifice | Difficulty: ★★★★★ | Theme: sacrifice/checkmate
+
+# ===《桔中秘》(Secret Inside the Orange, 1632, Ming Dynasty) — 10 positions ===
+
+2baka3/9/4b4/4C4/4P4/9/9/9/9/4K4 w # [桔中秘] 全旨·炮兵破象士 — Cannon-Pawn Breaks Elephant-Advisor | Difficulty: ★★★ | Theme: pawn promotion
+3ak4/4a4/4b4/C8/9/3R5/9/9/9/4K4 w # [桔中秘] 全旨·车炮冷着妙手 — Rook-Cannon Cold Move | Difficulty: ★★★★ | Theme: sacrifice/checkmate
+3aka3/9/3Nb4/9/4R4/9/9/9/9/4K4 w # [桔中秘] 全旨·车马绝杀 — Rook-Horse Deadly Checkmate | Difficulty: ★★★ | Theme: checkmate
+2bak4/9/4a4/4R4/4N4/9/9/4C4/9/4K4 w # [桔中秘] 全旨·三子归边杀 — Three Pieces on the Edge Kill | Difficulty: ★★★★ | Theme: checkmate
+3aka3/9/4b2b1/9/P8/9/9/1C7/9/4K4 w # [桔中秘] 全旨·炮兵巧胜象 — Cannon-Pawn Outplays Elephants | Difficulty: ★★★ | Theme: pawn promotion
+4kab2/4a4/4b4/9/9/2N6/9/9/4C4/4K4 w # [桔中秘] 全旨·马炮士象全攻杀 — Horse-Cannon Attacks Full Guard | Difficulty: ★★★★★ | Theme: horse and cannon coordination
+4kab2/4a4/9/9/9/9/4p4/R3B4/4A4/4K4 b # [桔中秘] 全旨·黑方弃子求和 — Black Sacrifices for Draw | Difficulty: ★★★★ | Theme: draw study
+3ak4/9/9/9/1R2N4/9/9/9/9/4K4 w # [桔中秘] 全旨·车马配合攻将 — Rook-Horse Coordination Attack | Difficulty: ★★★ | Theme: checkmate
+3aka3/9/2b1b4/4C4/9/9/9/4R4/9/4K4 w # [桔中秘] 全旨·车炮沉底 — Rook-Cannon Bottom Rank Attack | Difficulty: ★★★ | Theme: chariot endgame
+2bak1b2/4a4/9/9/4N4/3R5/9/9/9/4K4 w # [桔中秘] 全旨·马踏将门 — Horse Stomps the Palace Gate | Difficulty: ★★★★ | Theme: sacrifice/checkmate
+
+# ===《梅花谱》(Plum Blossom Manual, 1670, Qing Dynasty) — 5 positions ===
+
+3aka3/9/4b2b1/9/9/4R4/4N4/9/9/4K4 w # [梅花谱] 屏风马破当头炮·残局 — Screen Horse vs Central Cannon Endgame | Difficulty: ★★★★ | Theme: chariot endgame
+r1bakab2/9/2n1c4/p1p3p1p/9/2P6/P3P1P1P/2N1BC3/9/R1BAK2NR w # [梅花谱] 屏风马对中炮·布局后阵型 — Screen Horse vs Central Cannon Formation | Difficulty: ★★★ | Theme: fortress position
+3ak4/4a4/b3b4/4C4/9/4N4/9/9/9/4K4 w # [梅花谱] 马炮残棋妙手 — Horse-Cannon Endgame Finesse | Difficulty: ★★★★ | Theme: horse and cannon coordination
+3ak4/4a4/4b4/4P4/2N6/9/9/9/9/4K4 w # [梅花谱] 马兵攻士象 — Horse-Pawn vs Advisor-Elephant | Difficulty: ★★★★ | Theme: pawn promotion
+4k4/4a4/4ba3/R3N4/9/9/9/9/9/4K4 w # [梅花谱] 车马士角绝杀 — Rook-Horse Advisor-Corner Checkmate | Difficulty: ★★★★★ | Theme: sacrifice/checkmate
+
+# ===《反梅花谱》(Anti-Plum Blossom Manual, Qing Dynasty) — 5 positions ===
+
+r2akab2/9/2n1b1n2/p1p1C1p1p/9/2P6/P3P1P1P/2N1B4/9/R1BAK1CNR w # [反梅花谱] 先手反击中炮 — Counter-Attack Against Central Cannon | Difficulty: ★★★ | Theme: fortress position
+3ak4/4a4/b3b4/9/4P4/9/9/4C4/9/4K4 b # [反梅花谱] 黑方守和秘术 — Black's Drawing Secrets | Difficulty: ★★★★ | Theme: draw study
+3aka3/9/4b2b1/9/4R4/9/4N4/4C4/9/4K4 w # [反梅花谱] 车马炮联合攻杀 — Rook-Horse-Cannon Combined Attack | Difficulty: ★★★★★ | Theme: sacrifice/checkmate
+4kab2/4a4/4b4/3N5/9/9/9/4R4/9/3K5 w # [反梅花谱] 车马残棋精论 — Rook-Horse Endgame Analysis | Difficulty: ★★★★ | Theme: chariot endgame
+3ak4/4a4/2b1b4/9/9/4C4/9/4N4/9/4K4 w # [反梅花谱] 马炮攻士象全·巧破铁壁 — Horse-Cannon Breaks the Iron Wall | Difficulty: ★★★★★ | Theme: horse and cannon coordination

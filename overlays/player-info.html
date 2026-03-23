@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<!--
+  OBS Setup:
+  - Add as Browser Source
+  - Width: 1920, Height: 200
+  - Position: bottom of screen (x=0, y=880)
+  - Check "Shutdown source when not visible"
+  - URL params: ?red=胡荣华&black=吕钦&event=1988全国冠军赛
+  - Transparent background: yes
+-->
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    width: 1920px;
+    height: 200px;
+    overflow: hidden;
+    font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;
+  }
+
+  .lower-third {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    opacity: 0;
+    animation: slideIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+  }
+
+  @keyframes slideIn {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(40px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  /* Glass morphism base */
+  .panel {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.06), transparent);
+    animation: shimmer 4s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(50%); }
+  }
+
+  /* Red player */
+  .player-red {
+    background: linear-gradient(135deg, rgba(180, 20, 20, 0.85), rgba(120, 10, 10, 0.9));
+    padding: 14px 40px 14px 30px;
+    border-radius: 8px 0 0 8px;
+    min-width: 260px;
+    text-align: center;
+    animation: playerSlideRight 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+    border-right: none;
+  }
+
+  @keyframes playerSlideRight {
+    0% { transform: translateX(-30px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+
+  .player-red .name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    letter-spacing: 4px;
+  }
+
+  .player-red .label {
+    font-size: 12px;
+    color: rgba(255, 200, 200, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+  }
+
+  /* Divider / Event center */
+  .event-center {
+    background: linear-gradient(180deg, rgba(30, 30, 30, 0.92), rgba(15, 15, 15, 0.95));
+    padding: 14px 30px;
+    min-width: 300px;
+    text-align: center;
+    position: relative;
+    border-left: 2px solid;
+    border-right: 2px solid;
+    border-image: linear-gradient(180deg, #ffd700, #b8860b, #ffd700) 1;
+    animation: centerFade 0.5s ease 1.0s both;
+  }
+
+  @keyframes centerFade {
+    0% { opacity: 0; transform: scaleX(0.8); }
+    100% { opacity: 1; transform: scaleX(1); }
+  }
+
+  .event-center .event-name {
+    font-size: 18px;
+    color: #ffd700;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+  }
+
+  .event-center .vs {
+    font-size: 13px;
+    color: rgba(255, 215, 0, 0.6);
+    margin-bottom: 2px;
+    letter-spacing: 4px;
+  }
+
+  /* Animated gradient line on top of event */
+  .event-center::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffd700, #ff6b35, #ffd700, transparent);
+    background-size: 200% 100%;
+    animation: gradientLine 3s linear infinite;
+  }
+  .event-center::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffd700, #ff6b35, #ffd700, transparent);
+    background-size: 200% 100%;
+    animation: gradientLine 3s linear infinite reverse;
+  }
+
+  @keyframes gradientLine {
+    0% { background-position: 0% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Black player */
+  .player-black {
+    background: linear-gradient(135deg, rgba(40, 40, 40, 0.9), rgba(20, 20, 20, 0.95));
+    padding: 14px 30px 14px 40px;
+    border-radius: 0 8px 8px 0;
+    min-width: 260px;
+    text-align: center;
+    animation: playerSlideLeft 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.6s both;
+    border-left: none;
+  }
+
+  @keyframes playerSlideLeft {
+    0% { transform: translateX(30px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+
+  .player-black .name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #e8e8e8;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    letter-spacing: 4px;
+  }
+
+  .player-black .label {
+    font-size: 12px;
+    color: rgba(200, 200, 200, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+  }
+
+  /* Gold corner accents */
+  .corner-accent {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: #ffd700;
+    border-style: solid;
+    z-index: 2;
+  }
+  .player-red .corner-accent.tl { top: 0; left: 0; border-width: 2px 0 0 2px; }
+  .player-red .corner-accent.bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+  .player-black .corner-accent.tr { top: 0; right: 0; border-width: 2px 2px 0 0; }
+  .player-black .corner-accent.br { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+
+  /* Piece icons */
+  .piece-icon {
+    font-size: 14px;
+    margin: 0 4px;
+    opacity: 0.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="lower-third" id="lowerThird">
+  <div class="panel player-red">
+    <div class="corner-accent tl"></div>
+    <div class="corner-accent bl"></div>
+    <div class="label">RED <span class="piece-icon">帥</span></div>
+    <div class="name" id="redName">红方</div>
+  </div>
+  <div class="panel event-center">
+    <div class="vs">V S</div>
+    <div class="event-name" id="eventName">友谊赛</div>
+  </div>
+  <div class="panel player-black">
+    <div class="corner-accent tr"></div>
+    <div class="corner-accent br"></div>
+    <div class="label"><span class="piece-icon">將</span> BLACK</div>
+    <div class="name" id="blackName">黑方</div>
+  </div>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const red = params.get('red');
+  const black = params.get('black');
+  const event = params.get('event');
+
+  if (red) document.getElementById('redName').textContent = red;
+  if (black) document.getElementById('blackName').textContent = black;
+  if (event) document.getElementById('eventName').textContent = event;
+
+  // Listen for postMessage updates
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.red) document.getElementById('redName').textContent = e.data.red;
+    if (e.data && e.data.black) document.getElementById('blackName').textContent = e.data.black;
+    if (e.data && e.data.event) document.getElementById('eventName').textContent = e.data.event;
+  });
+</script>
+</body>
+</html>

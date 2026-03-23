@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" rel="stylesheet">
+<title>象棋大师工作台 — The Ultimate Xiangqi Creator Studio</title>
+<style>
+/* ══════════════════════════════════════
+   CSS CUSTOM PROPERTIES
+   ══════════════════════════════════════ */
+:root {
+  --bg: #06060a;
+  --surface: rgba(255,255,255,0.04);
+  --glass: rgba(255,255,255,0.05);
+  --glass-border: rgba(255,255,255,0.08);
+  --glass-border-hover: rgba(255,255,255,0.15);
+  --text: #f0f0f5;
+  --text2: #9ca0b8;
+  --text3: #5a5e78;
+  --gold: #eab308;
+  --gold-glow: rgba(234,179,8,0.25);
+  --red: #ef4444;
+  --red-glow: rgba(239,68,68,0.2);
+  --blue: #3b82f6;
+  --blue-glow: rgba(59,130,246,0.15);
+  --purple: #a855f7;
+  --purple-glow: rgba(168,85,247,0.15);
+  --green: #22c55e;
+  --cyan: #06b6d4;
+  --orange: #f97316;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+/* ══════════════════════════════════════
+   RESET & BASE
+   ══════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'LXGW WenKai', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ══════════════════════════════════════
+   NOISE & AMBIENT BACKGROUND
+   ══════════════════════════════════════ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(120,20,20,0.12), transparent),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(20,30,100,0.10), transparent),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(80,20,120,0.06), transparent);
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ══════════════════════════════════════
+   LAYOUT UTILITIES
+   ══════════════════════════════════════ */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+section { position: relative; z-index: 1; }
+
+/* ══════════════════════════════════════
+   ANIMATIONS — respect prefers-reduced-motion
+   ══════════════════════════════════════ */
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-18px) rotate(2deg); }
+  66% { transform: translateY(10px) rotate(-1deg); }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+@keyframes grid-move {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(60px); }
+}
+@keyframes scroll-hint {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(12px); opacity: 1; }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes counter-glow {
+  0%, 100% { text-shadow: 0 0 20px var(--gold-glow); }
+  50% { text-shadow: 0 0 40px var(--gold-glow), 0 0 80px rgba(234,179,8,0.1); }
+}
+@keyframes border-rotate {
+  0% { --angle: 0deg; }
+  100% { --angle: 360deg; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ══════════════════════════════════════
+   SCROLL-TRIGGERED ANIMATION CLASSES
+   ══════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+.reveal-delay-6 { transition-delay: 0.6s; }
+.reveal-delay-7 { transition-delay: 0.7s; }
+
+/* ══════════════════════════════════════
+   FIXED NAV
+   ══════════════════════════════════════ */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(6,6,10,0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid transparent;
+  transition: background 0.4s, border-color 0.4s, box-shadow 0.4s;
+}
+.nav.scrolled {
+  background: rgba(6,6,10,0.92);
+  border-bottom-color: var(--glass-border);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--text);
+}
+.nav-logo-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--red), #b91c1c);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900; color: #fff;
+  box-shadow: 0 2px 12px var(--red-glow);
+}
+.nav-logo-text {
+  font-size: 1.1em;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.nav-links {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 0.82em;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+}
+.nav-links a:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.06);
+}
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  background: linear-gradient(135deg, var(--red), #c62828);
+  color: #fff;
+  font-size: 0.82em;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 16px var(--red-glow);
+}
+.nav-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 24px rgba(239,68,68,0.4);
+}
+
+/* Mobile nav */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .nav { padding: 0 20px; }
+}
+
+/* ══════════════════════════════════════
+   HERO SECTION
+   ══════════════════════════════════════ */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Animated grid */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.08;
+}
+.hero-grid::before, .hero-grid::after {
+  content: '';
+  position: absolute;
+  inset: -60px 0 0 0;
+  animation: grid-move 8s linear infinite;
+}
+.hero-grid::before {
+  background: repeating-linear-gradient(
+    90deg, transparent, transparent 79px, rgba(255,255,255,0.3) 79px, rgba(255,255,255,0.3) 80px
+  );
+}
+.hero-grid::after {
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 79px, rgba(255,255,255,0.3) 79px, rgba(255,255,255,0.3) 80px
+  );
+}
+
+/* Floating chess pieces */
+.hero-pieces {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.hero-piece {
+  position: absolute;
+  font-size: 3rem;
+  opacity: 0.06;
+  animation: float 12s ease-in-out infinite;
+  color: var(--text);
+}
+.hero-piece:nth-child(1) { top: 12%; left: 8%; animation-delay: 0s; font-size: 4rem; }
+.hero-piece:nth-child(2) { top: 25%; right: 12%; animation-delay: -2s; font-size: 3.5rem; }
+.hero-piece:nth-child(3) { bottom: 20%; left: 15%; animation-delay: -4s; font-size: 2.5rem; }
+.hero-piece:nth-child(4) { top: 60%; right: 8%; animation-delay: -6s; font-size: 3rem; }
+.hero-piece:nth-child(5) { top: 8%; left: 45%; animation-delay: -3s; font-size: 2rem; }
+.hero-piece:nth-child(6) { bottom: 30%; right: 25%; animation-delay: -8s; font-size: 3.5rem; }
+.hero-piece:nth-child(7) { bottom: 10%; left: 40%; animation-delay: -5s; }
+.hero-piece:nth-child(8) { top: 40%; left: 5%; animation-delay: -7s; font-size: 2.5rem; }
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  padding: 0 24px;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 18px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 100px;
+  font-size: 0.8em;
+  color: var(--text2);
+  margin-bottom: 32px;
+  backdrop-filter: blur(10px);
+}
+.hero-badge-dot {
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.hero h1 {
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 900;
+  letter-spacing: -2px;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #fff 0%, #ccc 50%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-subtitle {
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  font-weight: 500;
+  color: var(--text2);
+  letter-spacing: -0.5px;
+  margin-bottom: 20px;
+}
+.hero-tagline {
+  font-size: 1.05em;
+  color: var(--text3);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 48px;
+}
+.hero-tagline span {
+  color: var(--gold);
+}
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 40px;
+  font-size: 1.05em;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--red), #b91c1c);
+  border: none;
+  border-radius: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+  box-shadow: 0 4px 30px var(--red-glow), 0 0 60px rgba(239,68,68,0.15);
+}
+.hero-cta:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 40px rgba(239,68,68,0.4), 0 0 80px rgba(239,68,68,0.2);
+}
+.hero-cta::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--red), var(--gold), var(--red));
+  background-size: 200% 200%;
+  animation: shimmer 3s ease-in-out infinite;
+  z-index: -1;
+  opacity: 0.5;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text3);
+  font-size: 0.75em;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.scroll-hint-arrow {
+  width: 24px; height: 24px;
+  border-right: 2px solid var(--text3);
+  border-bottom: 2px solid var(--text3);
+  transform: rotate(45deg);
+  animation: scroll-hint 2s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════
+   SECTION TITLES
+   ══════════════════════════════════════ */
+.section-header {
+  text-align: center;
+  margin-bottom: 64px;
+}
+.section-label {
+  font-size: 0.78em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.section-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+.section-desc {
+  font-size: 1.05em;
+  color: var(--text2);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ══════════════════════════════════════
+   TOOLS SHOWCASE
+   ══════════════════════════════════════ */
+.tools-section {
+  padding: 120px 0;
+}
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+@media (max-width: 900px) { .tools-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .tools-grid { grid-template-columns: 1fr; } }
+
+.tool-card {
+  position: relative;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, box-shadow 0.3s;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  overflow: hidden;
+}
+.tool-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  opacity: 0;
+  transition: opacity 0.4s;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.06), transparent 60%);
+}
+.tool-card:hover::before { opacity: 1; }
+.tool-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--glass-border-hover);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(255,255,255,0.02);
+}
+.tool-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4em;
+  margin-bottom: 16px;
+  position: relative;
+}
+.tool-card-title {
+  font-size: 1em;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.tool-card-en {
+  font-size: 0.75em;
+  color: var(--text3);
+  margin-bottom: 10px;
+}
+.tool-card-desc {
+  font-size: 0.82em;
+  color: var(--text2);
+  line-height: 1.55;
+}
+
+/* Tool icon colors */
+.ti-red { background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.05)); color: var(--red); }
+.ti-blue { background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.05)); color: var(--blue); }
+.ti-gold { background: linear-gradient(135deg, rgba(234,179,8,0.2), rgba(234,179,8,0.05)); color: var(--gold); }
+.ti-green { background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05)); color: var(--green); }
+.ti-purple { background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(168,85,247,0.05)); color: var(--purple); }
+.ti-cyan { background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(6,182,212,0.05)); color: var(--cyan); }
+.ti-orange { background: linear-gradient(135deg, rgba(249,115,22,0.2), rgba(249,115,22,0.05)); color: var(--orange); }
+
+/* ══════════════════════════════════════
+   FEATURE HIGHLIGHTS
+   ══════════════════════════════════════ */
+.features-section {
+  padding: 80px 0;
+}
+.feature-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  margin-bottom: 140px;
+}
+.feature-row:last-child { margin-bottom: 0; }
+.feature-row.reversed .feature-text { order: 2; }
+.feature-row.reversed .feature-visual { order: 1; }
+@media (max-width: 768px) {
+  .feature-row { grid-template-columns: 1fr; gap: 40px; }
+  .feature-row.reversed .feature-text { order: 1; }
+  .feature-row.reversed .feature-visual { order: 2; }
+}
+
+.feature-label {
+  font-size: 0.75em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.feature-title {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+  margin-bottom: 20px;
+}
+.feature-desc {
+  font-size: 0.95em;
+  color: var(--text2);
+  margin-bottom: 32px;
+  line-height: 1.8;
+}
+.feature-stats {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.feature-stat-value {
+  font-size: 1.8em;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1.2;
+}
+.feature-stat-label {
+  font-size: 0.78em;
+  color: var(--text3);
+}
+
+/* Feature visual mockups */
+.feature-visual {
+  position: relative;
+  min-height: 300px;
+}
+
+/* Mock board */
+.mock-board {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  backdrop-filter: blur(20px);
+  position: relative;
+}
+.mock-board-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 2px;
+  aspect-ratio: 9/5;
+  position: relative;
+}
+.mock-cell {
+  aspect-ratio: 1;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7em;
+  font-weight: 700;
+}
+.mock-cell.piece-red { color: var(--red); background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.15); }
+.mock-cell.piece-black { color: var(--text); background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+.eval-bar {
+  position: absolute;
+  left: -12px;
+  top: 24px;
+  bottom: 24px;
+  width: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.eval-fill {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 62%;
+  background: linear-gradient(to top, var(--red), var(--gold));
+  border-radius: 3px;
+  transition: height 1s;
+}
+.eval-label {
+  position: absolute;
+  left: -12px;
+  top: 4px;
+  font-size: 0.65em;
+  font-weight: 700;
+  color: var(--gold);
+  width: 6px;
+  text-align: center;
+  transform: translateX(-100%) translateX(-8px);
+  white-space: nowrap;
+}
+
+/* Mock pipeline */
+.mock-pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+.pipeline-node {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  position: relative;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.pipeline-node:hover {
+  border-color: var(--glass-border-hover);
+  transform: translateX(4px);
+}
+.pipeline-num {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--gold), #ca8a04);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8em; font-weight: 800; color: #000;
+  flex-shrink: 0;
+}
+.pipeline-text { font-size: 0.85em; font-weight: 600; }
+.pipeline-text span { display: block; font-weight: 400; color: var(--text3); font-size: 0.85em; }
+.pipeline-connector {
+  width: 2px; height: 8px;
+  background: rgba(234,179,8,0.3);
+  margin-left: 35px;
+}
+
+/* Mock chart */
+.mock-chart {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  backdrop-filter: blur(20px);
+}
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.chart-title {
+  font-size: 0.85em;
+  font-weight: 700;
+}
+.chart-badge {
+  font-size: 0.7em;
+  padding: 3px 10px;
+  background: rgba(34,197,94,0.15);
+  color: var(--green);
+  border-radius: 100px;
+  font-weight: 600;
+}
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 120px;
+}
+.chart-bar {
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  min-height: 12px;
+  transition: height 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.chart-bar:nth-child(1) { height: 40%; background: linear-gradient(to top, rgba(239,68,68,0.3), var(--red)); }
+.chart-bar:nth-child(2) { height: 65%; background: linear-gradient(to top, rgba(59,130,246,0.3), var(--blue)); }
+.chart-bar:nth-child(3) { height: 45%; background: linear-gradient(to top, rgba(234,179,8,0.3), var(--gold)); }
+.chart-bar:nth-child(4) { height: 80%; background: linear-gradient(to top, rgba(34,197,94,0.3), var(--green)); }
+.chart-bar:nth-child(5) { height: 55%; background: linear-gradient(to top, rgba(168,85,247,0.3), var(--purple)); }
+.chart-bar:nth-child(6) { height: 90%; background: linear-gradient(to top, rgba(6,182,212,0.3), var(--cyan)); }
+.chart-bar:nth-child(7) { height: 70%; background: linear-gradient(to top, rgba(249,115,22,0.3), var(--orange)); }
+.chart-labels {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.chart-labels span {
+  flex: 1;
+  text-align: center;
+  font-size: 0.6em;
+  color: var(--text3);
+}
+.chart-line {
+  position: relative;
+  height: 60px;
+  margin-top: 20px;
+}
+.chart-line svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ══════════════════════════════════════
+   STATS BAR
+   ══════════════════════════════════════ */
+.stats-section {
+  padding: 80px 0;
+  border-top: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
+  background: rgba(255,255,255,0.01);
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 24px;
+  text-align: center;
+}
+@media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 480px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+.stat-item {}
+.stat-value {
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1.2;
+  animation: counter-glow 4s ease-in-out infinite;
+}
+.stat-label {
+  font-size: 0.78em;
+  color: var(--text3);
+  margin-top: 4px;
+}
+
+/* ══════════════════════════════════════
+   QUICK START
+   ══════════════════════════════════════ */
+.quickstart-section {
+  padding: 120px 0;
+}
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+@media (max-width: 768px) { .steps-grid { grid-template-columns: 1fr; } }
+.step-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 36px 28px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: border-color 0.3s, transform 0.3s;
+}
+.step-card:hover {
+  border-color: var(--glass-border-hover);
+  transform: translateY(-4px);
+}
+.step-num {
+  font-size: 3.5em;
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--gold), rgba(234,179,8,0.3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+}
+.step-title {
+  font-size: 1.15em;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.step-desc {
+  font-size: 0.85em;
+  color: var(--text2);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+.step-code {
+  display: inline-block;
+  padding: 6px 14px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.78em;
+  color: var(--green);
+  margin-bottom: 20px;
+}
+.step-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.82em;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.step-btn:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: var(--glass-border-hover);
+  transform: translateY(-1px);
+}
+
+/* ══════════════════════════════════════
+   TECH STACK
+   ══════════════════════════════════════ */
+.tech-section {
+  padding: 100px 0;
+}
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+@media (max-width: 600px) { .tech-grid { grid-template-columns: repeat(2, 1fr); } }
+.tech-badge {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: border-color 0.3s, transform 0.3s;
+}
+.tech-badge:hover {
+  border-color: var(--glass-border-hover);
+  transform: translateY(-3px);
+}
+.tech-icon {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5em; font-weight: 900;
+}
+.tech-name {
+  font-size: 0.95em;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.tech-label {
+  font-size: 0.72em;
+  color: var(--text3);
+}
+
+/* ══════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════ */
+.footer {
+  border-top: 1px solid var(--glass-border);
+  padding: 60px 0 40px;
+  position: relative;
+  z-index: 1;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.footer-brand {}
+.footer-tagline {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.footer-sub {
+  font-size: 0.82em;
+  color: var(--text3);
+}
+.footer-links {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+.footer-col h4 {
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text3);
+  margin-bottom: 12px;
+}
+.footer-col a {
+  display: block;
+  font-size: 0.85em;
+  color: var(--text2);
+  text-decoration: none;
+  padding: 3px 0;
+  transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--text); }
+.footer-bottom {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--glass-border);
+  text-align: center;
+  font-size: 0.78em;
+  color: var(--text3);
+}
+</style>
+</head>
+<body>
+
+<nav style="background:rgba(13,15,20,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:8px 16px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-family:-apple-system,sans-serif;position:fixed;top:0;left:0;right:0;z-index:9999;">
+  <a href="dashboard.html" style="color:#ef4444;font-weight:700;text-decoration:none;font-size:0.82em;padding:4px 12px;">棋 Dashboard</a>
+  <a href="board-art.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Art Board</a>
+  <a href="board3d.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">3D Board</a>
+  <a href="board.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Board</a>
+  <a href="games.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Games</a>
+  <a href="explain.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Explain</a>
+  <a href="analyze.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analyze</a>
+  <a href="calendar.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Calendar</a>
+  <a href="scripts.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Scripts</a>
+  <a href="analytics.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analytics</a>
+  <a href="branding.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Branding</a>
+  <a href="seo.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">SEO</a>
+  <a href="translate.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Translate</a>
+  <a href="report.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Report</a>
+</nav>
+
+<!-- ═══════════ NAVIGATION ═══════════ -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">棋</div>
+    <span class="nav-logo-text">ChessDAO</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#tools">Tools</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#stats">Stats</a></li>
+    <li><a href="#quickstart">Quick Start</a></li>
+    <li><a href="#tech">Tech Stack</a></li>
+  </ul>
+  <div class="lang-toggle" style="display:inline-flex;gap:3px;margin-left:auto;">
+  <button onclick="setPageLang('zh')" class="lt-btn lt-active" data-lang="zh" style="background:rgba(240,192,96,0.9);color:#1a1d2e;border:none;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">中文</button>
+  <button onclick="setPageLang('en')" class="lt-btn" data-lang="en" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">EN</button>
+  <button onclick="setPageLang('both')" class="lt-btn" data-lang="both" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">双语</button>
+</div>
+  <a href="dashboard.html" class="nav-cta">Enter Dashboard &rarr;</a>
+</nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-pieces">
+    <div class="hero-piece">将</div>
+    <div class="hero-piece">車</div>
+    <div class="hero-piece">馬</div>
+    <div class="hero-piece">砲</div>
+    <div class="hero-piece">兵</div>
+    <div class="hero-piece">象</div>
+    <div class="hero-piece">士</div>
+    <div class="hero-piece">帅</div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Pikafish Engine Online &middot; Elo 3951
+    </div>
+    <h1 data-zh="象棋大师工作台" data-en="Xiangqi Creator Studio">象棋大师工作台</h1>
+    <p class="hero-subtitle" data-zh="终极象棋创作平台" data-en="The Ultimate Xiangqi Creator Studio">The Ultimate Xiangqi Creator Studio</p>
+    <p class="hero-tagline">Research <span>&middot;</span> Analyze <span>&middot;</span> Create <span>&middot;</span> Publish</p>
+    <a href="dashboard.html" class="hero-cta">Enter Dashboard &rarr;</a>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-hint-arrow"></div>
+  </div>
+</section>
+
+<!-- ═══════════ TOOLS SHOWCASE ═══════════ -->
+<section class="tools-section" id="tools">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">All-in-One Toolkit</div>
+      <h2 class="section-title" data-zh="8大工具，一站式平台" data-en="8 Powerful Tools, One Platform">8 Powerful Tools, One Platform</h2>
+      <p class="section-desc">Everything you need to research, create, and publish professional xiangqi content.</p>
+    </div>
+    <div class="tools-grid">
+
+      <a href="dashboard.html" class="tool-card reveal reveal-delay-1">
+        <div class="tool-icon ti-red">&#9776;</div>
+        <div class="tool-card-title" data-zh="控制台" data-en="Dashboard">控制台</div>
+        <div class="tool-card-en">Dashboard</div>
+        <div class="tool-card-desc">Founder's dashboard with task tracking across 13 plans.</div>
+      </a>
+
+      <a href="board-art.html" class="tool-card reveal reveal-delay-2">
+        <div class="tool-icon ti-gold">&#9823;</div>
+        <div class="tool-card-title" data-zh="艺术棋盘" data-en="Art Board">艺术棋盘</div>
+        <div class="tool-card-en">Art Board</div>
+        <div class="tool-card-desc">Museum-quality board with jade/rosewood/bronze pieces &amp; Gallery Mode.</div>
+      </a>
+
+      <a href="board3d.html" class="tool-card reveal reveal-delay-2">
+        <div class="tool-icon ti-blue">&#9820;</div>
+        <div class="tool-card-title" data-zh="3D 棋盘" data-en="3D Board">3D 棋盘</div>
+        <div class="tool-card-en">3D Board</div>
+        <div class="tool-card-desc">Premium 3D board with camera controls &amp; 4 visual themes.</div>
+      </a>
+
+      <a href="explain.html" class="tool-card reveal reveal-delay-3">
+        <div class="tool-icon ti-purple">&#9654;</div>
+        <div class="tool-card-title" data-zh="讲解播放" data-en="Play & Explain">讲解播放</div>
+        <div class="tool-card-en">Play &amp; Explain</div>
+        <div class="tool-card-desc">Interactive presenter: plays moves while commentary scrolls like YouTube.</div>
+      </a>
+
+      <a href="analyze.html" class="tool-card reveal reveal-delay-3">
+        <div class="tool-icon ti-cyan">&#128269;</div>
+        <div class="tool-card-title" data-zh="局面分析" data-en="Position Analysis">局面分析</div>
+        <div class="tool-card-en">Position Analysis</div>
+        <div class="tool-card-desc">Pikafish-powered analysis with good/bad move explanations.</div>
+      </a>
+
+      <a href="games.html" class="tool-card reveal reveal-delay-4">
+        <div class="tool-icon ti-gold">&#128218;</div>
+        <div class="tool-card-title" data-zh="棋谱库" data-en="Game Database">棋谱库</div>
+        <div class="tool-card-en">Game Database</div>
+        <div class="tool-card-desc">14 famous games with board replay &amp; key moments.</div>
+      </a>
+
+      <a href="calendar.html" class="tool-card reveal reveal-delay-4">
+        <div class="tool-icon ti-green">&#128197;</div>
+        <div class="tool-card-title" data-zh="日历" data-en="Calendar">日历</div>
+        <div class="tool-card-en">Content Calendar</div>
+        <div class="tool-card-desc">Publishing scheduler with cadence tracking.</div>
+      </a>
+
+      <a href="scripts.html" class="tool-card reveal reveal-delay-5">
+        <div class="tool-icon ti-purple">&#9997;</div>
+        <div class="tool-card-title" data-zh="脚本" data-en="Scripts">脚本</div>
+        <div class="tool-card-en">Script Generator</div>
+        <div class="tool-card-desc">4 commentary templates with bilingual phrase library.</div>
+      </a>
+
+      <a href="analytics.html" class="tool-card reveal reveal-delay-5">
+        <div class="tool-icon ti-cyan">&#128200;</div>
+        <div class="tool-card-title" data-zh="数据分析" data-en="Analytics">数据分析</div>
+        <div class="tool-card-en">Analytics Tracker</div>
+        <div class="tool-card-desc">Multi-platform metrics with canvas charts.</div>
+      </a>
+
+      <a href="branding.html" class="tool-card reveal reveal-delay-6">
+        <div class="tool-icon ti-orange">&#127912;</div>
+        <div class="tool-card-title" data-zh="品牌" data-en="Branding">品牌</div>
+        <div class="tool-card-en">Branding Kit</div>
+        <div class="tool-card-desc">Logo, banner &amp; thumbnail PNG generator.</div>
+      </a>
+
+      <a href="seo.html" class="tool-card reveal reveal-delay-6">
+        <div class="tool-icon ti-green">&#128270;</div>
+        <div class="tool-card-title" data-zh="SEO 工具" data-en="SEO Tools">SEO 工具</div>
+        <div class="tool-card-en">SEO Tools</div>
+        <div class="tool-card-desc">105 keywords, title generator &amp; hashtag manager.</div>
+      </a>
+
+      <a href="translate.html" class="tool-card reveal reveal-delay-7">
+        <div class="tool-icon ti-blue">&#127760;</div>
+        <div class="tool-card-title" data-zh="翻译器" data-en="Translator">翻译器</div>
+        <div class="tool-card-en">Translator</div>
+        <div class="tool-card-desc">200-term CN&#8596;EN dictionary &amp; subtitle generator.</div>
+      </a>
+
+      <a href="report.html" class="tool-card reveal reveal-delay-7">
+        <div class="tool-icon ti-red">&#128203;</div>
+        <div class="tool-card-title" data-zh="研究报告" data-en="Research Report">研究报告</div>
+        <div class="tool-card-en">Research Report</div>
+        <div class="tool-card-desc">Full market analysis &amp; competitor research.</div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FEATURE A: ENGINE ═══════════ -->
+<section class="features-section" id="features">
+  <div class="container">
+
+    <div class="feature-row reveal">
+      <div class="feature-text">
+        <div class="feature-label">Engine-Powered</div>
+        <h3 class="feature-title">引擎分析<br>Real-Time Analysis</h3>
+        <p class="feature-desc">
+          Integrated Pikafish engine — the world's strongest open-source xiangqi engine rated Elo 3951.
+          Get real-time position evaluation, multi-variation analysis up to 20+ moves deep,
+          and instant best-move suggestions. Turn complex positions into teachable moments.
+        </p>
+        <div class="feature-stats">
+          <div>
+            <div class="feature-stat-value" data-target="3951">0</div>
+            <div class="feature-stat-label">Engine Elo</div>
+          </div>
+          <div>
+            <div class="feature-stat-value">20+</div>
+            <div class="feature-stat-label">Moves Deep</div>
+          </div>
+          <div>
+            <div class="feature-stat-value">3</div>
+            <div class="feature-stat-label">Variations</div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-visual">
+        <div class="mock-board">
+          <div class="eval-bar">
+            <div class="eval-fill"></div>
+          </div>
+          <div class="eval-label">+2.4</div>
+          <div class="mock-board-grid">
+            <div class="mock-cell"></div><div class="mock-cell piece-black">車</div><div class="mock-cell piece-black">馬</div><div class="mock-cell"></div><div class="mock-cell piece-black">将</div><div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell piece-black">馬</div><div class="mock-cell piece-black">車</div>
+            <div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell piece-black">士</div><div class="mock-cell"></div><div class="mock-cell piece-black">士</div><div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell"></div>
+            <div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell"></div>
+            <div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell piece-red">士</div><div class="mock-cell"></div><div class="mock-cell piece-red">士</div><div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell"></div>
+            <div class="mock-cell piece-red">車</div><div class="mock-cell piece-red">馬</div><div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell piece-red">帅</div><div class="mock-cell"></div><div class="mock-cell"></div><div class="mock-cell piece-red">馬</div><div class="mock-cell piece-red">車</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ FEATURE B: CONTENT ═══════════ -->
+    <div class="feature-row reversed reveal">
+      <div class="feature-text">
+        <div class="feature-label">Content Pipeline</div>
+        <h3 class="feature-title">内容创作<br>Full Creation Pipeline</h3>
+        <p class="feature-desc">
+          From research to publishing — a complete content creation workflow.
+          Write scripts with templates, record with the 3D board,
+          edit in your preferred tool, and publish across platforms.
+          Every step is tracked and optimized.
+        </p>
+        <div class="feature-stats">
+          <div>
+            <div class="feature-stat-value">10</div>
+            <div class="feature-stat-label">Puzzle Scripts</div>
+          </div>
+          <div>
+            <div class="feature-stat-value">4</div>
+            <div class="feature-stat-label">Templates</div>
+          </div>
+          <div>
+            <div class="feature-stat-value">3</div>
+            <div class="feature-stat-label">Platforms</div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-visual">
+        <div class="mock-pipeline">
+          <div class="pipeline-node">
+            <div class="pipeline-num">1</div>
+            <div class="pipeline-text">Research &amp; Script<span>Write puzzle scripts with templates</span></div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <div class="pipeline-node">
+            <div class="pipeline-num">2</div>
+            <div class="pipeline-text">Record<span>3D board + engine analysis overlay</span></div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <div class="pipeline-node">
+            <div class="pipeline-num">3</div>
+            <div class="pipeline-text">Edit &amp; Brand<span>Apply visual identity and branding</span></div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <div class="pipeline-node">
+            <div class="pipeline-num">4</div>
+            <div class="pipeline-text">Publish<span>YouTube, Bilibili, TikTok</span></div>
+          </div>
+          <div class="pipeline-connector"></div>
+          <div class="pipeline-node">
+            <div class="pipeline-num">5</div>
+            <div class="pipeline-text">Analyze &amp; Optimize<span>Track performance, iterate</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ FEATURE C: DATA ═══════════ -->
+    <div class="feature-row reveal">
+      <div class="feature-text">
+        <div class="feature-label">Data-Driven</div>
+        <h3 class="feature-title">数据驱动<br>Growth Analytics</h3>
+        <p class="feature-desc">
+          Make every decision backed by data. Track views, engagement, and subscriber growth
+          across all platforms. Identify what content resonates, optimize posting schedules,
+          and accelerate channel growth with actionable insights.
+        </p>
+        <div class="feature-stats">
+          <div>
+            <div class="feature-stat-value" data-target="107">0</div>
+            <div class="feature-stat-label">Tracked Tasks</div>
+          </div>
+          <div>
+            <div class="feature-stat-value">6</div>
+            <div class="feature-stat-label">Plan Categories</div>
+          </div>
+          <div>
+            <div class="feature-stat-value">3</div>
+            <div class="feature-stat-label">Platform Analytics</div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-visual">
+        <div class="mock-chart">
+          <div class="chart-header">
+            <div class="chart-title">Channel Growth</div>
+            <div class="chart-badge">+24% &uarr;</div>
+          </div>
+          <div class="chart-bars">
+            <div class="chart-bar"></div>
+            <div class="chart-bar"></div>
+            <div class="chart-bar"></div>
+            <div class="chart-bar"></div>
+            <div class="chart-bar"></div>
+            <div class="chart-bar"></div>
+            <div class="chart-bar"></div>
+          </div>
+          <div class="chart-labels">
+            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+          </div>
+          <div class="chart-line">
+            <svg viewBox="0 0 300 60" fill="none" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="lg" x1="0" y1="0" x2="300" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#ef4444"/>
+                  <stop offset="50%" stop-color="#eab308"/>
+                  <stop offset="100%" stop-color="#22c55e"/>
+                </linearGradient>
+                <linearGradient id="lg-fill" x1="0" y1="0" x2="0" y2="60" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#eab308" stop-opacity="0.2"/>
+                  <stop offset="100%" stop-color="#eab308" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 50 Q40 45 75 38 Q110 30 150 25 Q190 20 225 15 Q260 10 300 5" stroke="url(#lg)" stroke-width="2" fill="none"/>
+              <path d="M0 50 Q40 45 75 38 Q110 30 150 25 Q190 20 225 15 Q260 10 300 5 L300 60 L0 60Z" fill="url(#lg-fill)"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════ STATS BAR ═══════════ -->
+<section class="stats-section" id="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item reveal">
+        <div class="stat-value" data-target="8">0</div>
+        <div class="stat-label">HTML Tools Built</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-1">
+        <div class="stat-value" data-target="14">0</div>
+        <div class="stat-label">Famous Games</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-2">
+        <div class="stat-value" data-target="10">0</div>
+        <div class="stat-label">Ready Scripts</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-3">
+        <div class="stat-value" data-target="20">0</div>
+        <div class="stat-label">Positions Analyzed</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-4">
+        <div class="stat-value" data-target="107">0</div>
+        <div class="stat-label">Tracked Tasks</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-5">
+        <div class="stat-value" data-target="3951">0</div>
+        <div class="stat-label">Elo Engine</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ QUICK START ═══════════ -->
+<section class="quickstart-section" id="quickstart">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Get Started</div>
+      <h2 class="section-title">Three Steps to Launch</h2>
+      <p class="section-desc">From zero to your first xiangqi video in minutes.</p>
+    </div>
+    <div class="steps-grid">
+
+      <div class="step-card reveal reveal-delay-1">
+        <div class="step-num">01</div>
+        <div class="step-title">Install Pikafish</div>
+        <div class="step-desc">Download and install the world's strongest xiangqi engine.</div>
+        <div class="step-code">bash engine/install.sh</div>
+        <br><br>
+        <a href="engine/install.sh" class="step-btn">View Installer &rarr;</a>
+      </div>
+
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-num">02</div>
+        <div class="step-title">Open the Dashboard</div>
+        <div class="step-desc">Start tracking your content plan and access all tools from one place.</div>
+        <br>
+        <a href="dashboard.html" class="step-btn">Open Dashboard &rarr;</a>
+      </div>
+
+      <div class="step-card reveal reveal-delay-3">
+        <div class="step-num">03</div>
+        <div class="step-title">Record Your First Video</div>
+        <div class="step-desc">Use scripts + 3D board + branding tools to create professional content.</div>
+        <br>
+        <a href="scripts.html" class="step-btn">Browse Scripts &rarr;</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ TECH STACK ═══════════ -->
+<section class="tech-section" id="tech">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Tech Stack</div>
+      <h2 class="section-title">Powered By</h2>
+      <p class="section-desc">Best-in-class tools working together.</p>
+    </div>
+    <div class="tech-grid">
+
+      <div class="tech-badge reveal reveal-delay-1">
+        <div class="tech-icon ti-red" style="font-size:1.2em;">&#9823;</div>
+        <div class="tech-name">Pikafish</div>
+        <div class="tech-label">Xiangqi Engine &middot; Elo 3951</div>
+      </div>
+
+      <div class="tech-badge reveal reveal-delay-2">
+        <div class="tech-icon ti-purple" style="font-size:1em;">OBS</div>
+        <div class="tech-name">OBS Studio</div>
+        <div class="tech-label">Screen Recording</div>
+      </div>
+
+      <div class="tech-badge reveal reveal-delay-3">
+        <div class="tech-icon ti-blue" style="font-size:0.9em;">剪映</div>
+        <div class="tech-name">剪映 CapCut</div>
+        <div class="tech-label">Video Editing</div>
+      </div>
+
+      <div class="tech-badge reveal reveal-delay-4">
+        <div class="tech-icon ti-cyan" style="font-size:0.85em;">Pr</div>
+        <div class="tech-name">Premiere Pro</div>
+        <div class="tech-label">Professional Editing</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-tagline">Built for aspiring 象棋 creators</div>
+        <div class="footer-sub">Research, create, and publish professional xiangqi content.</div>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Tools</h4>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="board.html">3D Board</a>
+          <a href="games.html">Game Database</a>
+          <a href="calendar.html">Calendar</a>
+        </div>
+        <div class="footer-col">
+          <h4>Create</h4>
+          <a href="scripts.html">Scripts</a>
+          <a href="analytics.html">Analytics</a>
+          <a href="branding.html">Branding</a>
+          <a href="report.html">Report</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Powered by Pikafish &middot; Made with Claude Code &middot; &copy; 2026 ChessDAO
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════ JAVASCRIPT ═══════════ -->
+<script>
+(function() {
+  'use strict';
+
+  // ── Nav scroll behavior ──
+  const nav = document.getElementById('nav');
+  let lastScroll = 0;
+  function onScroll() {
+    const y = window.scrollY;
+    nav.classList.toggle('scrolled', y > 60);
+    lastScroll = y;
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // ── Intersection Observer for reveal animations ──
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(function(el) {
+    if (prefersReduced) {
+      el.classList.add('visible');
+    } else {
+      revealObserver.observe(el);
+    }
+  });
+
+  // ── Animated counters ──
+  function animateCounter(el, target, duration) {
+    if (prefersReduced) { el.textContent = target; return; }
+    const start = performance.now();
+    function tick(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * target);
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  const counterObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        const target = parseInt(entry.target.getAttribute('data-target'), 10);
+        if (!isNaN(target)) {
+          animateCounter(entry.target, target, 1800);
+        }
+        counterObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('[data-target]').forEach(function(el) {
+    counterObserver.observe(el);
+  });
+
+  // ── Card mouse follow effect ──
+  document.querySelectorAll('.tool-card').forEach(function(card) {
+    card.addEventListener('mousemove', function(e) {
+      const rect = card.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+      const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+      card.style.setProperty('--mouse-x', x + '%');
+      card.style.setProperty('--mouse-y', y + '%');
+    });
+  });
+
+})();
+</script>
+
+<script>
+// Universal language toggle
+(function() {
+  let pageLang = localStorage.getItem('pageLang') || 'zh';
+  
+  window.setPageLang = function(lang) {
+    pageLang = lang;
+    localStorage.setItem('pageLang', lang);
+    document.querySelectorAll('.lt-btn').forEach(b => {
+      const isActive = b.dataset.lang === lang;
+      b.style.background = isActive ? 'rgba(240,192,96,0.9)' : 'rgba(255,255,255,0.08)';
+      b.style.color = isActive ? '#1a1d2e' : '#9ca0b8';
+      b.style.border = isActive ? 'none' : '1px solid rgba(255,255,255,0.06)';
+    });
+    applyLang();
+  };
+  
+  function applyLang() {
+    document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+      if (pageLang === 'zh') el.textContent = el.dataset.zh;
+      else if (pageLang === 'en') el.textContent = el.dataset.en;
+      else el.textContent = el.dataset.zh + ' ' + el.dataset.en;
+    });
+  }
+  
+  // Apply on load
+  setTimeout(() => {
+    setPageLang(pageLang);
+  }, 100);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" rel="stylesheet">
+<title>名局数据库 — Famous Game Database</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f1117;--surface:#1e2130;--surface2:#282b3d;--border:#333652;--text:#e0e0e0;--text2:#999;--red:#ef4444;--red2:#dc2626;--gold:#f59e0b;--blue:#3b82f6;--green:#22c55e}
+body{font-family:'LXGW WenKai','PingFang SC','Microsoft YaHei','Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+input,select,button{font-family:inherit}
+
+/* Header */
+.header{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;justify-content:space-between}
+.header h1{font-size:18px;color:var(--text)}
+.header h1 span{color:var(--red);margin-right:6px}
+.header-right{display:flex;align-items:center;gap:16px;font-size:13px}
+
+/* Layout */
+.layout{display:flex;height:calc(100vh - 89px)}
+
+/* Sidebar */
+.sidebar{width:300px;min-width:300px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-header{padding:12px;border-bottom:1px solid var(--border)}
+.search-box{width:100%;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;outline:none}
+.search-box:focus{border-color:var(--red)}
+.search-box::placeholder{color:var(--text2)}
+.cat-tabs{display:flex;gap:2px;margin-top:8px;flex-wrap:wrap}
+.cat-tab{padding:4px 10px;font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;transition:.2s}
+.cat-tab:hover,.cat-tab.active{background:var(--red);color:#fff;border-color:var(--red)}
+.game-list{flex:1;overflow-y:auto;padding:6px}
+.game-list::-webkit-scrollbar{width:6px}
+.game-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.game-item{padding:10px;border-radius:6px;cursor:pointer;margin-bottom:4px;transition:.15s;border:1px solid transparent}
+.game-item:hover{background:var(--surface2);border-color:var(--border)}
+.game-item.active{background:var(--surface2);border-color:var(--red)}
+.game-item .gi-title{font-size:14px;font-weight:600;margin-bottom:3px}
+.game-item .gi-meta{font-size:11px;color:var(--text2)}
+.game-item .gi-tags{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+.tag{padding:1px 6px;border-radius:3px;font-size:10px;background:var(--bg);color:var(--text2);border:1px solid var(--border)}
+.tag.red{color:var(--red);border-color:var(--red)}
+.tag.gold{color:var(--gold);border-color:var(--gold)}
+.tag.green{color:var(--green);border-color:var(--green)}
+.tag.blue{color:var(--blue);border-color:var(--blue)}
+
+/* Main */
+.main{flex:1;display:flex;overflow:hidden}
+
+/* Board area */
+.board-area{display:flex;flex-direction:column;align-items:center;padding:16px;min-width:480px}
+.board-wrapper{position:relative}
+canvas#board{border-radius:4px;cursor:pointer}
+.controls{display:flex;align-items:center;gap:8px;margin-top:12px}
+.ctrl-btn{width:40px;height:36px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+.ctrl-btn:hover{background:var(--red);border-color:var(--red);color:#fff}
+.ctrl-btn.playing{background:var(--green);border-color:var(--green);color:#fff}
+.speed-ctrl{display:flex;align-items:center;gap:6px;margin-left:12px;font-size:12px;color:var(--text2)}
+.speed-ctrl input[type=range]{width:80px;accent-color:var(--red)}
+.move-number{font-size:13px;color:var(--text2);margin-left:auto}
+
+/* Right panel */
+.right-panel{flex:1;min-width:320px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.right-panel::-webkit-scrollbar{width:6px}
+.right-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.panel-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px}
+.panel-card h3{font-size:14px;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.info-grid{display:grid;grid-template-columns:70px 1fr;gap:4px 8px;font-size:13px}
+.info-grid .label{color:var(--text2)}
+.story-text{font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap}
+.story-en{font-size:12px;color:var(--text2);margin-top:8px;line-height:1.6}
+.move-list{display:flex;flex-wrap:wrap;gap:2px;max-height:180px;overflow-y:auto;font-size:12px}
+.move-list::-webkit-scrollbar{width:4px}
+.move-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.move-chip{padding:3px 7px;border-radius:3px;cursor:pointer;transition:.15s;background:var(--bg);border:1px solid transparent}
+.move-chip:hover{border-color:var(--border)}
+.move-chip.active{background:var(--red);color:#fff}
+.move-chip.key-moment{border-color:var(--gold);color:var(--gold)}
+.move-chip.key-moment.active{background:var(--gold);color:#000}
+.key-moment-info{background:var(--bg);border-radius:6px;padding:10px;margin-top:8px;font-size:12px;line-height:1.6}
+.key-moment-info .km-title{color:var(--gold);font-weight:600;margin-bottom:4px}
+.export-btn{width:100%;padding:10px;background:var(--red);border:none;border-radius:6px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+.export-btn:hover{background:var(--red2)}
+.export-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:999;display:none;align-items:center;justify-content:center}
+.export-modal.show{display:flex}
+.export-content{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:640px;max-height:80vh;padding:20px;overflow-y:auto}
+.export-content h3{margin-bottom:12px;color:var(--red)}
+.export-content textarea{width:100%;height:400px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;font-family:'Courier New',monospace;resize:vertical}
+.export-content .btn-row{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+.export-content button{padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:13px}
+.export-content button.primary{background:var(--red);border-color:var(--red);color:#fff}
+
+/* Welcome */
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:var(--text2);text-align:center;padding:40px}
+.welcome h2{font-size:24px;color:var(--text);margin-bottom:12px}
+.welcome p{font-size:14px;line-height:1.8}
+</style>
+</head>
+<body>
+
+<nav style="background:#131520;border-bottom:1px solid rgba(255,255,255,0.06);padding:8px 16px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-family:-apple-system,sans-serif;">
+  <a href="dashboard.html" style="color:#ef4444;font-weight:700;text-decoration:none;font-size:0.82em;padding:4px 12px;">棋 Dashboard</a>
+  <a href="board-art.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Art Board</a>
+  <a href="board3d.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">3D Board</a>
+  <a href="board.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Board</a>
+  <a href="games.html" style="color:#fff;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);">Games</a>
+  <a href="explain.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Explain</a>
+  <a href="analyze.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analyze</a>
+  <a href="calendar.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Calendar</a>
+  <a href="scripts.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Scripts</a>
+  <a href="analytics.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analytics</a>
+  <a href="branding.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Branding</a>
+  <a href="seo.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">SEO</a>
+  <a href="translate.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Translate</a>
+  <a href="report.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Report</a>
+</nav>
+
+<div class="header">
+  <h1><span>&#9819;</span><span data-zh="名局数据库" data-en="Famous Game Database">名局数据库 — Famous Game Database</span></h1>
+  <div class="header-right">
+    <div class="lang-toggle" style="display:inline-flex;gap:3px;margin-left:auto;">
+  <button onclick="setPageLang('zh')" class="lt-btn lt-active" data-lang="zh" style="background:rgba(240,192,96,0.9);color:#1a1d2e;border:none;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">中文</button>
+  <button onclick="setPageLang('en')" class="lt-btn" data-lang="en" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">EN</button>
+  <button onclick="setPageLang('both')" class="lt-btn" data-lang="both" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">双语</button>
+</div>
+    <a href="dashboard.html" data-zh="← 返回看板" data-en="← Dashboard">&#8592; 返回看板 Dashboard</a>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <input type="text" class="search-box" id="searchBox" placeholder="搜索 棋手/年份/开局/关键词... Search...">
+      <div class="cat-tabs" id="catTabs">
+        <div class="cat-tab active" data-cat="all" data-zh="全部" data-en="All">全部 All</div>
+        <div class="cat-tab" data-cat="famous" data-zh="名局" data-en="Famous">名局 Famous</div>
+        <div class="cat-tab" data-cat="endgame" data-zh="残局" data-en="Endgame">残局 Endgame</div>
+        <div class="cat-tab" data-cat="checkmate" data-zh="杀法" data-en="Checkmate">杀法 Checkmate</div>
+        <div class="cat-tab" data-cat="opening" data-zh="开局" data-en="Opening">开局 Opening</div>
+      </div>
+    </div>
+    <div class="game-list" id="gameList"></div>
+  </div>
+
+  <div class="main" id="mainContent">
+    <div class="welcome" id="welcomeScreen">
+      <h2>象棋名局数据库</h2>
+      <p>Chinese Chess Famous Game Database<br>收录经典对局、古谱残局、杀法练习<br>点击左侧列表选择一局棋开始研究<br><br>Click a game from the list to begin.</p>
+    </div>
+  </div>
+</div>
+
+<div class="export-modal" id="exportModal">
+  <div class="export-content">
+    <h3>导出解说脚本 Export Commentary Script</h3>
+    <textarea id="exportText" readonly></textarea>
+    <div class="btn-row">
+      <button onclick="copyExport()">复制 Copy</button>
+      <button class="primary" onclick="closeExport()">关闭 Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// XIANGQI ENGINE — Board logic, move parsing, piece movement
+// ============================================================
+
+// Piece codes: K=King, A=Advisor, B=Bishop/Elephant, N=Knight, R=Rook, C=Cannon, P=Pawn
+// Board is 9 columns (0-8) x 10 rows (0-9). Row 0 = black's back rank, Row 9 = red's back rank.
+
+const PIECE_CHARS = {
+  'K':'帅','k':'将','A':'仕','a':'士','B':'相','b':'象',
+  'N':'马','n':'馬','R':'车','r':'車','C':'炮','c':'砲','P':'兵','p':'卒'
+};
+const RED_PIECES = 'KABNRCP';
+const BLACK_PIECES = 'kabnrcp';
+
+function initialBoard(){
+  // Standard Xiangqi starting position
+  return [
+    ['r','n','b','a','k','a','b','n','r'],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ','c',' ',' ',' ',' ',' ','c',' '],
+    ['p',' ','p',' ','p',' ','p',' ','p'],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    ['P',' ','P',' ','P',' ','P',' ','P'],
+    [' ','C',' ',' ',' ',' ',' ','C',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    ['R','N','B','A','K','A','B','N','R']
+  ];
+}
+
+// Parse coordinate-based move "b2e2" => {fx,fy,tx,ty}
+function parseCoordMove(s){
+  if(!s||s.length<4) return null;
+  const fx=s.charCodeAt(0)-97, fy=parseInt(s[1]);
+  const tx=s.charCodeAt(2)-97, ty=parseInt(s[2+1]);
+  if(isNaN(fy)||isNaN(ty)) return null;
+  return {fx,fy,tx,ty};
+}
+
+function applyMove(board, mv){
+  const b=board.map(r=>[...r]);
+  const m=parseCoordMove(mv);
+  if(!m) return b;
+  b[m.ty][m.tx]=b[m.fy][m.fx];
+  b[m.fy][m.fx]=' ';
+  return b;
+}
+
+function coordToChinese(mv, board, moveIndex){
+  const m=parseCoordMove(mv);
+  if(!m) return mv;
+  const piece=board[m.fy][m.fx];
+  if(piece===' ') return mv;
+  const isRed=RED_PIECES.includes(piece);
+  const char=PIECE_CHARS[piece]||piece;
+  // Simplified Chinese notation
+  const colNames=isRed?['九','八','七','六','五','四','三','二','一']:['１','２','３','４','５','６','７','８','９'];
+  const fromCol=isRed?(8-m.fx):m.fx;
+  const toCol=isRed?(8-m.tx):m.tx;
+  let action, dest;
+  if(m.fy===m.ty){
+    action=isRed?'平':'平';
+    dest=colNames[toCol];
+  } else if((isRed&&m.ty<m.fy)||(!isRed&&m.ty>m.fy)){
+    action=isRed?'进':'进';
+    if(m.fx===m.tx){
+      dest=isRed?['一','二','三','四','五','六','七','八','九'][Math.abs(m.ty-m.fy)-1]:Math.abs(m.ty-m.fy).toString();
+    } else {
+      dest=colNames[toCol];
+    }
+  } else {
+    action=isRed?'退':'退';
+    if(m.fx===m.tx){
+      dest=isRed?['一','二','三','四','五','六','七','八','九'][Math.abs(m.ty-m.fy)-1]:Math.abs(m.ty-m.fy).toString();
+    } else {
+      dest=colNames[toCol];
+    }
+  }
+  const n=(moveIndex%2===0?'':'   ')+colNames[fromCol];
+  return char+colNames[fromCol]+action+dest;
+}
+
+// ============================================================
+// GAME DATABASE
+// ============================================================
+const GAMES = [
+// --- Famous Games ---
+{
+  id:1, category:'famous',
+  red:'胡荣华', black:'吕钦',
+  year:1988, event:'全国象棋个人锦标赛 National Championship',
+  opening:'中炮对屏风马 Central Cannon vs Screen Knights',
+  result:'红胜 Red wins',
+  tags:[{text:'经典',cls:'red'},{text:'中局妙手',cls:'gold'},{text:'名局',cls:'blue'}],
+  storyCN:'1988年全国个人赛，胡荣华与吕钦的巅峰对决。胡荣华以中炮开局，吕钦应以屏风马。中局阶段胡荣华弃子强攻，一记精妙的弃马得势，打开了吕钦的防线，最终以华丽的攻杀获胜。此局被誉为胡荣华晚年的经典代表作。',
+  storyEN:'The 1988 National Championship featured this epic clash between Hu Ronghua and Lu Qin. Hu opened with Central Cannon while Lu responded with Screen Knights. In the middlegame, Hu sacrificed a knight to break through Lu\'s defenses, launching a brilliant attack that showcased his legendary tactical vision. This game is considered one of Hu\'s finest works in his later career.',
+  moves:['b0c2','b9c7','h0g2','h9g7','i0i1','i9i8','h2e2','b7b0','i1g1','a9b9','c0e2','b0b2','a0b0','c6c5','b0b6','g7e6','g1g6','b2e2','g6g9','e6g7','b6c6','c7a6','c6c9','a6c7','e0e1','b9b1','g2f4','b1e1','f4d5','e1e5','d5c7','e2e7','c9b9','e7d7','c2e3','e5e3','b9b0','i8i2','b0e0','d7d0'],
+  keyMoments:[
+    {move:15, title:'弃马得势 Knight sacrifice for initiative', best:'胡荣华弃马打开通路', mistake:'如果保守走车则失去进攻机会', why:'弃马后红方车炮配合，黑方防线出现致命漏洞'},
+    {move:25, title:'车炮联攻 Rook-Cannon combo attack', best:'车炮协同进攻王位', mistake:'黑方走防但为时已晚', why:'双车配合炮形成无解攻势'}
+  ]
+},
+{
+  id:2, category:'famous',
+  red:'胡荣华', black:'许银川',
+  year:1993, event:'全国象棋个人锦标赛 National Championship',
+  opening:'飞相局 Elephant Opening',
+  result:'红胜 Red wins',
+  tags:[{text:'经典',cls:'red'},{text:'布局创新',cls:'gold'},{text:'名局',cls:'blue'}],
+  storyCN:'1993年全国个人赛，胡荣华以飞相局开局出奇制胜。面对年轻的许银川，老将胡荣华展示了深厚的功力。布局阶段胡荣华以独特的阵型调动对手，中局巧妙地利用先手之利，在对攻中占据上风，最终完美收官。',
+  storyEN:'In the 1993 National Championship, veteran Hu Ronghua employed the Elephant Opening against the young rising star Xu Yinchuan. Hu demonstrated his profound understanding of the game, using a unique formation to outmaneuver his opponent. In the middlegame, he skillfully seized the initiative and dominated the counterattack, closing out the game perfectly.',
+  moves:['c0e2','h9g7','h0g2','g6g5','b0a2','b9c7','a2c3','a9b9','i0i1','i9i8','a0b0','b7b0','c3b5','b9b5','b0b5','c7b5','i1c1','c9e7','g0e2','b5d4','h2b2','d4c2','b2b9','i8c8','e2g4','c2a3','c1c7','a3b5','c7d7','g7f5','g2f4','g5g4','d7f7','f5e3','f7f9','e3d5','b9b3','g4g3','f9d9','d5f4','b3a3','c8c1','e0d0','g3f3','d9d4','f3f2','d4f4','f2g2','a3a9','c1d1','d0c0','d1d5'],
+  keyMoments:[
+    {move:11, title:'阵型调动 Formation maneuvering', best:'飞相局的独特布阵', mistake:'黑方过早亮出攻势', why:'红方布局灵活，为中局进攻做好铺垫'},
+    {move:23, title:'先手得利 Seizing initiative', best:'红方利用先手发起进攻', mistake:'黑方应该收紧防守', why:'红方车炮配合精妙，一旦失先很难翻盘'}
+  ]
+},
+{
+  id:3, category:'famous',
+  red:'许银川', black:'吕钦',
+  year:2000, event:'全国象棋个人锦标赛 National Championship',
+  opening:'仙人指路对卒底炮 Immortal Guide vs Pawn Bottom Cannon',
+  result:'红胜 Red wins',
+  tags:[{text:'经典',cls:'red'},{text:'残局功力',cls:'green'},{text:'名局',cls:'blue'}],
+  storyCN:'2000年全国个人赛冠军争夺战，许银川对阵吕钦。许银川以仙人指路开局，吕钦应以卒底炮。双方在布局和中局僵持，许银川以精湛的残局功力逐步扩大优势，最终在车马残局中精确计算取胜。此局展示了许银川"少年姜太公"的深厚功底。',
+  storyEN:'The 2000 National Championship title match between Xu Yinchuan and Lu Qin was a masterclass in endgame technique. Xu opened with the Immortal Guide, and Lu countered with Pawn Bottom Cannon. After a balanced opening and middlegame, Xu gradually expanded his advantage through superior endgame technique, winning precisely in a Rook-Knight ending. This game showcased why Xu was called the "Young Jiang Taigong."',
+  moves:['g3g4','b9c7','b0c2','h9g7','h0g2','c6c5','a0a1','h7h0','a1d1','a9b9','h2e2','b7b0','i0i1','i9i8','d1d6','b0b3','c2d4','c7b5','d4b5','b9b5','d6c6','b5b8','c0e2','b3d3','e2c4','b8b0','g2e3','b0b4','c4e2','g7f5','c6c5','f5e3','c5c0','d3d0','c0d0','e3c2','i1d1','b4b2','d0d8','c2a3','e2c4','a3b5','d8d5','f9e8','d1d4','b2c2','d5d8','b5c3','d4d1','c3e4','d1b1','c2c4','e0e1','e4c3','b1c1','c3b5','d8e8','c4c8','e8e3','c8c1','e3b3','b5d6','b3b7','c1a1','b7a7','a1a4'],
+  keyMoments:[
+    {move:19, title:'兑子抢先 Exchange for tempo', best:'许银川主动兑子简化局面', mistake:'吕钦在兑子后阵型松散', why:'许银川擅长在残局中发挥优势，简化是正确策略'},
+    {move:33, title:'残局精算 Endgame calculation', best:'车马配合精确控制', mistake:'黑方子力被牵制', why:'红方车马联合，逐步瓦解黑方阵型'}
+  ]
+},
+{
+  id:4, category:'famous',
+  red:'胡荣华', black:'杨官璘',
+  year:1962, event:'全国象棋个人锦标赛 National Championship (The Legendary Game)',
+  opening:'中炮对反宫马 Central Cannon vs Reversed Knight',
+  result:'红胜 Red wins',
+  tags:[{text:'传奇',cls:'gold'},{text:'经典',cls:'red'},{text:'名局',cls:'blue'},{text:'必学',cls:'green'}],
+  storyCN:'1962年全国赛，年仅15岁的胡荣华挑战"棋坛总司令"杨官璘。此局胡荣华以中炮开局，杨官璘应以反宫马。胡荣华布局新颖，中局攻势凌厉，老将杨官璘难以招架。这盘棋标志着象棋新时代的开始——胡荣华从此开启了十连冠的传奇征程，这是中国象棋史上最重要的对局之一。',
+  storyEN:'In 1962, 15-year-old Hu Ronghua challenged the reigning "Commander-in-Chief of Chess" Yang Guanlin. Hu opened with Central Cannon while Yang employed the Reversed Knight. Hu\'s innovative opening strategy and fierce middlegame attack overwhelmed the veteran champion. This game marked the beginning of a new era — Hu would go on to win an unprecedented 10 consecutive national championships. It is widely regarded as one of the most important games in Chinese Chess history.',
+  moves:['b2e2','h9i7','h0g2','g9e7','i0i1','i9h9','i1g1','b9a7','b0c2','h7h2','a0b0','h9h2','g1g7','h2h0','c2d4','a7c6','d4c6','b7c7','g7g4','h0h9','g4i4','i7g6','b0b7','a6a5','e2e6','c7c3','c0e2','c3c0','g2e3','c0a0','i4i9','h9i9','b7b9','i9i2','b9a9','a0a3','e3c4','a3a2','a9a5','a2d2','e6f6','d2d0','e0f0','i2i0','f0g1','d0d6','f6f9','d6g6','a5a9','g6g4','c6a7','g4g1'],
+  keyMoments:[
+    {move:9, title:'布局新意 Opening innovation', best:'胡荣华独创的布局变化', mistake:'杨官璘按常规应对', why:'15岁少年的布局准备超出了老将的预期'},
+    {move:21, title:'攻势凌厉 Fierce attack unleashed', best:'红方全面展开攻势', mistake:'黑方防守已经被动', why:'红方多子联合进攻，黑方难以抵挡'},
+    {move:35, title:'一代传奇的开始 Birth of a legend', best:'胡荣华精确收官', mistake:'杨官璘无力回天', why:'此局之后胡荣华开启十连冠传奇'}
+  ]
+},
+{
+  id:5, category:'famous',
+  red:'王天一', black:'郑惟桐',
+  year:2018, event:'全国象棋甲级联赛 National A-League',
+  opening:'中炮过河车对屏风马 Central Cannon Cross-River Rook vs Screen Knights',
+  result:'红胜 Red wins',
+  tags:[{text:'现代经典',cls:'blue'},{text:'攻杀',cls:'red'},{text:'名局',cls:'blue'}],
+  storyCN:'王天一与郑惟桐，当代棋坛两大天王的巅峰对决。王天一以中炮过河车开局，布局阶段即展现出强大的计算力。中局王天一弃子强攻，一系列精妙的战术组合令人叹为观止。此局代表了现代象棋计算与攻杀的最高水平。',
+  storyEN:'Wang Tianyi vs Zheng Weitong — the ultimate showdown between the two greatest players of the modern era. Wang opened with Central Cannon Cross-River Rook, displaying tremendous calculating power from the very opening. His middlegame piece sacrifice and subsequent tactical combination were breathtaking. This game represents the pinnacle of modern Xiangqi calculation and attacking play.',
+  moves:['b2e2','b9c7','h0g2','h9g7','i0i1','i9i8','i1g1','g6g5','b0c2','b7b0','a0b0','a9b9','c2b4','b9b4','b0b4','c7b5','b4b5','g7f5','g1g5','c9a7','h2b2','h7h0','b5b9','f5d4','b9f9','f9e9','g2f4','h0h6','b2b9','d4f3','g5e5','h6e6','f9f3','e6e2','e5e2','a7c5','b9b3','i8i1','f3f7','i1d1','e0f0','d1d3','b3b7','d3f3','f0g1','f3a3','f7f6','a3a2','e2e9','e9d9','f6f3','a2b2','f3f0','b2b0'],
+  keyMoments:[
+    {move:17, title:'弃子攻杀 Piece sacrifice attack', best:'王天一弃马强攻', mistake:'郑惟桐接受弃子后防线被打开', why:'现代象棋的精确计算使弃子攻杀成为必胜'},
+    {move:27, title:'战术组合 Tactical combination', best:'连续弃子形成绝杀', mistake:'黑方已无防守手段', why:'红方多子联合攻王，展现最高计算水平'}
+  ]
+},
+// --- Endgame Compositions from 适情雅趣 ---
+{
+  id:6, category:'endgame',
+  red:'适情雅趣 第一局', black:'古谱残局',
+  year:1570, event:'《适情雅趣》明代古谱 "Erta of Elegant Interest" Ming Dynasty',
+  opening:'车马兵对车双士 Rook-Knight-Pawn vs Rook-Double Advisors',
+  result:'红胜 Red wins',
+  tags:[{text:'古谱',cls:'gold'},{text:'残局',cls:'green'},{text:'入门',cls:'blue'}],
+  storyCN:'《适情雅趣》是明代象棋古谱名著，收录了大量精妙残局。此局为车马兵对车双士的经典残局，红方需要精确计算才能取胜。车马配合是象棋残局的基本功，此局是学习残局的必修课。',
+  storyEN:'The "Erta of Elegant Interest" is a famous Ming Dynasty chess manual containing numerous brilliant endgame compositions. This classic endgame features Rook-Knight-Pawn vs Rook-Double Advisors. Red must calculate precisely to win. Rook-Knight coordination is fundamental in endgame play, making this a must-study composition.',
+  startPos:[
+    [' ',' ',' ','a','k',' ',' ',' ',' '],
+    [' ',' ',' ',' ','a',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ','r'],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ','P',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ','N'],
+    ['R',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ','K',' ',' ',' ',' ']
+  ],
+  moves:['a8a2','d0e1','h7g5','i2i9','e9e8','e1d0','a2a0','d0e1','g5f3','i9i0','e8d8','e1d0','a0a3','i0i8','d8d7','d3d2','f3d4','i8i7','d7c7','i7i4','a3d3','d2d1','d4f3','i4e4','d3d1','e4e3','c7b7','e3f3','d1d4','f3f8','b7b8','f8f4','d4d0'],
+  keyMoments:[
+    {move:5, title:'关键着法 Key move', best:'马跳中路配合车攻', mistake:'如急于进兵则被黑车反击', why:'车马配合要讲究步调一致'}
+  ]
+},
+{
+  id:7, category:'endgame',
+  red:'适情雅趣 第七局', black:'古谱残局',
+  year:1570, event:'《适情雅趣》明代古谱',
+  opening:'炮高兵对士象全 Cannon-High Pawn vs Full Advisors-Elephants',
+  result:'红胜 Red wins',
+  tags:[{text:'古谱',cls:'gold'},{text:'残局',cls:'green'},{text:'进阶',cls:'gold'}],
+  storyCN:'炮高兵对士象全是一个经典残局命题。看似黑方防守稳固，但红方通过精妙的炮兵配合，可以突破黑方的防线。此局的关键在于如何利用炮的牵制力配合兵的推进。',
+  storyEN:'Cannon with advanced Pawn vs full defensive pieces (Advisors and Elephants) is a classic endgame study. Despite Black\'s seemingly solid defense, Red can break through with precise Cannon-Pawn coordination. The key lies in using the Cannon\'s pin to support the Pawn\'s advance.',
+  startPos:[
+    [' ',' ',' ','a','k','a',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ','b',' ',' ',' ','b',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ','P',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ','C',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ','K',' ',' ',' ',' ']
+  ],
+  moves:['e4e3','e0d0','e3e2','d0e0','e7d5','d3d2','d5e3','a0a1','e3d5','d2d3','d5f4','e0d0','f4e2','d3d2','e2d4','a1a0','d4f3','c2e4','f3e1','d0e0','e1d3','e4c2','d3e1','a0a1','e1c2','g2e4','c2a3','e4g2','a3b1','a1a0','b1d2','a0a1','d2c4'],
+  keyMoments:[
+    {move:3, title:'炮兵配合 Cannon-Pawn coordination', best:'兵推进配合炮的牵制', mistake:'单纯推兵会被象堵住', why:'炮牵制士象，为兵推进创造条件'}
+  ]
+},
+{
+  id:8, category:'endgame',
+  red:'适情雅趣 第十五局', black:'古谱残局',
+  year:1570, event:'《适情雅趣》明代古谱',
+  opening:'双车对车双炮 Double Rooks vs Rook-Double Cannons',
+  result:'红胜 Red wins',
+  tags:[{text:'古谱',cls:'gold'},{text:'残局',cls:'green'},{text:'高级',cls:'red'}],
+  storyCN:'双车对车双炮残局，虽然子力大体相当，但红方双车的机动性更强。此局展示了双车如何通过灵活调度切断黑方子力联系，最终实现突破。这是理解车的威力的经典教材。',
+  storyEN:'Double Rooks vs Rook with Double Cannons — despite roughly equal material, Red\'s double Rooks have superior mobility. This composition shows how Rooks can flexibly reposition to cut off Black\'s piece coordination, eventually achieving a breakthrough. A classic study in understanding Rook power.',
+  startPos:[
+    [' ',' ',' ','a','k','a',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ','r'],
+    ['c',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ','c',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    ['R',' ',' ','A','K',' ',' ','R',' ']
+  ],
+  moves:['a9e9','e0d0','g9g3','d0c0','e9e3','a3a0','g3a3','b7b0','a3a0','i2i0','e3e0','i0i3','a0a3','i3d3','a3d3','a0c0'],
+  keyMoments:[
+    {move:3, title:'双车夹击 Double Rook pincer', best:'双车配合切断黑方联系', mistake:'如果只用一车攻击，另一车闲置', why:'双车协同是残局制胜关键'}
+  ]
+},
+// --- Tactical Puzzles from 桔中秘 ---
+{
+  id:9, category:'checkmate',
+  red:'桔中秘 弃车杀局', black:'战术练习',
+  year:1632, event:'《桔中秘》明代古谱 "Secret Inside an Orange" Ming Dynasty',
+  opening:'弃车妙杀 Rook Sacrifice Checkmate',
+  result:'红胜 Red wins (杀棋)',
+  tags:[{text:'古谱',cls:'gold'},{text:'杀法',cls:'red'},{text:'弃子',cls:'gold'}],
+  storyCN:'《桔中秘》明代朱晋桢编著，是最著名的象棋古谱之一。此局展示精妙的弃车杀法——红方大胆弃车，换来的是不可阻挡的将杀。弃子攻杀是象棋最华丽的战术，此局堪称典范。',
+  storyEN:'The "Secret Inside an Orange" compiled by Zhu Jinzhen in the Ming Dynasty is one of the most famous Xiangqi manuals. This puzzle demonstrates a brilliant Rook sacrifice checkmate — Red boldly sacrifices a Rook to achieve an unstoppable checkmate. Piece sacrifice attacks are the most spectacular tactics in Xiangqi.',
+  startPos:[
+    [' ',' ',' ','a','k',' ',' ',' ',' '],
+    [' ',' ',' ',' ','a',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ','R',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ','C',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ','N',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ','K',' ',' ',' ',' ']
+  ],
+  moves:['d5d0','e1d0','e6e0','d0d1','g7e6','d1e1','e0e1'],
+  keyMoments:[
+    {move:0, title:'弃车！ Rook sacrifice!', best:'车冲底线弃车将军', mistake:'不弃车则无法形成杀势', why:'弃车后炮马配合形成绝杀'}
+  ]
+},
+{
+  id:10, category:'checkmate',
+  red:'桔中秘 炮辗丹砂', black:'战术练习',
+  year:1632, event:'《桔中秘》明代古谱',
+  opening:'炮辗丹砂 Rolling Cannon Checkmate',
+  result:'红胜 Red wins (杀棋)',
+  tags:[{text:'古谱',cls:'gold'},{text:'杀法',cls:'red'},{text:'炮杀',cls:'red'}],
+  storyCN:'桔中秘经典杀法"炮辗丹砂"——炮在底线左右移动将杀，如同碾药一般来回碾压。此杀法是象棋杀法中最为经典的技术之一，需要配合车或兵控制将的活动空间。',
+  storyEN:'"Rolling Cannon Checkmate" from the Secret Inside an Orange — the Cannon slides back and forth along the bottom rank delivering check, like a pestle grinding medicine. This is one of the most classic checkmate techniques in Xiangqi, requiring coordination with a Rook or Pawn to restrict the King\'s movement.',
+  startPos:[
+    [' ',' ',' ',' ','k',' ',' ',' ',' '],
+    [' ',' ',' ','a',' ','a',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ','C',' ',' ',' ',' ',' ',' ',' '],
+    ['R',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ','K',' ',' ',' ',' ']
+  ],
+  moves:['a8a0','e0d0','b7b0','d0e0','b0f0','e0d0','a0a1','d1e1','f0d0','e1d1','a1a0','d1e1','d0f0','e1f1','a0a1','f1e1','f0d0'],
+  keyMoments:[
+    {move:2, title:'炮辗丹砂开始 Rolling Cannon begins', best:'炮在底线来回将杀', mistake:'黑方无处可逃', why:'车控制住将门，炮在底线来回碾压，经典杀法'}
+  ]
+},
+// --- Famous Checkmate Patterns ---
+{
+  id:11, category:'checkmate',
+  red:'马后炮杀法', black:'经典杀法',
+  year:0, event:'经典杀法谱 Classic Checkmate Patterns',
+  opening:'马后炮 Knight-backed Cannon Checkmate',
+  result:'红胜 Red wins (绝杀)',
+  tags:[{text:'杀法',cls:'red'},{text:'基础',cls:'green'},{text:'必学',cls:'blue'}],
+  storyCN:'马后炮是象棋最基本、最常见的杀法。马控制将的退路，炮借马为炮架将军，形成绝杀。此杀法看似简单，但在实战中变化多端，是每个棋手必须掌握的基本功。许多精妙的中局攻杀最终都归结为马后炮。',
+  storyEN:'The Knight-backed Cannon Checkmate (Ma Hou Pao) is the most fundamental and common checkmate pattern in Xiangqi. The Knight controls the King\'s escape squares while the Cannon uses the Knight as a platform to deliver check. Though seemingly simple, this pattern has countless variations in practice and is essential for every player. Many brilliant middlegame attacks ultimately culminate in this pattern.',
+  startPos:[
+    [' ',' ',' ','a','k','a',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ','N',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ','C',' ',' ',' ',' '],
+    [' ',' ',' ',' ','K',' ',' ',' ',' ']
+  ],
+  moves:['d7e5','e0d0','e8d8','d0e0','d8d5','a0a1','e5d3','e0d0','d5d0'],
+  keyMoments:[
+    {move:0, title:'马控中心 Knight controls center', best:'马跳到关键位置控制将门', mistake:'如果马位不对则炮无法借架', why:'马后炮的关键是马先占位'},
+    {move:6, title:'马后炮成型 Pattern formed', best:'马到位后炮将杀', mistake:'无法防守', why:'马后炮绝杀，这是最经典的杀法'}
+  ]
+},
+{
+  id:12, category:'checkmate',
+  red:'天地炮杀法', black:'经典杀法',
+  year:0, event:'经典杀法谱 Classic Checkmate Patterns',
+  opening:'天地炮 Sky-Earth Cannon Checkmate',
+  result:'红胜 Red wins (绝杀)',
+  tags:[{text:'杀法',cls:'red'},{text:'双炮',cls:'gold'},{text:'必学',cls:'blue'}],
+  storyCN:'天地炮是双炮杀法的经典代表。一炮在顶（天），一炮在底（地），两炮上下夹击，配合其他子力形成绝杀。天地炮杀法威力巨大，在实战中一旦形成往往势不可挡。学会天地炮是提升攻杀能力的关键一步。',
+  storyEN:'The Sky-Earth Cannon is the classic double-Cannon checkmate pattern. One Cannon attacks from the top (Sky) and the other from the bottom (Earth), creating a devastating vertical pincer. When this pattern forms in a game, it is nearly unstoppable. Mastering this pattern is a key step in improving attacking ability.',
+  startPos:[
+    [' ',' ',' ','a','k','a',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ','C',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    ['R',' ',' ',' ','C',' ',' ',' ',' '],
+    [' ',' ',' ',' ','K',' ',' ',' ',' ']
+  ],
+  moves:['a8a0','e0d0','e8e0','d0d1','a0a1','d1e0','e0e1'],
+  keyMoments:[
+    {move:0, title:'车沉底线 Rook to bottom rank', best:'车先沉底逼将', mistake:'如果直接炮将则无法形成天地炮', why:'车的配合是天地炮成立的前提'},
+    {move:4, title:'天地炮绝杀 Sky-Earth Cannon checkmate', best:'上下两炮夹击绝杀', mistake:'无法防守', why:'一炮在上一炮在下，将无处可逃'}
+  ]
+},
+{
+  id:13, category:'checkmate',
+  red:'闷宫杀法', black:'经典杀法',
+  year:0, event:'经典杀法谱 Classic Checkmate Patterns',
+  opening:'闷宫 Smothered Checkmate',
+  result:'红胜 Red wins (绝杀)',
+  tags:[{text:'杀法',cls:'red'},{text:'闷杀',cls:'gold'},{text:'必学',cls:'blue'}],
+  storyCN:'闷宫杀法是象棋中最令人窒息的杀法。利用对方自己的棋子堵住将的退路，然后用炮或其他子力将杀。将被自己的士象"闷"在宫中无法动弹。闷宫杀法经常出现在实战中，识别闷宫的前兆是高手的标志。',
+  storyEN:'The Smothered Checkmate is the most suffocating pattern in Xiangqi. The opponent\'s own pieces block the King\'s escape, then a Cannon or other piece delivers checkmate. The King is "smothered" in the palace by its own Advisors and Elephants. Recognizing the preconditions for a Smothered Checkmate is a hallmark of expert play.',
+  startPos:[
+    [' ',' ',' ','a','k','a',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ','b',' ',' ',' ','b',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ',' ',' ',' ',' '],
+    [' ',' ',' ',' ',' ','N',' ',' ',' '],
+    [' ',' ',' ',' ','C',' ',' ',' ',' '],
+    [' ',' ',' ',' ','K',' ',' ',' ',' ']
+  ],
+  moves:['f7d6','d0d1','e8e0','e0d0','d6f5','d1e1','e0e1'],
+  keyMoments:[
+    {move:0, title:'马跳关键位 Knight to key square', best:'马先控制将门', mistake:'过早炮将无法闷宫', why:'马的位置决定闷宫能否成立'},
+    {move:4, title:'闷宫成型 Smothered mate', best:'炮将军，将被自己的士象闷死', mistake:'无解', why:'黑方士象堵住了将的所有退路，炮将即为绝杀'}
+  ]
+},
+{
+  id:14, category:'famous',
+  red:'李来群', black:'胡荣华',
+  year:1981, event:'全国象棋个人锦标赛 National Championship',
+  opening:'飞相对中炮 Elephant Opening vs Central Cannon',
+  result:'红胜 Red wins',
+  tags:[{text:'经典',cls:'red'},{text:'名局',cls:'blue'},{text:'布局深算',cls:'gold'}],
+  storyCN:'1981年全国个人赛，李来群以飞相局迎战胡荣华的中炮。此局李来群布局深远，中局阶段通过精妙的子力调度逐步掌握主动，最终打破了胡荣华的十连冠纪录。这是一盘改变象棋历史的对局。',
+  storyEN:'In the 1981 National Championship, Li Laiqun employed the Elephant Opening against Hu Ronghua\'s Central Cannon. Li\'s deep opening preparation and skillful piece maneuvering gradually seized the initiative. This victory ended Hu Ronghua\'s unprecedented streak of 10 consecutive national championships — a game that changed chess history.',
+  moves:['c0e2','b2e2','h0g2','h9g7','g0e2','b9c7','b0c2','a9b9','a0b0','h7h5','i0i1','g6g5','c2d4','c7d5','b0b7','g7e6','i1g1','b9b7','d4b5','g5g4','g2f4','b7b5','g1g4','i9h9','g4g0','h9h0','g0d0','e6d4','d0d4','h5h0','f4d5','h0h9','d4d9','e2d2','d5f6','d2d8','d9b9','d8d0','e0f0','h9h0','f0g0','d0e0'],
+  keyMoments:[
+    {move:15, title:'子力调度 Piece maneuvering', best:'李来群精妙的阵型调整', mistake:'胡荣华布局略显被动', why:'飞相局的后发制人策略奏效'},
+    {move:25, title:'打破连冠 Breaking the streak', best:'红方攻势已不可阻挡', mistake:'黑方中局出现失误', why:'李来群成为新一代棋王'}
+  ]
+}
+];
+
+// ============================================================
+// APPLICATION STATE
+// ============================================================
+let currentGame = null;
+let currentMoveIndex = -1; // -1 = initial position
+let boardStates = [];
+let isPlaying = false;
+let playTimer = null;
+let playSpeed = 1000;
+
+// ============================================================
+// SIDEBAR & FILTERING
+// ============================================================
+function renderGameList(filter='', cat='all'){
+  const list=document.getElementById('gameList');
+  const q=filter.toLowerCase();
+  let html='';
+  GAMES.forEach(g=>{
+    if(cat!=='all' && g.category!==cat) return;
+    const searchText=(g.red+' '+g.black+' '+g.year+' '+g.opening+' '+g.event+' '+(g.storyCN||'')).toLowerCase();
+    if(q && !searchText.includes(q)) return;
+    const tagHtml=g.tags.map(t=>`<span class="tag ${t.cls}">${t.text}</span>`).join('');
+    html+=`<div class="game-item${currentGame&&currentGame.id===g.id?' active':''}" onclick="loadGame(${g.id})">
+      <div class="gi-title">${g.red} vs ${g.black}</div>
+      <div class="gi-meta">${g.year||'--'} | ${g.event.split(' ')[0]}</div>
+      <div class="gi-tags">${tagHtml}</div>
+    </div>`;
+  });
+  if(!html) html='<div style="padding:20px;text-align:center;color:var(--text2)">无匹配结果 No matches</div>';
+  list.innerHTML=html;
+}
+
+document.getElementById('searchBox').addEventListener('input',e=>{
+  const activeCat=document.querySelector('.cat-tab.active').dataset.cat;
+  renderGameList(e.target.value, activeCat);
+});
+
+document.getElementById('catTabs').addEventListener('click',e=>{
+  if(!e.target.classList.contains('cat-tab')) return;
+  document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+  e.target.classList.add('active');
+  renderGameList(document.getElementById('searchBox').value, e.target.dataset.cat);
+});
+
+// ============================================================
+// LOAD GAME
+// ============================================================
+function loadGame(id){
+  stopAutoPlay();
+  currentGame=GAMES.find(g=>g.id===id);
+  if(!currentGame) return;
+  currentMoveIndex=-1;
+
+  // Build board states
+  let board=currentGame.startPos ? currentGame.startPos.map(r=>[...r]) : initialBoard();
+  boardStates=[board.map(r=>[...r])];
+  currentGame.moves.forEach(mv=>{
+    board=applyMove(board,mv);
+    boardStates.push(board.map(r=>[...r]));
+  });
+
+  renderMainPanel();
+  renderGameList(document.getElementById('searchBox').value, document.querySelector('.cat-tab.active').dataset.cat);
+  drawBoard();
+}
+
+// ============================================================
+// MAIN PANEL RENDERING
+// ============================================================
+function renderMainPanel(){
+  const g=currentGame;
+  const main=document.getElementById('mainContent');
+  const welcomeEl=document.getElementById('welcomeScreen');
+  if(welcomeEl) welcomeEl.style.display='none';
+
+  main.innerHTML=`
+    <div class="board-area" id="boardArea">
+      <div class="board-wrapper">
+        <canvas id="board" width="460" height="510"></canvas>
+      </div>
+      <div class="controls">
+        <button class="ctrl-btn" onclick="goToStart()" title="开始">&#9198;</button>
+        <button class="ctrl-btn" onclick="goBack()" title="后退">&#9664;</button>
+        <button class="ctrl-btn" id="playBtn" onclick="toggleAutoPlay()" title="自动播放">&#9654;</button>
+        <button class="ctrl-btn" onclick="goForward()" title="前进">&#9654;</button>
+        <button class="ctrl-btn" onclick="goToEnd()" title="结束">&#9197;</button>
+        <div class="speed-ctrl">
+          <span>速度</span>
+          <input type="range" min="200" max="3000" value="1000" step="100" onchange="setSpeed(this.value)">
+          <span id="speedLabel">1.0s</span>
+        </div>
+        <div class="move-number" id="moveNumber">第 0 / ${g.moves.length} 手</div>
+      </div>
+    </div>
+    <div class="right-panel" id="rightPanel">
+      <div class="panel-card">
+        <h3>&#9812; 对局信息 Game Info</h3>
+        <div class="info-grid">
+          <span class="label">红方 Red</span><span style="color:var(--red);font-weight:600">${g.red}</span>
+          <span class="label">黑方 Black</span><span>${g.black}</span>
+          <span class="label">年份 Year</span><span>${g.year||'--'}</span>
+          <span class="label">赛事 Event</span><span>${g.event}</span>
+          <span class="label">开局 Opening</span><span>${g.opening}</span>
+          <span class="label">结果 Result</span><span style="color:var(--gold)">${g.result}</span>
+        </div>
+        <div style="margin-top:8px">${g.tags.map(t=>`<span class="tag ${t.cls}">${t.text}</span>`).join(' ')}</div>
+      </div>
+      <div class="panel-card">
+        <h3>&#128214; 故事 Story</h3>
+        <div class="story-text">${g.storyCN}</div>
+        <div class="story-en">${g.storyEN}</div>
+      </div>
+      <div class="panel-card">
+        <h3>&#9823; 着法 Moves</h3>
+        <div class="move-list" id="moveList"></div>
+      </div>
+      ${g.keyMoments&&g.keyMoments.length?`<div class="panel-card">
+        <h3>&#11088; 关键时刻 Key Moments</h3>
+        <div id="keyMomentsList"></div>
+      </div>`:''}
+      <div class="panel-card">
+        <h3>&#128196; 解说准备 Content Prep</h3>
+        <button class="export-btn" onclick="exportCommentary()">导出解说脚本 Export Commentary Script</button>
+      </div>
+    </div>
+  `;
+
+  renderMoveList();
+  renderKeyMoments();
+  drawBoard();
+}
+
+function renderMoveList(){
+  const el=document.getElementById('moveList');
+  if(!el||!currentGame) return;
+  let board=currentGame.startPos ? currentGame.startPos.map(r=>[...r]) : initialBoard();
+  let html='';
+  currentGame.moves.forEach((mv,i)=>{
+    const cn=coordToChinese(mv,board,i);
+    board=applyMove(board,mv);
+    const isKey=currentGame.keyMoments&&currentGame.keyMoments.some(k=>k.move===i);
+    html+=`<div class="move-chip${i===currentMoveIndex?' active':''}${isKey?' key-moment':''}" onclick="goToMove(${i})" title="${mv}">${Math.floor(i/2)+1}${i%2===0?'.':'...'} ${cn}</div>`;
+  });
+  el.innerHTML=html;
+}
+
+function renderKeyMoments(){
+  const el=document.getElementById('keyMomentsList');
+  if(!el||!currentGame||!currentGame.keyMoments) return;
+  el.innerHTML=currentGame.keyMoments.map(km=>`
+    <div class="key-moment-info" style="cursor:pointer" onclick="goToMove(${km.move})">
+      <div class="km-title">&#127937; 第${km.move+1}手: ${km.title}</div>
+      <div><strong>最佳:</strong> ${km.best}</div>
+      <div><strong>常见错误:</strong> ${km.mistake}</div>
+      <div><strong>原因:</strong> ${km.why}</div>
+    </div>
+  `).join('');
+}
+
+function updateMoveHighlight(){
+  document.querySelectorAll('.move-chip').forEach((el,i)=>{
+    el.classList.toggle('active',i===currentMoveIndex);
+  });
+  const mn=document.getElementById('moveNumber');
+  if(mn) mn.textContent=`第 ${currentMoveIndex+1} / ${currentGame.moves.length} 手`;
+  // Auto-scroll move list
+  const active=document.querySelector('.move-chip.active');
+  if(active) active.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+
+// ============================================================
+// BOARD DRAWING
+// ============================================================
+const CELL=46;
+const MARGIN_X=30;
+const MARGIN_Y=30;
+const PIECE_R=20;
+
+function boardXY(col,row){
+  return {x:MARGIN_X+col*CELL, y:MARGIN_Y+row*CELL};
+}
+
+function drawBoard(){
+  const canvas=document.getElementById('board');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+
+  // Background
+  ctx.fillStyle='#2a1f0e';
+  ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#c8a86e';
+  ctx.fillRect(5,5,W-10,H-10);
+  ctx.fillStyle='#b89958';
+  ctx.fillRect(MARGIN_X-5,MARGIN_Y-5,CELL*8+10,CELL*9+10);
+  ctx.fillStyle='#d4b87a';
+  ctx.fillRect(MARGIN_X-3,MARGIN_Y-3,CELL*8+6,CELL*9+6);
+
+  ctx.strokeStyle='#4a3520';
+  ctx.lineWidth=1;
+
+  // Horizontal lines
+  for(let r=0;r<10;r++){
+    ctx.beginPath();
+    const p=boardXY(0,r);
+    ctx.moveTo(p.x,p.y);
+    const p2=boardXY(8,r);
+    ctx.lineTo(p2.x,p2.y);
+    ctx.stroke();
+  }
+  // Vertical lines
+  for(let c=0;c<9;c++){
+    if(c===0||c===8){
+      ctx.beginPath();
+      const p=boardXY(c,0);
+      ctx.moveTo(p.x,p.y);
+      const p2=boardXY(c,9);
+      ctx.lineTo(p2.x,p2.y);
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      let p=boardXY(c,0);
+      ctx.moveTo(p.x,p.y);
+      p=boardXY(c,4);
+      ctx.lineTo(p.x,p.y);
+      ctx.stroke();
+      ctx.beginPath();
+      p=boardXY(c,5);
+      ctx.moveTo(p.x,p.y);
+      p=boardXY(c,9);
+      ctx.lineTo(p.x,p.y);
+      ctx.stroke();
+    }
+  }
+
+  // Palace diagonals
+  ctx.beginPath();
+  let p=boardXY(3,0);ctx.moveTo(p.x,p.y);p=boardXY(5,2);ctx.lineTo(p.x,p.y);ctx.stroke();
+  ctx.beginPath();
+  p=boardXY(5,0);ctx.moveTo(p.x,p.y);p=boardXY(3,2);ctx.lineTo(p.x,p.y);ctx.stroke();
+  ctx.beginPath();
+  p=boardXY(3,7);ctx.moveTo(p.x,p.y);p=boardXY(5,9);ctx.lineTo(p.x,p.y);ctx.stroke();
+  ctx.beginPath();
+  p=boardXY(5,7);ctx.moveTo(p.x,p.y);p=boardXY(3,9);ctx.lineTo(p.x,p.y);ctx.stroke();
+
+  // River
+  ctx.fillStyle='#d4b87a';
+  ctx.fillRect(MARGIN_X+1,MARGIN_Y+CELL*4+1,CELL*8-2,CELL-2);
+  ctx.fillStyle='#4a3520';
+  ctx.font='bold 20px serif';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  const ry=MARGIN_Y+CELL*4.5;
+  ctx.fillText('楚 河',MARGIN_X+CELL*2,ry);
+  ctx.fillText('漢 界',MARGIN_X+CELL*6,ry);
+
+  // Draw star points (cross marks at cannon/pawn positions)
+  const starPoints=[[1,2],[7,2],[0,3],[2,3],[4,3],[6,3],[8,3],[0,6],[2,6],[4,6],[6,6],[8,6],[1,7],[7,7]];
+  starPoints.forEach(([c,r])=>{
+    drawCrossMark(ctx,c,r);
+  });
+
+  // Pieces
+  if(!currentGame) return;
+  const state=boardStates[currentMoveIndex+1];
+  if(!state) return;
+
+  // Highlight last move
+  let lastMove=null;
+  if(currentMoveIndex>=0){
+    lastMove=parseCoordMove(currentGame.moves[currentMoveIndex]);
+  }
+
+  for(let r=0;r<10;r++){
+    for(let c=0;c<9;c++){
+      const piece=state[r][c];
+      if(piece===' ') continue;
+      const isRed=RED_PIECES.includes(piece);
+      const pos=boardXY(c,r);
+      const isHighlight=lastMove&&((lastMove.tx===c&&lastMove.ty===r)||(lastMove.fx===c&&lastMove.fy===r));
+
+      // Piece circle
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(pos.x,pos.y,PIECE_R,0,Math.PI*2);
+
+      // Glow for highlighted
+      if(isHighlight){
+        ctx.shadowColor=isRed?'#ef4444':'#60a5fa';
+        ctx.shadowBlur=12;
+      }
+
+      ctx.fillStyle=isRed?'#8b1a1a':'#1a1a3a';
+      ctx.fill();
+      ctx.strokeStyle=isRed?'#d4a574':'#7a8ab5';
+      ctx.lineWidth=2;
+      ctx.stroke();
+
+      // Inner ring
+      ctx.beginPath();
+      ctx.arc(pos.x,pos.y,PIECE_R-3,0,Math.PI*2);
+      ctx.strokeStyle=isRed?'#d4a574':'#7a8ab5';
+      ctx.lineWidth=1;
+      ctx.stroke();
+      ctx.restore();
+
+      // Text
+      ctx.fillStyle=isRed?'#f5d4a0':'#a0c4f5';
+      ctx.font='bold 18px "KaiTi","STKaiti","Microsoft YaHei",serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillText(PIECE_CHARS[piece],pos.x,pos.y+1);
+    }
+  }
+
+  // From-square indicator
+  if(lastMove){
+    const fp=boardXY(lastMove.fx,lastMove.fy);
+    if(state[lastMove.fy][lastMove.fx]===' '){
+      ctx.beginPath();
+      ctx.arc(fp.x,fp.y,6,0,Math.PI*2);
+      ctx.fillStyle='rgba(239,68,68,0.4)';
+      ctx.fill();
+    }
+  }
+}
+
+function drawCrossMark(ctx,c,r){
+  const pos=boardXY(c,r);
+  const s=4,g=2;
+  ctx.strokeStyle='#4a3520';
+  ctx.lineWidth=1;
+  // Draw 4 corner marks
+  if(c>0){
+    ctx.beginPath();ctx.moveTo(pos.x-g,pos.y-g-s);ctx.lineTo(pos.x-g,pos.y-g);ctx.lineTo(pos.x-g-s,pos.y-g);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(pos.x-g,pos.y+g+s);ctx.lineTo(pos.x-g,pos.y+g);ctx.lineTo(pos.x-g-s,pos.y+g);ctx.stroke();
+  }
+  if(c<8){
+    ctx.beginPath();ctx.moveTo(pos.x+g,pos.y-g-s);ctx.lineTo(pos.x+g,pos.y-g);ctx.lineTo(pos.x+g+s,pos.y-g);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(pos.x+g,pos.y+g+s);ctx.lineTo(pos.x+g,pos.y+g);ctx.lineTo(pos.x+g+s,pos.y+g);ctx.stroke();
+  }
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goToMove(i){
+  if(!currentGame) return;
+  currentMoveIndex=Math.max(-1,Math.min(i,currentGame.moves.length-1));
+  drawBoard();
+  updateMoveHighlight();
+}
+function goForward(){
+  if(!currentGame) return;
+  if(currentMoveIndex<currentGame.moves.length-1){
+    currentMoveIndex++;
+    drawBoard();
+    updateMoveHighlight();
+  } else {
+    stopAutoPlay();
+  }
+}
+function goBack(){
+  if(!currentGame) return;
+  if(currentMoveIndex>=-1){
+    currentMoveIndex=Math.max(-1,currentMoveIndex-1);
+    drawBoard();
+    updateMoveHighlight();
+  }
+}
+function goToStart(){
+  stopAutoPlay();
+  currentMoveIndex=-1;
+  drawBoard();
+  updateMoveHighlight();
+}
+function goToEnd(){
+  stopAutoPlay();
+  if(!currentGame) return;
+  currentMoveIndex=currentGame.moves.length-1;
+  drawBoard();
+  updateMoveHighlight();
+}
+
+function toggleAutoPlay(){
+  if(isPlaying) stopAutoPlay();
+  else startAutoPlay();
+}
+function startAutoPlay(){
+  if(!currentGame) return;
+  if(currentMoveIndex>=currentGame.moves.length-1){
+    currentMoveIndex=-1;
+    drawBoard();
+    updateMoveHighlight();
+  }
+  isPlaying=true;
+  document.getElementById('playBtn').classList.add('playing');
+  document.getElementById('playBtn').innerHTML='&#9646;&#9646;';
+  playTimer=setInterval(()=>{
+    if(currentMoveIndex>=currentGame.moves.length-1){
+      stopAutoPlay();
+      return;
+    }
+    goForward();
+  },playSpeed);
+}
+function stopAutoPlay(){
+  isPlaying=false;
+  const btn=document.getElementById('playBtn');
+  if(btn){btn.classList.remove('playing');btn.innerHTML='&#9654;';}
+  if(playTimer){clearInterval(playTimer);playTimer=null;}
+}
+function setSpeed(v){
+  playSpeed=parseInt(v);
+  document.getElementById('speedLabel').textContent=(v/1000).toFixed(1)+'s';
+  if(isPlaying){stopAutoPlay();startAutoPlay();}
+}
+
+// Keyboard navigation
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  if(e.key==='ArrowRight'||e.key===' ') {e.preventDefault();goForward();}
+  else if(e.key==='ArrowLeft') {e.preventDefault();goBack();}
+  else if(e.key==='Home') {e.preventDefault();goToStart();}
+  else if(e.key==='End') {e.preventDefault();goToEnd();}
+});
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportCommentary(){
+  if(!currentGame) return;
+  const g=currentGame;
+  let board=g.startPos?g.startPos.map(r=>[...r]):initialBoard();
+  let moveTexts=[];
+  g.moves.forEach((mv,i)=>{
+    const cn=coordToChinese(mv,board,i);
+    board=applyMove(board,mv);
+    moveTexts.push(`${Math.floor(i/2)+1}${i%2===0?'.':'...'} ${cn}`);
+  });
+
+  let script=`====================================
+解说脚本 COMMENTARY SCRIPT
+====================================
+
+对局: ${g.red} vs ${g.black}
+赛事: ${g.event}
+年份: ${g.year||'--'}
+开局: ${g.opening}
+结果: ${g.result}
+
+------------------------------------
+故事背景 BACKGROUND STORY
+------------------------------------
+${g.storyCN}
+
+${g.storyEN}
+
+------------------------------------
+着法记录 MOVE RECORD
+------------------------------------
+${moveTexts.join('\n')}
+
+------------------------------------
+解说要点 COMMENTARY POINTS
+------------------------------------
+`;
+
+  if(g.keyMoments){
+    g.keyMoments.forEach((km,i)=>{
+      script+=`
+[关键时刻 ${i+1}] 第${km.move+1}手 — ${km.title}
+  最佳着法: ${km.best}
+  常见错误: ${km.mistake}
+  讲解重点: ${km.why}
+`;
+    });
+  }
+
+  script+=`
+------------------------------------
+解说模板 SCRIPT TEMPLATE
+------------------------------------
+
+[开场白]
+大家好，欢迎来到我们的象棋频道。今天我们要欣赏一盘${g.year?g.year+'年':''}的经典对局，
+由${g.red}执红对阵${g.black}执黑。
+
+[开局介绍]
+本局采用${g.opening}开局...
+(在此添加开局讲解)
+
+[中局分析]
+(在关键时刻暂停，详细讲解)
+
+[结局总结]
+最终${g.result}。
+(总结本局的亮点和教学意义)
+
+[结束语]
+感谢观看，请关注我们的频道获取更多精彩解说！
+====================================
+`;
+
+  document.getElementById('exportText').value=script;
+  document.getElementById('exportModal').classList.add('show');
+}
+
+function copyExport(){
+  const ta=document.getElementById('exportText');
+  ta.select();
+  document.execCommand('copy');
+  const btn=event.target;
+  btn.textContent='已复制 Copied!';
+  setTimeout(()=>btn.textContent='复制 Copy',2000);
+}
+function closeExport(){
+  document.getElementById('exportModal').classList.remove('show');
+}
+
+// Close modal on backdrop click
+document.getElementById('exportModal').addEventListener('click',e=>{
+  if(e.target===e.currentTarget) closeExport();
+});
+
+// ============================================================
+// INIT
+// ============================================================
+renderGameList();
+</script>
+
+<script>
+// Universal language toggle
+(function() {
+  let pageLang = localStorage.getItem('pageLang') || 'zh';
+  
+  window.setPageLang = function(lang) {
+    pageLang = lang;
+    localStorage.setItem('pageLang', lang);
+    document.querySelectorAll('.lt-btn').forEach(b => {
+      const isActive = b.dataset.lang === lang;
+      b.style.background = isActive ? 'rgba(240,192,96,0.9)' : 'rgba(255,255,255,0.08)';
+      b.style.color = isActive ? '#1a1d2e' : '#9ca0b8';
+      b.style.border = isActive ? 'none' : '1px solid rgba(255,255,255,0.06)';
+    });
+    applyLang();
+  };
+  
+  function applyLang() {
+    document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+      if (pageLang === 'zh') el.textContent = el.dataset.zh;
+      else if (pageLang === 'en') el.textContent = el.dataset.en;
+      else el.textContent = el.dataset.zh + ' ' + el.dataset.en;
+    });
+  }
+  
+  // Apply on load
+  setTimeout(() => {
+    setPageLang(pageLang);
+  }, 100);
+})();
+</script>
+</body>
+</html>

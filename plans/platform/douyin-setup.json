@@ -1,0 +1,20 @@
+{
+  "id": "platform-douyin",
+  "title": "抖音频道 Douyin Channel Setup",
+  "description": "Primary platform — 60%+ of xiangqi viewers. Short-form + live streaming focus.",
+  "folder": "platform",
+  "priority": "high",
+  "status": "in_progress",
+  "progress": 44,
+  "tasks": [
+    { "id": "pd1", "text": "Register Douyin creator account with consistent branding", "done": false, "priority": "high" },
+    { "id": "pd2", "text": "Design profile banner and avatar (象棋 themed)", "done": true, "priority": "high" },
+    { "id": "pd3", "text": "Write bio: niche positioning + value proposition", "done": true, "priority": "medium" },
+    { "id": "pd4", "text": "Set up OBS → Douyin Live RTMP streaming pipeline", "done": true, "priority": "high" },
+    { "id": "pd5", "text": "Test vertical video recording workflow (board capture + voiceover)", "done": true, "priority": "high" },
+    { "id": "pd6", "text": "Publish 3 test videos, analyze Douyin algorithm response", "done": false, "priority": "high" },
+    { "id": "pd7", "text": "Reach 1K followers milestone (unlock live streaming)", "done": false, "priority": "medium" },
+    { "id": "pd8", "text": "First live stream: 2-hour chess session with commentary", "done": false, "priority": "medium" },
+    { "id": "pd9", "text": "Register on 巨量星图 when eligible for brand deals", "done": false, "priority": "low" }
+  ]
+}

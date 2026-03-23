@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<!--
+  OBS Setup:
+  - Add as Browser Source
+  - Width: 1920, Height: 1080
+  - Position: full screen (x=0, y=0)
+  - This is the base frame layer; place it ABOVE your game capture and webcam sources
+  - All inner areas are transparent cutouts for OBS layering
+  - URL params: ?channel=象棋频道&douyin=@xiangqi&bilibili=象棋直播&youtube=XiangqiLive
+  - Transparent background: yes
+-->
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  }
+
+  /* ===== TOP BAR - Channel Branding ===== */
+  .top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1920px;
+    height: 50px;
+    background: linear-gradient(180deg, rgba(15, 15, 15, 0.95), rgba(25, 25, 25, 0.9));
+    border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    z-index: 10;
+    overflow: hidden;
+  }
+
+  .top-bar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 200%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffd700, #cc2222, #ffd700, transparent);
+    background-size: 50% 100%;
+    animation: topBarGlow 6s linear infinite;
+  }
+
+  @keyframes topBarGlow {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0%); }
+  }
+
+  .logo-icon {
+    font-size: 28px;
+    color: #ffd700;
+    margin-right: 12px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  }
+
+  .channel-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffd700;
+    letter-spacing: 4px;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
+  }
+
+  .live-badge {
+    margin-left: 20px;
+    background: #cc2222;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: 2px;
+    animation: livePulse 2s ease-in-out infinite;
+  }
+
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .top-bar-spacer { flex: 1; }
+
+  .top-bar-time {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 2px;
+  }
+
+  /* ===== LEFT SIDE - Engine Eval Area ===== */
+  .eval-zone {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 50px;
+    height: 980px;
+    /* Transparent cutout - eval bar overlay goes here */
+    border-right: 2px solid rgba(255, 215, 0, 0.15);
+    pointer-events: none;
+  }
+
+  .eval-zone-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    font-size: 10px;
+    color: rgba(255, 215, 0, 0.2);
+    letter-spacing: 4px;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+
+  /* ===== CENTER - Main Board Area ===== */
+  .board-zone {
+    position: absolute;
+    top: 55px;
+    left: 55px;
+    width: 1000px;
+    height: 970px;
+    /* Transparent cutout */
+    border: 2px solid rgba(255, 215, 0, 0.12);
+    border-radius: 4px;
+    pointer-events: none;
+  }
+
+  /* Animated corner brackets for board */
+  .board-corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: #ffd700;
+    border-style: solid;
+    opacity: 0.5;
+    animation: cornerGlow 3s ease-in-out infinite;
+  }
+  .board-corner.tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .board-corner.tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+  .board-corner.bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+  .board-corner.br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+  @keyframes cornerGlow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+  }
+
+  /* ===== RIGHT SIDE TOP - Webcam Area ===== */
+  .webcam-zone {
+    position: absolute;
+    top: 55px;
+    right: 20px;
+    width: 320px;
+    height: 240px;
+    /* Transparent cutout */
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .webcam-zone::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 10px;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .webcam-label {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: rgba(255, 215, 0, 0.3);
+    letter-spacing: 3px;
+    z-index: 3;
+    text-transform: uppercase;
+  }
+
+  /* ===== RIGHT SIDE - Move List Area ===== */
+  .movelist-zone {
+    position: absolute;
+    top: 310px;
+    right: 20px;
+    width: 320px;
+    height: 480px;
+    /* Transparent cutout */
+    border: 1px solid rgba(255, 215, 0, 0.12);
+    border-radius: 8px;
+    pointer-events: none;
+    position: relative;
+  }
+
+  .movelist-header {
+    position: absolute;
+    top: 310px;
+    right: 20px;
+    width: 320px;
+    height: 30px;
+    background: linear-gradient(180deg, rgba(20, 20, 20, 0.9), rgba(30, 30, 30, 0.85));
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    border-bottom: 1px solid rgba(255, 215, 0, 0.25);
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+  }
+
+  .movelist-header-text {
+    font-size: 12px;
+    color: rgba(255, 215, 0, 0.7);
+    letter-spacing: 4px;
+    font-weight: 600;
+  }
+
+  .movelist-body {
+    position: absolute;
+    top: 340px;
+    right: 20px;
+    width: 320px;
+    height: 450px;
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    pointer-events: none;
+  }
+
+  /* ===== RIGHT SIDE BOTTOM - Info panel ===== */
+  .info-zone {
+    position: absolute;
+    bottom: 60px;
+    right: 20px;
+    width: 320px;
+    height: 170px;
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+  /* ===== BOTTOM BAR - Social Handles ===== */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 1920px;
+    height: 50px;
+    background: linear-gradient(0deg, rgba(15, 15, 15, 0.95), rgba(25, 25, 25, 0.9));
+    border-top: 2px solid rgba(255, 215, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    z-index: 10;
+    overflow: hidden;
+  }
+
+  .bottom-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #cc2222, #ffd700, #cc2222, transparent);
+    background-size: 50% 100%;
+    animation: bottomBarGlow 8s linear infinite;
+  }
+
+  @keyframes bottomBarGlow {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0%); }
+  }
+
+  .social-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .social-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .icon-douyin {
+    background: linear-gradient(135deg, #25f4ee, #fe2c55);
+  }
+
+  .icon-bilibili {
+    background: linear-gradient(135deg, #00a1d6, #0088cc);
+  }
+
+  .icon-youtube {
+    background: linear-gradient(135deg, #ff0000, #cc0000);
+  }
+
+  .social-text {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.65);
+    letter-spacing: 1px;
+  }
+
+  /* Separator dots */
+  .social-sep {
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 215, 0, 0.3);
+    border-radius: 50%;
+  }
+
+  /* ===== DECORATIVE ELEMENTS ===== */
+  /* Subtle vignette on edges */
+  .vignette {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 1920px;
+    height: 980px;
+    pointer-events: none;
+    z-index: 1;
+    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Animated side accent lines */
+  .side-accent {
+    position: absolute;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(255, 215, 0, 0.15), transparent);
+    pointer-events: none;
+  }
+
+  .side-accent.left {
+    top: 55px;
+    left: 1060px;
+    height: 970px;
+  }
+
+  .side-accent.right {
+    top: 55px;
+    right: 345px;
+    height: 970px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="logo-icon">帥</div>
+  <div class="channel-name" id="channelName">象棋直播</div>
+  <div class="live-badge">LIVE</div>
+  <div class="top-bar-spacer"></div>
+  <div class="top-bar-time" id="clock"></div>
+</div>
+
+<!-- Eval Zone (left) -->
+<div class="eval-zone">
+  <div class="eval-zone-label">ENGINE</div>
+</div>
+
+<!-- Board Zone (center) -->
+<div class="board-zone">
+  <div class="board-corner tl"></div>
+  <div class="board-corner tr"></div>
+  <div class="board-corner bl"></div>
+  <div class="board-corner br"></div>
+</div>
+
+<!-- Webcam Zone (top right) -->
+<div class="webcam-zone">
+  <div class="webcam-label">CAMERA</div>
+</div>
+
+<!-- Move List (right) -->
+<div class="movelist-header">
+  <div class="movelist-header-text">棋 谱 记 录</div>
+</div>
+<div class="movelist-body"></div>
+
+<!-- Info Zone (bottom right) -->
+<div class="info-zone"></div>
+
+<!-- Vertical accent lines -->
+<div class="side-accent left"></div>
+<div class="side-accent right"></div>
+
+<!-- Vignette -->
+<div class="vignette"></div>
+
+<!-- Bottom Bar -->
+<div class="bottom-bar">
+  <div class="social-item">
+    <div class="social-icon icon-douyin">D</div>
+    <div class="social-text" id="douyinHandle">@xiangqi</div>
+  </div>
+  <div class="social-sep"></div>
+  <div class="social-item">
+    <div class="social-icon icon-bilibili">B</div>
+    <div class="social-text" id="bilibiliHandle">象棋直播</div>
+  </div>
+  <div class="social-sep"></div>
+  <div class="social-item">
+    <div class="social-icon icon-youtube">Y</div>
+    <div class="social-text" id="youtubeHandle">XiangqiLive</div>
+  </div>
+</div>
+
+<script>
+  // URL params
+  var params = new URLSearchParams(window.location.search);
+
+  var channel = params.get('channel');
+  var douyin = params.get('douyin');
+  var bilibili = params.get('bilibili');
+  var youtube = params.get('youtube');
+
+  if (channel) document.getElementById('channelName').textContent = channel;
+  if (douyin) document.getElementById('douyinHandle').textContent = douyin;
+  if (bilibili) document.getElementById('bilibiliHandle').textContent = bilibili;
+  if (youtube) document.getElementById('youtubeHandle').textContent = youtube;
+
+  // Live clock
+  function updateClock() {
+    var now = new Date();
+    var h = String(now.getHours()).padStart(2, '0');
+    var m = String(now.getMinutes()).padStart(2, '0');
+    var s = String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('clock').textContent = h + ':' + m + ':' + s;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // Accept postMessage for dynamic updates
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.channel) document.getElementById('channelName').textContent = e.data.channel;
+    if (e.data && e.data.douyin) document.getElementById('douyinHandle').textContent = e.data.douyin;
+    if (e.data && e.data.bilibili) document.getElementById('bilibiliHandle').textContent = e.data.bilibili;
+    if (e.data && e.data.youtube) document.getElementById('youtubeHandle').textContent = e.data.youtube;
+  });
+</script>
+</body>
+</html>

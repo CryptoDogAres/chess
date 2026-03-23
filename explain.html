@@ -1,0 +1,2760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>棋 · Play & Explain — Interactive Xiangqi Presenter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #08090d;
+  color: #d8d8e4;
+  font-family: 'LXGW WenKai', 'Noto Serif SC', -apple-system, 'Microsoft YaHei', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.12;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 250px 250px;
+}
+/* Vignette */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%);
+}
+
+/* Navigation */
+nav {
+  position: relative;
+  z-index: 10;
+  background: #161822;
+  border-bottom: 1px solid #2a2d42;
+  padding: 8px 16px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+nav a {
+  color: #9ca0b8;
+  text-decoration: none;
+  font-size: 0.78em;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid #2a2d42;
+  transition: all 0.2s;
+}
+nav a:hover { background: #2a2d42; color: #fff; }
+nav a.active { color: #fff; background: #2a2d42; border-color: #3a3d5c; }
+nav a.back { color: #ef4444; font-weight: 700; font-size: 0.82em; padding: 4px 12px; border: none; }
+
+/* Header */
+header {
+  position: relative;
+  z-index: 10;
+  background: linear-gradient(135deg, #0e1018 0%, #141828 50%, #0e1018 100%);
+  border-bottom: 1px solid rgba(240,192,96,0.12);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+header h1 {
+  font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', serif;
+  font-size: 26px;
+  color: #f0c060;
+  letter-spacing: 6px;
+  text-shadow: 0 2px 12px rgba(240,192,96,0.25);
+}
+header h1 span {
+  font-family: 'LXGW WenKai', 'Noto Serif SC', serif;
+  color: #6b7094;
+  font-size: 12px;
+  font-weight: 300;
+  margin-left: 12px;
+  letter-spacing: 1px;
+}
+.header-right {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Main layout */
+.app-layout {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+.board-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+  width: 460px;
+}
+.commentary-col {
+  flex: 1;
+  min-width: 400px;
+  max-width: 540px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Panels */
+.panel {
+  background: rgba(22,25,42,0.7);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 16px;
+  backdrop-filter: blur(8px);
+}
+.panel-title {
+  font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+  font-size: 13px;
+  color: #f0c060;
+  margin-bottom: 10px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  border-bottom: 1px solid rgba(240,192,96,0.12);
+  padding-bottom: 6px;
+}
+
+/* Board */
+.board-wrap {
+  position: relative;
+  display: inline-block;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 60px rgba(240,192,96,0.04);
+  border: 1px solid rgba(240,192,96,0.1);
+}
+canvas#mainBoard { display: block; cursor: default; }
+
+/* Playback controls */
+.playback-controls {
+  background: rgba(16,18,30,0.9);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 12px 16px;
+  backdrop-filter: blur(8px);
+}
+.progress-container {
+  position: relative;
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f0c060, #e09030);
+  border-radius: 3px;
+  transition: width 0.3s;
+  position: relative;
+}
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: -4px;
+  width: 14px;
+  height: 14px;
+  background: #f0c060;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(240,192,96,0.5);
+}
+.transport-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+.transport-row button {
+  background: rgba(255,255,255,0.06);
+  color: #a0a4bc;
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  line-height: 1;
+}
+.transport-row button:hover { background: rgba(240,192,96,0.12); color: #f0c060; }
+.transport-row button.play-btn {
+  background: linear-gradient(135deg, #f0c060, #e09030);
+  color: #1a1d2e;
+  padding: 10px 20px;
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 4px 16px rgba(240,192,96,0.25);
+}
+.transport-row button.play-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(240,192,96,0.4); }
+.speed-selector {
+  display: flex;
+  gap: 2px;
+  margin-left: 12px;
+}
+.speed-selector button {
+  background: rgba(255,255,255,0.04);
+  color: #6b7094;
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.speed-selector button.active {
+  background: rgba(240,192,96,0.15);
+  color: #f0c060;
+  border-color: rgba(240,192,96,0.3);
+}
+.step-label {
+  font-size: 11px;
+  color: #6b7094;
+  margin-left: auto;
+  font-family: 'LXGW WenKai', serif;
+}
+
+/* Position selector */
+.position-bar {
+  background: rgba(16,18,30,0.9);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 12px 16px;
+  backdrop-filter: blur(8px);
+}
+.presets-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.presets-row button {
+  background: rgba(30,33,48,0.6);
+  color: #a0a4bc;
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: 'LXGW WenKai', 'Noto Serif SC', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.presets-row button:hover { background: rgba(240,192,96,0.1); color: #f0c060; border-color: rgba(240,192,96,0.2); }
+.presets-row button.active { background: rgba(240,192,96,0.15); color: #f0c060; border-color: rgba(240,192,96,0.3); }
+.fen-row {
+  display: flex;
+  gap: 8px;
+}
+.fen-row input {
+  flex: 1;
+  background: rgba(8,10,16,0.6);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #d0d0dc;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 11px;
+  transition: border-color 0.2s;
+}
+.fen-row input:focus { border-color: rgba(240,192,96,0.4); outline: none; }
+.btn-primary {
+  background: linear-gradient(135deg, #f0c060, #e0a030);
+  color: #1a1d2e;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'LXGW WenKai', sans-serif;
+  transition: transform 0.1s;
+  white-space: nowrap;
+}
+.btn-primary:hover { transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn-secondary {
+  background: rgba(30,33,48,0.6);
+  color: #a0a4bc;
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: 'LXGW WenKai', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-secondary:hover { background: rgba(240,192,96,0.08); color: #d0d4e8; }
+
+/* Commentary panel */
+.commentary-scroll {
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.commentary-scroll::-webkit-scrollbar { width: 5px; }
+.commentary-scroll::-webkit-scrollbar-track { background: transparent; }
+.commentary-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+.commentary-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+.commentary-step {
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  border-left: 4px solid transparent;
+  background: rgba(18,20,32,0.4);
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+.commentary-step.future {
+  opacity: 0.2;
+  filter: blur(1px);
+  max-height: 60px;
+  overflow: hidden;
+}
+.commentary-step.future::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: linear-gradient(transparent, rgba(8,9,13,0.95));
+}
+.commentary-step.past {
+  opacity: 0.5;
+  border-left-color: rgba(255,255,255,0.06);
+}
+.commentary-step.current {
+  opacity: 1;
+  border-left-color: #f0c060;
+  background: rgba(240,192,96,0.06);
+  box-shadow: 0 2px 16px rgba(240,192,96,0.08);
+  animation: fadeInStep 0.4s ease;
+}
+@keyframes fadeInStep {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.step-header {
+  font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', serif;
+  font-size: 17px;
+  color: #f0c060;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+.step-header.bad { color: #e05050; }
+.step-header.good { color: #50c878; }
+.step-move {
+  font-family: 'Noto Serif SC', 'LXGW WenKai', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #e8e8f0;
+  margin-bottom: 6px;
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 6px;
+}
+.step-move.bad-move { background: rgba(224,80,80,0.15); color: #e05050; }
+.step-move.good-move { background: rgba(80,200,120,0.15); color: #50c878; }
+.step-text {
+  font-family: 'LXGW WenKai', 'Noto Serif SC', serif;
+  font-size: 15px;
+  line-height: 2;
+  color: #c8c8d8;
+}
+.step-text .en-sub {
+  display: block;
+  font-size: 12px;
+  color: #6b7094;
+  line-height: 1.6;
+  margin-top: 2px;
+  font-style: italic;
+}
+
+/* Language selector */
+.lang-selector {
+  display: flex;
+  gap: 3px;
+}
+.lang-selector button {
+  background: rgba(30,33,48,0.4);
+  color: #6b7094;
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-family: 'LXGW WenKai', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.lang-selector button.active {
+  background: linear-gradient(135deg, #f0c060, #e0a030);
+  color: #1a1d2e;
+  border-color: transparent;
+  font-weight: 700;
+}
+
+/* Engine status */
+.engine-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #6b7094;
+  font-family: 'SF Mono', monospace;
+}
+.engine-status .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e03030;
+  box-shadow: 0 0 6px rgba(224,48,48,0.5);
+}
+.engine-status .dot.connected { background: #50c878; box-shadow: 0 0 8px rgba(80,200,120,0.4); }
+
+/* Spinner */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #3a3d55;
+  border-top-color: #f0c060;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.25); border-radius: 3px; }
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .app-layout { flex-direction: column; align-items: center; }
+  .commentary-col { min-width: 100%; max-width: 100%; }
+  .board-col { width: 100%; max-width: 460px; }
+}
+
+/* ── Piece Legend Panel ── */
+.piece-legend-overlay {
+  position: fixed;
+  z-index: 1000;
+  top: 80px;
+  right: 40px;
+  width: 520px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  background: rgba(14,16,26,0.92);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(240,192,96,0.18);
+  border-radius: 16px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.6), 0 0 40px rgba(240,192,96,0.06);
+  padding: 0;
+  display: none;
+  font-family: 'LXGW WenKai', 'Noto Serif SC', sans-serif;
+}
+.piece-legend-overlay.visible { display: block; }
+.piece-legend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid rgba(240,192,96,0.12);
+  cursor: move;
+  user-select: none;
+}
+.piece-legend-header h3 {
+  font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', serif;
+  font-size: 18px;
+  color: #f0c060;
+  letter-spacing: 3px;
+  margin: 0;
+  font-weight: 400;
+}
+.piece-legend-header h3 span {
+  font-family: 'LXGW WenKai', 'Noto Serif SC', serif;
+  color: #6b7094;
+  font-size: 11px;
+  margin-left: 8px;
+  letter-spacing: 1px;
+}
+.piece-legend-close {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #6b7094;
+  font-size: 18px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  line-height: 1;
+}
+.piece-legend-close:hover { color: #e05050; border-color: rgba(224,80,80,0.3); background: rgba(224,80,80,0.08); }
+.piece-legend-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.piece-legend-col {
+  padding: 12px 14px 14px;
+}
+.piece-legend-col:first-child {
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+.piece-legend-col-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.piece-legend-col-title.red { color: #d04040; }
+.piece-legend-col-title.black { color: #6888b0; }
+.piece-legend-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.piece-legend-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 700;
+  font-family: 'LXGW WenKai', 'Noto Serif SC', 'STSong', serif;
+  flex-shrink: 0;
+  border: 2px solid;
+  position: relative;
+}
+.piece-legend-circle.red {
+  background: linear-gradient(135deg, #f5e8d0, #d4be90);
+  color: #a02020;
+  border-color: #8b4513;
+}
+.piece-legend-circle.black {
+  background: linear-gradient(135deg, #e8e0d0, #b8b0a0);
+  color: #1a3060;
+  border-color: #4a4a4a;
+}
+.piece-legend-info {
+  flex: 1;
+  min-width: 0;
+}
+.piece-legend-name {
+  font-size: 13px;
+  color: #d8d8e4;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.piece-legend-name .abbr {
+  color: #f0c060;
+  font-weight: 700;
+  font-size: 11px;
+}
+.piece-legend-stars {
+  font-size: 10px;
+  color: #f0c060;
+  letter-spacing: 1px;
+  margin-top: 1px;
+}
+.piece-legend-desc {
+  font-size: 11px;
+  color: #7b7f9c;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+/* ── English Labels Toggle ── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toggle-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.toggle-switch.active {
+  background: rgba(240,192,96,0.3);
+  border-color: rgba(240,192,96,0.4);
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #6b7094;
+  transition: all 0.2s;
+}
+.toggle-switch.active::after {
+  left: 18px;
+  background: #f0c060;
+}
+.toggle-label {
+  font-size: 11px;
+  color: #9ca0b8;
+  font-family: 'LXGW WenKai', sans-serif;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Piece tooltip in commentary */
+.piece-tooltip {
+  display: inline;
+  color: #8b9bc0;
+  font-size: 12px;
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<nav style="background:#131520;border-bottom:1px solid rgba(255,255,255,0.06);padding:8px 16px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-family:-apple-system,sans-serif;">
+  <a href="dashboard.html" style="color:#ef4444;font-weight:700;text-decoration:none;font-size:0.82em;padding:4px 12px;">棋 Dashboard</a>
+  <a href="board-art.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Art Board</a>
+  <a href="board3d.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">3D Board</a>
+  <a href="board.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Board</a>
+  <a href="games.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Games</a>
+  <a href="explain.html" style="color:#fff;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);">Explain</a>
+  <a href="analyze.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analyze</a>
+  <a href="calendar.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Calendar</a>
+  <a href="scripts.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Scripts</a>
+  <a href="analytics.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analytics</a>
+  <a href="branding.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Branding</a>
+  <a href="seo.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">SEO</a>
+  <a href="translate.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Translate</a>
+  <a href="report.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Report</a>
+</nav>
+
+<header>
+  <h1>棋 · Play &amp; Explain<span>Interactive Xiangqi Presenter</span></h1>
+  <div class="header-right">
+    <div class="engine-status">
+      <span class="dot" id="engineDot"></span>
+      <span id="engineLabel">Pikafish: checking...</span>
+    </div>
+    <div class="lang-selector">
+      <button class="active" onclick="setLang('zh')" id="langZh">中文</button>
+      <button onclick="setLang('en')" id="langEn">English</button>
+      <button onclick="setLang('both')" id="langBoth">双语</button>
+    </div>
+  </div>
+</header>
+
+<div class="app-layout">
+  <!-- Board Column -->
+  <div class="board-col">
+    <!-- Position bar -->
+    <div class="position-bar">
+      <div class="panel-title">选择局面 Choose Position</div>
+      <div class="presets-row" id="presetButtons"></div>
+      <div class="fen-row">
+        <input type="text" id="fenInput" value="rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w" spellcheck="false">
+        <button class="btn-primary" onclick="loadFenFromInput()">Load</button>
+        <button class="btn-primary" onclick="analyzeAndGenerate()" id="btnAnalyze">Analyze &amp; Generate</button>
+      </div>
+    </div>
+
+    <!-- Board -->
+    <div class="board-wrap">
+      <canvas id="mainBoard" width="920" height="1020"></canvas>
+    </div>
+
+    <!-- Playback controls -->
+    <div class="playback-controls">
+      <div class="progress-container" id="progressBar" onclick="seekProgress(event)">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div class="transport-row">
+        <button onclick="goToStep(0)" title="First step">&#9198;</button>
+        <button onclick="prevStep()" title="Previous step">&#9194;</button>
+        <button class="play-btn" onclick="togglePlay()" id="playBtn" title="Play / Pause">&#9654;</button>
+        <button onclick="nextStep()" title="Next step">&#9193;</button>
+        <button onclick="goToStep(explanationSteps.length-1)" title="Last step">&#9197;</button>
+        <div class="speed-selector">
+          <button onclick="setSpeed(0.5)" id="sp05">0.5x</button>
+          <button onclick="setSpeed(1)" id="sp1" class="active">1x</button>
+          <button onclick="setSpeed(1.5)" id="sp15">1.5x</button>
+          <button onclick="setSpeed(2)" id="sp2">2x</button>
+        </div>
+        <span class="step-label" id="stepLabel">Step 0 / 0</span>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <button class="btn-secondary" onclick="exportScript()">Export Commentary Script</button>
+      <button class="btn-secondary" onclick="togglePieceLegend()" id="btnLegend">棋子图例 Piece Guide</button>
+      <div class="toggle-row">
+        <div class="toggle-switch" id="engLabelToggle" onclick="toggleEnglishLabels()"></div>
+        <span class="toggle-label" onclick="toggleEnglishLabels()">English Labels</span>
+      </div>
+      <select id="pieceStyleSelect" onchange="changePieceDisplay(this.value)" style="background:rgba(30,33,48,0.6);color:#a0a4bc;border:1px solid rgba(255,255,255,0.08);padding:6px 10px;border-radius:8px;font-size:12px;font-family:'LXGW WenKai',sans-serif;cursor:pointer;">
+        <option value="traditional">中文 Chinese Characters</option>
+        <option value="english">ABC English Letters</option>
+        <option value="western">♔♞ Western Symbols</option>
+        <option value="dual">中/E Dual (Chinese + English)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Piece Legend Floating Panel -->
+  <div class="piece-legend-overlay" id="pieceLegendPanel">
+    <div class="piece-legend-header" id="pieceLegendDragHandle">
+      <h3>棋子图例<span>Piece Guide</span></h3>
+      <button class="piece-legend-close" onclick="togglePieceLegend()">&times;</button>
+    </div>
+    <div class="piece-legend-body">
+      <div class="piece-legend-col">
+        <div class="piece-legend-col-title red">RED 红方</div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle red">帥</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">King <span class="abbr">(K)</span></div>
+            <div class="piece-legend-desc">Moves 1 step within the palace (九宫)</div>
+          </div>
+        </div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle red">仕</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">Advisor <span class="abbr">(A)</span></div>
+            <div class="piece-legend-stars">★★</div>
+            <div class="piece-legend-desc">Moves diagonally 1 step within the palace</div>
+          </div>
+        </div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle red">相</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">Elephant <span class="abbr">(E)</span></div>
+            <div class="piece-legend-stars">★★</div>
+            <div class="piece-legend-desc">Moves diagonally 2 steps, cannot cross river (蹩象眼)</div>
+          </div>
+        </div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle red">俥</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">Rook <span class="abbr">(R)</span></div>
+            <div class="piece-legend-stars">★★★★★</div>
+            <div class="piece-legend-desc">Moves any distance straight &mdash; most powerful piece</div>
+          </div>
+        </div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle red">傌</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">Horse <span class="abbr">(H)</span></div>
+            <div class="piece-legend-stars">★★★★</div>
+            <div class="piece-legend-desc">L-shape movement, can be blocked (蹩马腿)</div>
+          </div>
+        </div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle red">炮</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">Cannon <span class="abbr">(C)</span></div>
+            <div class="piece-legend-stars">★★★★½</div>
+            <div class="piece-legend-desc">Moves straight, captures by jumping over one piece</div>
+          </div>
+        </div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle red">兵</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">Pawn <span class="abbr">(P)</span></div>
+            <div class="piece-legend-stars">★</div>
+            <div class="piece-legend-desc">Forward only; sideways too after crossing river</div>
+          </div>
+        </div>
+      </div>
+      <div class="piece-legend-col">
+        <div class="piece-legend-col-title black">BLACK 黑方</div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle black">將</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">King <span class="abbr">(K)</span></div>
+            <div class="piece-legend-desc">Moves 1 step within the palace (九宫)</div>
+          </div>
+        </div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle black">士</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">Advisor <span class="abbr">(A)</span></div>
+            <div class="piece-legend-stars">★★</div>
+            <div class="piece-legend-desc">Moves diagonally 1 step within the palace</div>
+          </div>
+        </div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle black">象</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">Elephant <span class="abbr">(E)</span></div>
+            <div class="piece-legend-stars">★★</div>
+            <div class="piece-legend-desc">Moves diagonally 2 steps, cannot cross river (蹩象眼)</div>
+          </div>
+        </div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle black">車</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">Rook <span class="abbr">(R)</span></div>
+            <div class="piece-legend-stars">★★★★★</div>
+            <div class="piece-legend-desc">Moves any distance straight &mdash; most powerful piece</div>
+          </div>
+        </div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle black">馬</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">Horse <span class="abbr">(H)</span></div>
+            <div class="piece-legend-stars">★★★★</div>
+            <div class="piece-legend-desc">L-shape movement, can be blocked (蹩马腿)</div>
+          </div>
+        </div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle black">砲</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">Cannon <span class="abbr">(C)</span></div>
+            <div class="piece-legend-stars">★★★★½</div>
+            <div class="piece-legend-desc">Moves straight, captures by jumping over one piece</div>
+          </div>
+        </div>
+        <div class="piece-legend-row">
+          <div class="piece-legend-circle black">卒</div>
+          <div class="piece-legend-info">
+            <div class="piece-legend-name">Pawn <span class="abbr">(P)</span></div>
+            <div class="piece-legend-stars">★</div>
+            <div class="piece-legend-desc">Forward only; sideways too after crossing river</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Commentary Column -->
+  <div class="commentary-col">
+    <div class="panel" style="padding:0;overflow:hidden;">
+      <div style="padding:14px 16px 8px;">
+        <div class="panel-title" style="margin-bottom:0;">解说 Commentary</div>
+      </div>
+      <div class="commentary-scroll" id="commentaryPanel">
+        <div class="commentary-step current" style="margin:0 12px 12px;">
+          <div class="step-text" style="text-align:center;padding:40px 0;color:#6b7094;">
+            Select a preset explanation above, or load a FEN and click "Analyze & Generate" to create a new explanation.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONSTANTS & STATE
+// ============================================================
+const ENGINE_URL = 'http://localhost:8080';
+const COLS = 9, ROWS = 10;
+const CANVAS_SCALE = 2;
+const ANIM_DURATION = 400;
+
+const PIECE_CHARS = {
+  'K': '帥', 'A': '仕', 'B': '相', 'N': '傌', 'R': '俥', 'C': '炮', 'P': '兵',
+  'k': '將', 'a': '士', 'b': '象', 'n': '馬', 'r': '車', 'c': '砲', 'p': '卒'
+};
+const PIECE_NAMES_ZH = {
+  'K': '帅', 'A': '仕', 'B': '相', 'R': '车', 'N': '马', 'C': '炮', 'P': '兵',
+  'k': '将', 'a': '士', 'b': '象', 'r': '车', 'n': '马', 'c': '炮', 'p': '卒'
+};
+const PIECE_NAMES_EN = {
+  'K': 'King', 'A': 'Advisor', 'B': 'Bishop', 'R': 'Chariot', 'N': 'Horse', 'C': 'Cannon', 'P': 'Pawn',
+  'k': 'King', 'a': 'Advisor', 'b': 'Bishop', 'r': 'Chariot', 'n': 'Horse', 'c': 'Cannon', 'p': 'Pawn'
+};
+const CN_NUMS = ['一','二','三','四','五','六','七','八','九'];
+const CN_NUMS_BLK = ['１','２','３','４','５','６','７','８','９'];
+const PIECE_VALUES = { R:900, r:900, N:400, n:400, C:450, c:450, B:200, b:200, A:200, a:200, P:100, p:100, K:0, k:0 };
+const PIECE_ABBREV = {
+  'K': 'K', 'A': 'A', 'B': 'E', 'R': 'R', 'N': 'H', 'C': 'C', 'P': 'P',
+  'k': 'K', 'a': 'A', 'b': 'E', 'r': 'R', 'n': 'H', 'c': 'C', 'p': 'P'
+};
+const PIECE_ENGLISH_NAMES = {
+  'K': 'King', 'A': 'Advisor', 'B': 'Elephant', 'R': 'Rook', 'N': 'Horse', 'C': 'Cannon', 'P': 'Pawn',
+  'k': 'King', 'a': 'Advisor', 'b': 'Elephant', 'r': 'Rook', 'n': 'Horse', 'c': 'Cannon', 'p': 'Pawn'
+};
+const PIECE_MOVE_DESC = {
+  'K': 'moves 1 step within the palace',
+  'A': 'moves diagonally 1 step within the palace',
+  'B': 'moves diagonally 2 steps, cannot cross river',
+  'R': 'moves any distance straight',
+  'N': 'L-shape movement, can be blocked',
+  'C': 'moves straight, captures by jumping over one piece',
+  'P': 'forward only; sideways too after crossing river'
+};
+
+let currentLang = 'zh';
+let boardState = [];
+let originalBoard = [];
+let originalTurn = 'w';
+let cellSize, boardLeft, boardTop;
+let animatingPiece = null;
+let lastMoveFrom = null, lastMoveTo = null;
+let moveArrow = null; // {fromRow, fromCol, toRow, toCol, color}
+let highlightSquare = null; // {row, col, color}
+let showEnglishLabels = false;
+let pieceDisplayStyle = 'traditional'; // 'traditional', 'english', 'western', 'dual'
+let commentarySeenPieces = new Set(); // tracks piece types already annotated in commentary
+
+// Explanation state
+let explanationSteps = [];
+let currentStep = -1;
+let isPlaying = false;
+let playTimer = null;
+let playSpeed = 1;
+let activePreset = null;
+
+// ============================================================
+// FEN PARSING & BOARD LOGIC
+// ============================================================
+function parseFen(fen) {
+  const parts = fen.trim().split(/\s+/);
+  const rows = parts[0].split('/');
+  const turn = parts[1] || 'w';
+  const board = [];
+  for (let r = 0; r < 10; r++) {
+    const row = [];
+    const fenRow = rows[r] || '';
+    for (let i = 0; i < fenRow.length; i++) {
+      const ch = fenRow[i];
+      if (ch >= '1' && ch <= '9') { for (let j = 0; j < parseInt(ch); j++) row.push(null); }
+      else row.push(ch);
+    }
+    while (row.length < 9) row.push(null);
+    board.push(row);
+  }
+  while (board.length < 10) board.push(new Array(9).fill(null));
+  return { board, turn };
+}
+
+function boardToFen(board, turn) {
+  let fen = '';
+  for (let r = 0; r < 10; r++) {
+    if (r > 0) fen += '/';
+    let empty = 0;
+    for (let c = 0; c < 9; c++) {
+      if (!board[r][c]) { empty++; }
+      else { if (empty > 0) { fen += empty; empty = 0; } fen += board[r][c]; }
+    }
+    if (empty > 0) fen += empty;
+  }
+  return fen + ' ' + turn;
+}
+
+function cloneBoard(b) { return b.map(row => [...row]); }
+function isRed(ch) { return ch && ch === ch.toUpperCase(); }
+function isBlack(ch) { return ch && ch === ch.toLowerCase(); }
+function sameSide(a, b) { return (isRed(a) && isRed(b)) || (isBlack(a) && isBlack(b)); }
+
+function parseUciMove(uci) {
+  const fc = uci.charCodeAt(0) - 97;
+  const fr = parseInt(uci[1]);
+  const tc = uci.charCodeAt(2) - 97;
+  const tr = parseInt(uci[3]);
+  return { fromRow: fr, fromCol: fc, toRow: tr, toCol: tc };
+}
+
+function uciMoveStr(fromRow, fromCol, toRow, toCol) {
+  return String.fromCharCode(97 + fromCol) + fromRow + String.fromCharCode(97 + toCol) + toRow;
+}
+
+function makeMove(board, uci) {
+  const m = parseUciMove(uci);
+  const newBoard = cloneBoard(board);
+  const captured = newBoard[m.toRow][m.toCol];
+  newBoard[m.toRow][m.toCol] = newBoard[m.fromRow][m.fromCol];
+  newBoard[m.fromRow][m.fromCol] = null;
+  return { board: newBoard, captured };
+}
+
+function toChinese(uci, board) {
+  const m = parseUciMove(uci);
+  const piece = board[m.fromRow][m.fromCol];
+  if (!piece) return uci;
+  const red = isRed(piece);
+  const pName = PIECE_NAMES_ZH[piece];
+  let fromColName = red ? CN_NUMS[8 - m.fromCol] : CN_NUMS_BLK[m.fromCol];
+  let toColName = red ? CN_NUMS[8 - m.toCol] : CN_NUMS_BLK[m.toCol];
+  let prefix = pName + fromColName;
+  const rowDiff = m.toRow - m.fromRow;
+  let direction, suffix;
+  if (m.fromCol === m.toCol) {
+    const dist = Math.abs(rowDiff);
+    direction = red ? (rowDiff < 0 ? '进' : '退') : (rowDiff > 0 ? '进' : '退');
+    suffix = red ? CN_NUMS[dist - 1] : CN_NUMS_BLK[dist - 1];
+  } else {
+    const typeUpper = piece.toUpperCase();
+    if (typeUpper === 'N' || typeUpper === 'B' || typeUpper === 'A') {
+      direction = red ? (rowDiff < 0 ? '进' : rowDiff > 0 ? '退' : '平') : (rowDiff > 0 ? '进' : rowDiff < 0 ? '退' : '平');
+      suffix = red ? CN_NUMS[8 - m.toCol] : CN_NUMS_BLK[m.toCol];
+    } else {
+      if (rowDiff === 0) { direction = '平'; suffix = toColName; }
+      else {
+        direction = red ? (rowDiff < 0 ? '进' : '退') : (rowDiff > 0 ? '进' : '退');
+        const dist = Math.abs(rowDiff);
+        suffix = red ? CN_NUMS[dist - 1] : CN_NUMS_BLK[dist - 1];
+      }
+    }
+  }
+  return prefix + direction + suffix;
+}
+
+// ============================================================
+// BOARD GEOMETRY & RENDERING
+// ============================================================
+function computeGeometry() {
+  const canvas = document.getElementById('mainBoard');
+  const displayW = 460;
+  const displayH = displayW * (1020 / 920);
+  canvas.style.width = displayW + 'px';
+  canvas.style.height = displayH + 'px';
+  canvas.width = Math.round(displayW * CANVAS_SCALE);
+  canvas.height = Math.round(displayH * CANVAS_SCALE);
+  const W = canvas.width;
+  const H = canvas.height;
+  const padX = W * 0.08;
+  const padY = H * 0.06;
+  const playW = W - padX * 2;
+  const playH = H - padY * 2;
+  cellSize = Math.min(playW / (COLS - 1), playH / (ROWS - 1));
+  boardLeft = (W - cellSize * (COLS - 1)) / 2;
+  boardTop = (H - cellSize * (ROWS - 1)) / 2;
+}
+
+function boardX(col) { return boardLeft + col * cellSize; }
+function boardY(row) { return boardTop + row * cellSize; }
+
+function drawBoard() {
+  const canvas = document.getElementById('mainBoard');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Background: warm wood tone with richer gradient
+  const bgGrad = ctx.createLinearGradient(0, 0, W * 0.3, H);
+  bgGrad.addColorStop(0, '#c8a868');
+  bgGrad.addColorStop(0.3, '#be9c5c');
+  bgGrad.addColorStop(0.6, '#b49050');
+  bgGrad.addColorStop(1, '#a88448');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Wood grain texture — more refined
+  ctx.save();
+  const grainSeed = 42; // consistent grain pattern
+  for (let y = 0; y < H; y += 1.5) {
+    const hash = (y * grainSeed) % 100;
+    if (hash > 50) continue;
+    ctx.strokeStyle = `rgba(80,50,20,${0.03 + (hash % 8) * 0.01})`;
+    ctx.lineWidth = 0.4 + (hash % 5) * 0.3;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    let cx = 0;
+    while (cx < W) {
+      const step = 20 + (hash % 30) + (cx % 40);
+      cx += step;
+      ctx.lineTo(Math.min(cx, W), y + ((hash * cx) % 5 - 2.5) * 0.4);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Frame / border — premium beveled wood
+  const fx = boardLeft - cellSize * 0.65;
+  const fy = boardTop - cellSize * 0.65;
+  const fw = cellSize * (COLS - 1) + cellSize * 1.3;
+  const fh = cellSize * (ROWS - 1) + cellSize * 1.3;
+
+  // Outer dark frame
+  ctx.fillStyle = '#4a3218';
+  ctx.fillRect(fx - cellSize * 0.1, fy - cellSize * 0.1, fw + cellSize * 0.2, fh + cellSize * 0.2);
+
+  // Frame gradient (beveled look)
+  const frameGrad = ctx.createLinearGradient(fx, fy, fx, fy + fh);
+  frameGrad.addColorStop(0, '#7a5c30');
+  frameGrad.addColorStop(0.02, '#8b6c38');
+  frameGrad.addColorStop(0.5, '#6b4c28');
+  frameGrad.addColorStop(0.98, '#5a3c1c');
+  frameGrad.addColorStop(1, '#4a3018');
+  ctx.fillStyle = frameGrad;
+  ctx.fillRect(fx, fy, fw, fh);
+
+  // Golden inlay line
+  ctx.strokeStyle = 'rgba(200,168,80,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(boardLeft - cellSize * 0.38, boardTop - cellSize * 0.38,
+    cellSize * (COLS - 1) + cellSize * 0.76, cellSize * (ROWS - 1) + cellSize * 0.76);
+
+  // Inner playing surface (slightly different tone from outer board)
+  const innerGrad = ctx.createLinearGradient(boardLeft, boardTop, boardLeft, boardTop + cellSize * (ROWS-1));
+  innerGrad.addColorStop(0, '#d0a868');
+  innerGrad.addColorStop(0.5, '#c49858');
+  innerGrad.addColorStop(1, '#b88848');
+  ctx.fillStyle = innerGrad;
+  ctx.fillRect(boardLeft - cellSize * 0.32, boardTop - cellSize * 0.32,
+    cellSize * (COLS - 1) + cellSize * 0.64, cellSize * (ROWS - 1) + cellSize * 0.64);
+
+  // Grid lines — engraved look (dark line + light highlight offset)
+  ctx.strokeStyle = 'rgba(60,35,12,0.7)';
+  ctx.lineWidth = 1.2;
+
+  // Horizontal lines
+  for (let r = 0; r < ROWS; r++) {
+    ctx.beginPath();
+    ctx.moveTo(boardX(0), boardY(r));
+    ctx.lineTo(boardX(COLS - 1), boardY(r));
+    ctx.stroke();
+  }
+
+  // Vertical lines (outer full, inner broken at river)
+  for (let c = 0; c < COLS; c++) {
+    if (c === 0 || c === COLS - 1) {
+      ctx.beginPath();
+      ctx.moveTo(boardX(c), boardY(0));
+      ctx.lineTo(boardX(c), boardY(ROWS - 1));
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(boardX(c), boardY(0));
+      ctx.lineTo(boardX(c), boardY(4));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(boardX(c), boardY(5));
+      ctx.lineTo(boardX(c), boardY(ROWS - 1));
+      ctx.stroke();
+    }
+  }
+
+  // Palace diagonals
+  ctx.beginPath();
+  ctx.moveTo(boardX(3), boardY(0)); ctx.lineTo(boardX(5), boardY(2));
+  ctx.moveTo(boardX(5), boardY(0)); ctx.lineTo(boardX(3), boardY(2));
+  ctx.moveTo(boardX(3), boardY(7)); ctx.lineTo(boardX(5), boardY(9));
+  ctx.moveTo(boardX(5), boardY(7)); ctx.lineTo(boardX(3), boardY(9));
+  ctx.stroke();
+
+  // River text — balanced, elegant calligraphy
+  ctx.save();
+  const riverFontSize = cellSize * 0.38;
+  ctx.font = `${riverFontSize}px 'Ma Shan Zheng', 'ZCOOL XiaoWei', 'STKaiti', serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const riverY = (boardY(4) + boardY(5)) / 2;
+  // Engraved effect: dark shadow + lighter main text
+  ctx.fillStyle = 'rgba(60,40,15,0.18)';
+  ctx.fillText('楚  河', boardX(2), riverY + 1.5);
+  ctx.fillText('漢  界', boardX(6), riverY + 1.5);
+  ctx.fillStyle = 'rgba(100,70,30,0.42)';
+  ctx.fillText('楚  河', boardX(2), riverY);
+  ctx.fillText('漢  界', boardX(6), riverY);
+  ctx.restore();
+
+  // Star points (crosshairs)
+  const starPoints = [[2,1],[2,7],[3,0],[3,2],[3,4],[3,6],[3,8],[6,0],[6,2],[6,4],[6,6],[6,8],[7,1],[7,7]];
+  for (const [r, c] of starPoints) {
+    drawStarPoint(ctx, boardX(c), boardY(r));
+  }
+
+  // Highlight square
+  if (highlightSquare) {
+    const hx = boardX(highlightSquare.col);
+    const hy = boardY(highlightSquare.row);
+    ctx.save();
+    const hColor = highlightSquare.color === 'red' ? 'rgba(224,60,60,0.3)' : 'rgba(80,200,120,0.3)';
+    ctx.fillStyle = hColor;
+    ctx.beginPath();
+    ctx.arc(hx, hy, cellSize * 0.46, 0, Math.PI * 2);
+    ctx.fill();
+    // Glow
+    const glowColor = highlightSquare.color === 'red' ? 'rgba(224,60,60,0.5)' : 'rgba(80,200,120,0.5)';
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = cellSize * 0.4;
+    ctx.strokeStyle = glowColor;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(hx, hy, cellSize * 0.46, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Last move highlight
+  if (lastMoveTo) {
+    const tx = boardX(lastMoveTo.col), ty = boardY(lastMoveTo.row);
+    ctx.save();
+    ctx.shadowColor = 'rgba(80,200,120,0.6)';
+    ctx.shadowBlur = cellSize * 0.3;
+    ctx.strokeStyle = 'rgba(80,200,120,0.4)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(tx, ty, cellSize * 0.44, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+  if (lastMoveFrom) {
+    const fx = boardX(lastMoveFrom.col), fy = boardY(lastMoveFrom.row);
+    ctx.save();
+    ctx.fillStyle = 'rgba(80,200,120,0.35)';
+    ctx.beginPath();
+    ctx.arc(fx, fy, cellSize * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Draw pieces (skip animating piece at old position)
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const p = boardState[r]?.[c];
+      if (!p) continue;
+      if (animatingPiece && animatingPiece.fromRow === r && animatingPiece.fromCol === c) continue;
+      drawPiece(ctx, boardX(c), boardY(r), p);
+    }
+  }
+
+  // Draw animating piece
+  if (animatingPiece) {
+    const t = Math.min(1, (Date.now() - animatingPiece.startTime) / animatingPiece.duration);
+    const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    const cx = animatingPiece.fromX + (animatingPiece.toX - animatingPiece.fromX) * ease;
+    const cy = animatingPiece.fromY + (animatingPiece.toY - animatingPiece.fromY) * ease;
+    drawPiece(ctx, cx, cy, animatingPiece.piece, true);
+    if (t >= 1) {
+      // Animation complete
+      boardState[animatingPiece.toRow][animatingPiece.toCol] = animatingPiece.piece;
+      boardState[animatingPiece.fromRow][animatingPiece.fromCol] = null;
+      lastMoveFrom = { row: animatingPiece.fromRow, col: animatingPiece.fromCol };
+      lastMoveTo = { row: animatingPiece.toRow, col: animatingPiece.toCol };
+      const cb = animatingPiece.onComplete;
+      animatingPiece = null;
+      if (cb) cb();
+    }
+  }
+
+  // Draw move arrow
+  if (moveArrow) {
+    drawArrow(ctx, boardX(moveArrow.fromCol), boardY(moveArrow.fromRow),
+      boardX(moveArrow.toCol), boardY(moveArrow.toRow), moveArrow.color);
+  }
+
+  if (animatingPiece) requestAnimationFrame(drawBoard);
+}
+
+function drawStarPoint(ctx, x, y) {
+  const len = cellSize * 0.1;
+  const gap = cellSize * 0.06;
+  ctx.save();
+  ctx.strokeStyle = '#5a3c18';
+  ctx.lineWidth = 1.2;
+  for (const [dx, dy] of [[1,1],[1,-1],[-1,1],[-1,-1]]) {
+    ctx.beginPath();
+    ctx.moveTo(x + dx * gap, y + dy * gap);
+    ctx.lineTo(x + dx * (gap + len), y + dy * gap);
+    ctx.moveTo(x + dx * gap, y + dy * gap);
+    ctx.lineTo(x + dx * gap, y + dy * (gap + len));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawPiece(ctx, x, y, piece, floating) {
+  const red = isRed(piece);
+  const r = cellSize * 0.42;
+  ctx.save();
+
+  // Shadow — sits ON the board
+  if (floating) {
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = cellSize * 0.3;
+    ctx.shadowOffsetY = cellSize * 0.08;
+  } else {
+    ctx.shadowColor = 'rgba(0,0,0,0.25)';
+    ctx.shadowBlur = cellSize * 0.08;
+    ctx.shadowOffsetY = cellSize * 0.03;
+  }
+
+  // Outer rim (darker ring for depth)
+  const rimGrad = ctx.createRadialGradient(x, y, r * 0.85, x, y, r);
+  if (red) {
+    rimGrad.addColorStop(0, '#d4be90');
+    rimGrad.addColorStop(1, '#8b6530');
+  } else {
+    rimGrad.addColorStop(0, '#b8b0a0');
+    rimGrad.addColorStop(1, '#5a5548');
+  }
+  ctx.fillStyle = rimGrad;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  // Main piece face — convex dome gradient (lighter center, darker edges)
+  const faceR = r * 0.88;
+  const faceGrad = ctx.createRadialGradient(x - r * 0.15, y - r * 0.15, r * 0.05, x, y, faceR);
+  if (red) {
+    faceGrad.addColorStop(0, '#faf0dc');
+    faceGrad.addColorStop(0.4, '#f0e0c4');
+    faceGrad.addColorStop(0.8, '#e0cca4');
+    faceGrad.addColorStop(1, '#cbb888');
+  } else {
+    faceGrad.addColorStop(0, '#f0ece4');
+    faceGrad.addColorStop(0.4, '#e4dcd0');
+    faceGrad.addColorStop(0.8, '#d0c8b8');
+    faceGrad.addColorStop(1, '#b8ae9c');
+  }
+  ctx.fillStyle = faceGrad;
+  ctx.beginPath();
+  ctx.arc(x, y, faceR, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Carved inner ring
+  ctx.strokeStyle = red ? 'rgba(139,69,19,0.25)' : 'rgba(74,74,74,0.2)';
+  ctx.lineWidth = cellSize * 0.012;
+  ctx.beginPath();
+  ctx.arc(x, y, r * 0.75, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Shine highlight (top-left light reflection)
+  const shineGrad = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, 0, x - r * 0.2, y - r * 0.2, r * 0.45);
+  shineGrad.addColorStop(0, 'rgba(255,255,255,0.35)');
+  shineGrad.addColorStop(0.5, 'rgba(255,255,255,0.08)');
+  shineGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = shineGrad;
+  ctx.beginPath();
+  ctx.arc(x, y, faceR, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Character rendering based on display style
+  const ch = PIECE_CHARS[piece];
+  const abbrev = PIECE_ABBREV[piece];
+  const engName = PIECE_ENGLISH_NAMES[piece] || '';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const style = pieceDisplayStyle;
+
+  if (style === 'english') {
+    // Full English name inside the piece
+    ctx.fillStyle = red ? '#a02020' : '#1a3060';
+    ctx.font = `800 ${cellSize * 0.32}px 'Noto Serif SC', sans-serif`;
+    ctx.fillText(abbrev, x, y - cellSize * 0.06);
+    // Small full name below
+    ctx.font = `600 ${cellSize * 0.14}px 'Noto Serif SC', sans-serif`;
+    ctx.fillStyle = red ? 'rgba(160,32,32,0.65)' : 'rgba(26,48,96,0.65)';
+    ctx.fillText(engName, x, y + cellSize * 0.18);
+
+  } else if (style === 'western') {
+    // Chess-like unicode symbols
+    const symbols = {
+      'K':'♔','A':'♛','B':'♗','R':'♖','N':'♘','C':'⚄','P':'♙',
+      'k':'♚','a':'♛','b':'♝','r':'♜','n':'♞','c':'⚄','p':'♟'
+    };
+    ctx.fillStyle = red ? '#a02020' : '#1a3060';
+    ctx.font = `${cellSize * 0.48}px serif`;
+    ctx.fillText(symbols[piece] || ch, x, y + cellSize * 0.02);
+
+  } else if (style === 'dual' || showEnglishLabels) {
+    // Chinese character on top, English abbreviation below
+    ctx.fillStyle = red ? '#a02020' : '#1a3060';
+    ctx.font = `700 ${cellSize * 0.36}px 'LXGW WenKai', 'Noto Serif SC', serif`;
+    ctx.fillText(ch, x, y - cellSize * 0.09);
+    // English abbrev below
+    ctx.font = `700 ${cellSize * 0.19}px 'Noto Serif SC', sans-serif`;
+    ctx.fillStyle = red ? 'rgba(160,32,32,0.7)' : 'rgba(26,48,96,0.7)';
+    ctx.fillText(abbrev, x, y + cellSize * 0.2);
+
+  } else {
+    // Traditional: Chinese characters only
+    ctx.fillStyle = red ? '#a02020' : '#1a3060';
+    ctx.font = `700 ${cellSize * 0.48}px 'LXGW WenKai', 'Noto Serif SC', 'STSong', serif`;
+    ctx.fillText(ch, x, y + cellSize * 0.01);
+  }
+
+  ctx.restore();
+}
+
+function drawArrow(ctx, x1, y1, x2, y2, color) {
+  const arrowColor = color === 'red' ? 'rgba(224,60,60,0.6)' : 'rgba(80,200,120,0.6)';
+  const headLen = cellSize * 0.25;
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  ctx.save();
+  ctx.strokeStyle = arrowColor;
+  ctx.fillStyle = arrowColor;
+  ctx.lineWidth = cellSize * 0.08;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2 - Math.cos(angle) * headLen * 0.5, y2 - Math.sin(angle) * headLen * 0.5);
+  ctx.stroke();
+  // Arrowhead
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - headLen * Math.cos(angle - 0.4), y2 - headLen * Math.sin(angle - 0.4));
+  ctx.lineTo(x2 - headLen * Math.cos(angle + 0.4), y2 - headLen * Math.sin(angle + 0.4));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+// ============================================================
+// PIECE ANIMATION
+// ============================================================
+function animateMove(uci, callback) {
+  const m = parseUciMove(uci);
+  const piece = boardState[m.fromRow][m.fromCol];
+  if (!piece) { if (callback) callback(); return; }
+  // Remove captured piece immediately for visual clarity
+  boardState[m.toRow][m.toCol] = null;
+  animatingPiece = {
+    piece,
+    fromRow: m.fromRow, fromCol: m.fromCol,
+    toRow: m.toRow, toCol: m.toCol,
+    fromX: boardX(m.fromCol), fromY: boardY(m.fromRow),
+    toX: boardX(m.toCol), toY: boardY(m.toRow),
+    startTime: Date.now(),
+    duration: ANIM_DURATION / playSpeed,
+    onComplete: callback
+  };
+  requestAnimationFrame(drawBoard);
+}
+
+function applyMoveInstant(uci) {
+  const m = parseUciMove(uci);
+  const piece = boardState[m.fromRow][m.fromCol];
+  boardState[m.toRow][m.toCol] = piece;
+  boardState[m.fromRow][m.fromCol] = null;
+  lastMoveFrom = { row: m.fromRow, col: m.fromCol };
+  lastMoveTo = { row: m.toRow, col: m.toCol };
+}
+
+// ============================================================
+// EXPLANATION STEP SYSTEM
+// ============================================================
+
+/*
+  Each step object:
+  {
+    type: 'intro' | 'pause' | 'bad_move' | 'refutation' | 'explain_bad' | 'reset' | 'good_move' | 'continuation' | 'explain_good' | 'summary',
+    header: { zh, en },
+    text: { zh, en },
+    move: 'uci string' or null,
+    boardFen: 'fen to set before this step' or null,
+    arrowColor: 'red' | 'green' | null,
+    highlightColor: 'red' | 'green' | null,
+    readingTime: ms (calculated from text length)
+  }
+*/
+
+function renderCommentaryPanel() {
+  const panel = document.getElementById('commentaryPanel');
+  if (explanationSteps.length === 0) {
+    panel.innerHTML = '<div class="commentary-step current" style="margin:0 12px 12px;"><div class="step-text" style="text-align:center;padding:40px 0;color:#6b7094;">Select a preset explanation or analyze a position.</div></div>';
+    return;
+  }
+  // Reset piece annotation tracking for a fresh pass
+  commentarySeenPieces = new Set();
+  let html = '';
+  for (let i = 0; i < explanationSteps.length; i++) {
+    const step = explanationSteps[i];
+    let stateClass = 'future';
+    if (i < currentStep) stateClass = 'past';
+    else if (i === currentStep) stateClass = 'current';
+
+    const headerText = getLocalText(step.header);
+    const bodyText = getLocalText(step.text);
+    const headerClass = step.type.startsWith('bad') || step.type === 'refutation' || step.type === 'explain_bad' ? 'bad' :
+                        step.type.startsWith('good') || step.type === 'continuation' || step.type === 'explain_good' ? 'good' : '';
+
+    html += `<div class="commentary-step ${stateClass}" id="step-${i}">`;
+    if (headerText) {
+      html += `<div class="step-header ${headerClass}">${headerText}</div>`;
+    }
+    if (step.move && step.moveNotation) {
+      const moveClass = step.arrowColor === 'red' ? 'bad-move' : step.arrowColor === 'green' ? 'good-move' : '';
+      html += `<div class="step-move ${moveClass}">${step.moveNotation}</div>`;
+    }
+    if (bodyText) {
+      html += `<div class="step-text">${formatStepText(bodyText, step)}</div>`;
+    }
+    html += '</div>';
+  }
+  panel.innerHTML = html;
+
+  // Scroll to current
+  const cur = document.getElementById(`step-${currentStep}`);
+  if (cur) {
+    cur.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function formatStepText(text, step) {
+  // Annotate first mention of each piece type with English tooltip
+  text = annotatePieceMentions(text);
+  if (currentLang === 'both' && step.text.en) {
+    return text + `<span class="en-sub">${step.text.en}</span>`;
+  }
+  return text;
+}
+
+// Map Chinese piece characters to their FEN key for lookup
+const PIECE_CHAR_TO_KEY = {
+  '帅': 'K', '帥': 'K', '将': 'k', '將': 'k',
+  '仕': 'A', '士': 'a',
+  '相': 'B', '象': 'b',
+  '车': 'R', '車': 'R', '俥': 'R',
+  '马': 'N', '馬': 'N', '傌': 'N',
+  '炮': 'C', '砲': 'c',
+  '兵': 'P', '卒': 'p'
+};
+
+function annotatePieceMentions(text) {
+  // For each known Chinese piece character, if not yet seen in this session,
+  // add an inline English annotation after the first occurrence
+  for (const [char, key] of Object.entries(PIECE_CHAR_TO_KEY)) {
+    const upperKey = key.toUpperCase();
+    if (commentarySeenPieces.has(char)) continue;
+    const idx = text.indexOf(char);
+    if (idx !== -1) {
+      commentarySeenPieces.add(char);
+      const engName = PIECE_ENGLISH_NAMES[upperKey];
+      const moveDesc = PIECE_MOVE_DESC[upperKey];
+      const annotation = `<span class="piece-tooltip"> (${engName} &mdash; ${moveDesc})</span>`;
+      // Insert after the first occurrence of the character
+      text = text.substring(0, idx + char.length) + annotation + text.substring(idx + char.length);
+    }
+  }
+  return text;
+}
+
+function getLocalText(obj) {
+  if (!obj) return '';
+  if (currentLang === 'zh') return obj.zh || obj.en || '';
+  if (currentLang === 'en') return obj.en || obj.zh || '';
+  return obj.zh || obj.en || '';
+}
+
+function updateStepLabel() {
+  const label = document.getElementById('stepLabel');
+  label.textContent = `Step ${currentStep + 1} / ${explanationSteps.length}`;
+  const fill = document.getElementById('progressFill');
+  const pct = explanationSteps.length > 1 ? ((currentStep) / (explanationSteps.length - 1)) * 100 : 0;
+  fill.style.width = pct + '%';
+}
+
+function getReadingTime(step) {
+  const text = getLocalText(step.text) + getLocalText(step.header);
+  const len = text.length;
+  const baseTime = 1500;
+  const perChar = 60;
+  return Math.max(baseTime, Math.min(len * perChar, 8000)) / playSpeed;
+}
+
+// ============================================================
+// PLAYBACK CONTROLS
+// ============================================================
+function goToStep(idx) {
+  if (idx < 0 || idx >= explanationSteps.length) return;
+  stopPlay();
+  // Reset to original, then replay to target step
+  currentStep = -1;
+  boardState = cloneBoard(originalBoard);
+  lastMoveFrom = null;
+  lastMoveTo = null;
+  moveArrow = null;
+  highlightSquare = null;
+
+  // Fast-forward through all steps up to idx (applying moves instantly)
+  for (let i = 0; i <= idx; i++) {
+    const step = explanationSteps[i];
+    if (step.boardFen) {
+      const parsed = parseFen(step.boardFen);
+      boardState = parsed.board;
+      lastMoveFrom = null;
+      lastMoveTo = null;
+    }
+    if (step.move) {
+      applyMoveInstant(step.move);
+    }
+    if (step.arrowColor && step.move) {
+      const m = parseUciMove(step.move);
+      moveArrow = { fromRow: m.fromRow, fromCol: m.fromCol, toRow: m.toRow, toCol: m.toCol, color: step.arrowColor };
+    } else if (step.type === 'reset' || step.type === 'intro') {
+      moveArrow = null;
+    }
+    if (step.highlightColor && step.move) {
+      const m = parseUciMove(step.move);
+      highlightSquare = { row: m.toRow, col: m.toCol, color: step.highlightColor };
+    } else if (step.type === 'reset' || step.type === 'intro') {
+      highlightSquare = null;
+    }
+  }
+  currentStep = idx;
+  renderCommentaryPanel();
+  updateStepLabel();
+  drawBoard();
+}
+
+function nextStep() {
+  if (currentStep >= explanationSteps.length - 1) {
+    stopPlay();
+    return;
+  }
+  const idx = currentStep + 1;
+  const step = explanationSteps[idx];
+
+  if (step.boardFen) {
+    const parsed = parseFen(step.boardFen);
+    boardState = parsed.board;
+    lastMoveFrom = null;
+    lastMoveTo = null;
+    moveArrow = null;
+    highlightSquare = null;
+  }
+
+  if (step.arrowColor && step.move) {
+    const m = parseUciMove(step.move);
+    moveArrow = { fromRow: m.fromRow, fromCol: m.fromCol, toRow: m.toRow, toCol: m.toCol, color: step.arrowColor };
+  } else if (!step.move) {
+    // Keep arrow from previous step unless it's a reset
+    if (step.type === 'reset' || step.type === 'intro') {
+      moveArrow = null;
+      highlightSquare = null;
+    }
+  }
+
+  if (step.highlightColor && step.move) {
+    const m = parseUciMove(step.move);
+    highlightSquare = { row: m.toRow, col: m.toCol, color: step.highlightColor };
+  } else if (step.type === 'reset' || step.type === 'intro') {
+    highlightSquare = null;
+  }
+
+  currentStep = idx;
+  renderCommentaryPanel();
+  updateStepLabel();
+
+  if (step.move) {
+    animateMove(step.move, () => { drawBoard(); });
+  } else {
+    drawBoard();
+  }
+}
+
+function prevStep() {
+  if (currentStep <= 0) return;
+  goToStep(currentStep - 1);
+}
+
+function togglePlay() {
+  if (isPlaying) {
+    stopPlay();
+  } else {
+    startPlay();
+  }
+}
+
+function startPlay() {
+  isPlaying = true;
+  document.getElementById('playBtn').innerHTML = '&#9646;&#9646;';
+  scheduleNext();
+}
+
+function stopPlay() {
+  isPlaying = false;
+  document.getElementById('playBtn').innerHTML = '&#9654;';
+  if (playTimer) { clearTimeout(playTimer); playTimer = null; }
+}
+
+function scheduleNext() {
+  if (!isPlaying) return;
+  if (currentStep >= explanationSteps.length - 1) { stopPlay(); return; }
+  const step = explanationSteps[currentStep >= 0 ? currentStep : 0];
+  const delay = getReadingTime(step) + (ANIM_DURATION / playSpeed);
+  playTimer = setTimeout(() => {
+    nextStep();
+    scheduleNext();
+  }, delay);
+}
+
+function setSpeed(s) {
+  playSpeed = s;
+  document.querySelectorAll('.speed-selector button').forEach(b => b.classList.remove('active'));
+  document.getElementById('sp' + String(s).replace('.', '')).classList.add('active');
+}
+
+function seekProgress(e) {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  const idx = Math.round(pct * (explanationSteps.length - 1));
+  goToStep(Math.max(0, Math.min(idx, explanationSteps.length - 1)));
+}
+
+// ============================================================
+// LANGUAGE TOGGLE
+// ============================================================
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-selector button').forEach(b => b.classList.remove('active'));
+  document.getElementById('lang' + lang.charAt(0).toUpperCase() + lang.slice(1)).classList.add('active');
+  renderCommentaryPanel();
+}
+
+// ============================================================
+// LOAD FEN
+// ============================================================
+function loadFen(fen) {
+  const parsed = parseFen(fen);
+  boardState = parsed.board;
+  originalBoard = cloneBoard(parsed.board);
+  originalTurn = parsed.turn;
+  lastMoveFrom = null;
+  lastMoveTo = null;
+  moveArrow = null;
+  highlightSquare = null;
+  document.getElementById('fenInput').value = fen;
+  drawBoard();
+}
+
+function loadFenFromInput() {
+  loadFen(document.getElementById('fenInput').value.trim());
+  explanationSteps = [];
+  currentStep = -1;
+  renderCommentaryPanel();
+  updateStepLabel();
+}
+
+// ============================================================
+// PRE-LOADED EXPLANATIONS (5 famous positions)
+// ============================================================
+const PRESETS = [
+  {
+    name: '马后炮',
+    desc: 'Horse-behind-Cannon checkmate (beginner)',
+    fen: '3ak4/4a4/4b4/9/9/4N4/9/4C4/9/3K5 w',
+    steps: buildMaHouPao()
+  },
+  {
+    name: '天地炮',
+    desc: 'Sky & Earth Cannons setup (beginner)',
+    fen: 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w',
+    steps: buildTianDiPao()
+  },
+  {
+    name: '七星聚会',
+    desc: 'Seven Stars Gathering (advanced endgame)',
+    fen: '2bakab2/9/9/2P1P4/9/9/p8/4C4/4a4/2BAK4 w',
+    steps: buildQiXing()
+  },
+  {
+    name: '弃车杀王',
+    desc: 'Famous game: Sacrifice the Chariot (intermediate)',
+    fen: '1r2kabr1/4a4/1cn1b1n2/p1p1p3p/6p2/2P6/P3P1P1P/1C2B1N2/4A4/1RBAK2R1 w',
+    steps: buildFamousGame()
+  },
+  {
+    name: '铁门栓',
+    desc: 'Iron Door Bolt checkmate (intermediate)',
+    fen: '4kab2/4a4/4b4/9/9/3R5/9/4B4/4A4/4KA3 w',
+    steps: buildTieMenShuan()
+  }
+];
+
+// --- PRESET 1: 马后炮 (Horse-behind-Cannon checkmate) ---
+function buildMaHouPao() {
+  const fen = '3ak4/4a4/4b4/9/9/4N4/9/4C4/9/3K5 w';
+  return [
+    {
+      type: 'intro',
+      header: { zh: '📍 局面介绍', en: '📍 Position Overview' },
+      text: {
+        zh: '这是中国象棋中最经典的杀法之一——马后炮。\n\n红方有一马一炮，黑方有帅加士象。看起来子力不多，但红方有一步精妙的走法，可以直接将死黑方。',
+        en: 'This is one of the most classic checkmate patterns in Xiangqi — the Horse-behind-Cannon mate.\n\nRed has a horse and cannon. Black has king, advisor, and bishop. Not many pieces, but Red has a brilliant forced mate.'
+      },
+      move: null, boardFen: fen, arrowColor: null
+    },
+    {
+      type: 'pause',
+      header: { zh: '🤔 你会怎么走？', en: '🤔 What would you play?' },
+      text: {
+        zh: '先想一想，红方应该怎么下？\n\n炮和马要怎么配合才能将死对方？',
+        en: 'Think about it first — how should Red play?\n\nHow should the cannon and horse work together for checkmate?'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'bad_move',
+      header: { zh: '❌ 错误选择 #1：炮八平五', en: '❌ Wrong Choice #1: Cannon to center' },
+      text: {
+        zh: '很多初学者会直觉地把炮放到中线，想直接攻击黑将。\n\n看起来很有威胁对吧？但是……',
+        en: 'Many beginners instinctively move the cannon to the center file to directly attack the black king.\n\nLooks threatening, right? But...'
+      },
+      move: 'e7e9',
+      moveNotation: '炮八进二',
+      boardFen: fen,
+      arrowColor: 'red',
+      highlightColor: 'red'
+    },
+    {
+      type: 'refutation',
+      header: { zh: '看看黑方怎么应对……', en: 'Watch how Black responds...' },
+      text: {
+        zh: '黑方士四进五，轻松挡住。\n\n炮的攻击被化解了，而马还不在位置上。红方白白浪费了一步棋。',
+        en: 'Black plays Advisor to center, easily blocking.\n\nThe cannon attack is neutralized, and the horse is still out of position. Red wasted a move.'
+      },
+      move: 'e1d0',
+      moveNotation: '士四进五',
+      boardFen: null,
+      arrowColor: 'red'
+    },
+    {
+      type: 'explain_bad',
+      header: { zh: '💡 为什么这步不好？', en: '💡 Why is this bad?' },
+      text: {
+        zh: '问题出在：你先动了炮，给了对方防守的机会！\n\n马后炮的精髓是——先用马占据关键位置，再用炮配合。\n如果先动炮，对方有时间调整防线。',
+        en: 'The problem: you moved the cannon first, giving Black time to defend!\n\nThe essence of this pattern is: position the horse first, THEN use the cannon.\nIf you move the cannon first, the opponent has time to adjust.'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'reset',
+      header: { zh: '🔄 回到原始局面', en: '🔄 Back to starting position' },
+      text: { zh: '好，让我们重新来看这个局面。', en: 'OK, let\'s look at this position again.' },
+      move: null, boardFen: fen, arrowColor: null
+    },
+    {
+      type: 'bad_move',
+      header: { zh: '❌ 错误选择 #2：马五进三', en: '❌ Wrong Choice #2: Horse to the side' },
+      text: {
+        zh: '有些人会想把马跳到侧面，试图从旁边进攻。\n\n马走偏了，离黑将太远。',
+        en: 'Some players think about jumping the horse to the flank for a side attack.\n\nBut the horse goes too far from the black king.'
+      },
+      move: 'e5c4',
+      moveNotation: '马五进三',
+      boardFen: fen,
+      arrowColor: 'red',
+      highlightColor: 'red'
+    },
+    {
+      type: 'explain_bad',
+      header: { zh: '💡 走偏了！', en: '💡 Off track!' },
+      text: {
+        zh: '马跳到三路之后，距离中路太远了。\n\n马后炮需要马在中路或者靠近将的位置。\n跳偏了就失去了配合的机会。',
+        en: 'After jumping to the flank, the horse is too far from the center.\n\nThe Horse-behind-Cannon needs the horse near the king\'s column.\nGoing wide loses the coordination opportunity.'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'reset',
+      header: { zh: '🔄 回到原始局面', en: '🔄 Back to starting position' },
+      text: { zh: '现在来看正确答案！', en: 'Now for the correct answer!' },
+      move: null, boardFen: fen, arrowColor: null
+    },
+    {
+      type: 'good_move',
+      header: { zh: '✅ 正确答案：马五进六！', en: '✅ Correct: Horse advances to 6th file!' },
+      text: {
+        zh: '这一步才是关键！马五进六，直接跳到黑将的贴身位置。\n\n马到了这里，黑方无论怎么走，下一步炮平中路就是"马后炮"绝杀！',
+        en: 'This is the key move! Horse advances to the 6th file, right next to the black king.\n\nWith the horse here, no matter how Black responds, the next cannon move creates the Horse-behind-Cannon checkmate!'
+      },
+      move: 'e5d3',
+      moveNotation: '马五进六',
+      boardFen: fen,
+      arrowColor: 'green',
+      highlightColor: 'green'
+    },
+    {
+      type: 'continuation',
+      header: { zh: '黑方被迫应对……', en: 'Black is forced to respond...' },
+      text: {
+        zh: '黑方将五平六，试图逃跑。\n但是已经来不及了……',
+        en: 'Black King moves to the 6th file, trying to escape.\nBut it\'s too late...'
+      },
+      move: 'e0d0',
+      moveNotation: '将五平六',
+      boardFen: null,
+      arrowColor: null
+    },
+    {
+      type: 'continuation',
+      header: { zh: '致命一击！🎯', en: 'The killing blow! 🎯' },
+      text: {
+        zh: '炮八平六！！！\n\n这就是传说中的"马后炮"——炮借马的力量将死对方。\n\n马挡住了将的退路，炮从远处发力。将军！绝杀！',
+        en: 'Cannon to the 6th file!!!\n\nThis is the legendary "Horse-behind-Cannon" — the cannon checkmates with the horse blocking the king\'s retreat.\n\nThe horse blocks the escape, the cannon strikes from afar. Check! Checkmate!'
+      },
+      move: 'e7d7',
+      moveNotation: '炮八平六',
+      boardFen: null,
+      arrowColor: 'green',
+      highlightColor: 'green'
+    },
+    {
+      type: 'explain_good',
+      header: { zh: '🎯 为什么这步好？', en: '🎯 Why is this brilliant?' },
+      text: {
+        zh: '马后炮的核心原理：\n\n1. 马先到位，卡住将的退路\n2. 炮在后方，借马的"架"来将军\n3. 将被马挡住，无处可逃\n\n这是象棋中最基本也最重要的杀法模式之一。一旦掌握了它，你的棋力会有质的飞跃！',
+        en: 'Core principle of Horse-behind-Cannon:\n\n1. The horse arrives first, blocking the king\'s retreat\n2. The cannon stays behind, using the horse as a "platform" to check\n3. The king is blocked by the horse with nowhere to go\n\nThis is one of the most fundamental checkmate patterns in Xiangqi. Master it, and your game will level up!'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'summary',
+      header: { zh: '📚 总结', en: '📚 Summary' },
+      text: {
+        zh: '教训总结：\n\n✨ 马后炮 = 马在前，炮在后\n✨ 先走马到关键位置，再动炮配合\n✨ 不要先动炮——给对方防守的时间就是失败的开始\n✨ 子力配合永远比单兵作战有效\n\n记住：象棋讲究的是配合，不是单打独斗！',
+        en: 'Key takeaways:\n\n✨ Horse-behind-Cannon = Horse in front, Cannon behind\n✨ Position the horse first, then coordinate the cannon\n✨ Don\'t move the cannon first — giving the opponent time to defend is how you lose\n✨ Piece coordination always beats solo attacks\n\nRemember: Chess is about teamwork, not solo heroics!'
+      },
+      move: null, boardFen: null, arrowColor: null
+    }
+  ];
+}
+
+// --- PRESET 2: 天地炮 (Sky & Earth Cannons) ---
+function buildTianDiPao() {
+  const fen = 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w';
+  return [
+    {
+      type: 'intro',
+      header: { zh: '📍 局面介绍：开局第一步', en: '📍 Position Overview: Opening Move' },
+      text: {
+        zh: '这是标准的开局局面。在中国象棋中，开局的第一步就决定了整盘棋的节奏。\n\n今天我们来看一个经典开局——天地炮。',
+        en: 'This is the standard starting position. In Xiangqi, the first move sets the tempo for the entire game.\n\nToday we look at a classic opening — the Sky & Earth Cannons.'
+      },
+      move: null, boardFen: fen, arrowColor: null
+    },
+    {
+      type: 'pause',
+      header: { zh: '🤔 开局怎么走？', en: '🤔 How to open?' },
+      text: {
+        zh: '红方先行，你会选择什么开局？\n\n飞相？进马？还是架中炮？',
+        en: 'Red moves first. What opening would you choose?\n\nBishop opening? Horse advance? Or Central Cannon?'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'bad_move',
+      header: { zh: '❌ 常见错误：兵三进一', en: '❌ Common Mistake: Advance the 3rd Pawn' },
+      text: {
+        zh: '很多新手第一步喜欢进兵。\n\n虽然进兵不算大错，但它太慢了！开局最重要的是出子、占位，不是动兵。',
+        en: 'Many beginners like to advance a pawn as their first move.\n\nWhile not a blunder, it\'s too slow! In the opening, developing pieces and controlling key squares matters most, not pawn moves.'
+      },
+      move: 'c6c5',
+      moveNotation: '兵三进一',
+      boardFen: fen,
+      arrowColor: 'red',
+      highlightColor: 'red'
+    },
+    {
+      type: 'explain_bad',
+      header: { zh: '💡 为什么慢？', en: '💡 Why is it slow?' },
+      text: {
+        zh: '兵只前进一步，既没有展开大子，也没有控制关键点位。\n\n对方可以趁这个机会架中炮、出车、跳马，占据主动。\n\n开局黄金法则：先出车马炮，再考虑兵。',
+        en: 'The pawn only advances one step — it doesn\'t develop major pieces or control key squares.\n\nThe opponent can use this tempo to play Central Cannon, develop chariot, or jump horse to seize the initiative.\n\nOpening golden rule: Develop chariots, horses, and cannons first. Pawns later.'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'reset',
+      header: { zh: '🔄 回到原始局面', en: '🔄 Back to starting position' },
+      text: { zh: '让我们来看正确的开局方式。', en: 'Let\'s see the correct opening approach.' },
+      move: null, boardFen: fen, arrowColor: null
+    },
+    {
+      type: 'good_move',
+      header: { zh: '✅ 正确答案：炮二平五！', en: '✅ Correct: Cannon 2 to Center!' },
+      text: {
+        zh: '架中炮！这是象棋中最经典、最有力的第一步。\n\n炮来到中线，直接瞄准黑方的将。这一步同时达成了三个目标：\n1. 控制中线\n2. 威胁对方\n3. 打开车的出路',
+        en: 'Central Cannon! This is the most classic and powerful first move in Xiangqi.\n\nThe cannon moves to the center file, directly targeting the black king. This achieves three goals simultaneously:\n1. Controls the center\n2. Creates threats\n3. Opens the chariot\'s path'
+      },
+      move: 'b7e7',
+      moveNotation: '炮二平五',
+      boardFen: fen,
+      arrowColor: 'green',
+      highlightColor: 'green'
+    },
+    {
+      type: 'continuation',
+      header: { zh: '黑方应对……', en: 'Black responds...' },
+      text: {
+        zh: '黑方通常会上马防守——马八进七。\n\n用马守住中兵，同时开始出子。',
+        en: 'Black usually develops the horse to defend — Horse 8 advance 7.\n\nThe horse guards the center pawn while starting development.'
+      },
+      move: 'b0c2',
+      moveNotation: '马八进七',
+      boardFen: null,
+      arrowColor: null
+    },
+    {
+      type: 'good_move',
+      header: { zh: '✅ 天地炮成型！炮八平五', en: '✅ Sky & Earth Cannons formed!' },
+      text: {
+        zh: '第二步也架炮到中线！\n\n两门炮叠在一起，一上一下，就像天和地——这就是"天地炮"！\n\n双炮叠中线的压力是巨大的，黑方的防守难度直线上升。',
+        en: 'The second cannon also goes to the center!\n\nTwo cannons stacked on the center file, one above the other, like sky and earth — this is the "Sky & Earth Cannons"!\n\nThe pressure of double cannons on the center file is enormous. Black\'s defensive task becomes much harder.'
+      },
+      move: 'h7e7',
+      moveNotation: '炮八平五',
+      boardFen: null,
+      arrowColor: 'green',
+      highlightColor: 'green'
+    },
+    {
+      type: 'explain_good',
+      header: { zh: '🎯 天地炮的威力', en: '🎯 Power of Sky & Earth Cannons' },
+      text: {
+        zh: '天地炮的核心思路：\n\n1. 双炮叠中线，形成强大的中路压力\n2. 迫使对方必须加强中路防守\n3. 对方防守中路的同时，两翼就会出现漏洞\n4. 红方可以再出车从侧面突破\n\n这就是"声东击西"的战术精髓！',
+        en: 'Core strategy of Sky & Earth Cannons:\n\n1. Double cannons on center file create massive central pressure\n2. Forces the opponent to reinforce the center\n3. While defending the center, the flanks become vulnerable\n4. Red can then develop chariots for flank breakthroughs\n\nThis is the essence of "feint east, strike west" tactics!'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'summary',
+      header: { zh: '📚 总结', en: '📚 Summary' },
+      text: {
+        zh: '开局要点：\n\n✨ 第一步架中炮——控制中线，抢占先手\n✨ 天地炮——双炮叠中，压力倍增\n✨ 开局不要急着动兵，先出大子\n✨ 控制中线就是控制棋盘的"制高点"\n\n记住：开局出子速度 > 子力位置 > 兵的推进！',
+        en: 'Opening key points:\n\n✨ First move Central Cannon — control center, seize initiative\n✨ Sky & Earth Cannons — double cannons on center, doubled pressure\n✨ Don\'t rush pawn moves in the opening, develop major pieces first\n✨ Controlling the center file is controlling the "high ground" of the board\n\nRemember: Opening piece development > piece placement > pawn advances!'
+      },
+      move: null, boardFen: null, arrowColor: null
+    }
+  ];
+}
+
+// --- PRESET 3: 七星聚会 (Seven Stars Gathering) ---
+function buildQiXing() {
+  const fen = '2bakab2/9/9/2P1P4/9/9/p8/4C4/4a4/2BAK4 w';
+  return [
+    {
+      type: 'intro',
+      header: { zh: '📍 局面介绍：千古名局', en: '📍 Position Overview: A Timeless Classic' },
+      text: {
+        zh: '这是中国象棋古谱中最著名的残局之一——七星聚会。\n\n棋盘上共七个子（不算双方帅将），宛如七星汇聚。红方两个兵一个炮，黑方一个卒一个士。\n\n看起来红方子多必赢？其实这局暗藏玄机……',
+        en: 'This is one of the most famous endgame studies in Xiangqi history — Seven Stars Gathering.\n\nSeven pieces on the board (excluding both kings), like seven stars converging. Red has two pawns and a cannon. Black has a pawn and an advisor.\n\nLooks like Red must win with more material? Actually, there\'s a hidden trick...'
+      },
+      move: null, boardFen: fen, arrowColor: null
+    },
+    {
+      type: 'pause',
+      header: { zh: '🤔 红方怎么赢？', en: '🤔 How does Red win?' },
+      text: {
+        zh: '红方两兵一炮对黑方一卒一士。\n\n兵已经过河深入，看起来很有希望。但黑方的卒也过河了，而且黑方有士可以防守。\n\n想清楚了吗？',
+        en: 'Red has two pawns and a cannon vs Black\'s pawn and advisor.\n\nThe pawns are deep in enemy territory, looks promising. But Black\'s pawn has also crossed the river, and Black has an advisor for defense.\n\nHave you figured it out?'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'bad_move',
+      header: { zh: '❌ 错误选择 #1：兵五进一', en: '❌ Wrong Choice #1: Center Pawn advance' },
+      text: {
+        zh: '看起来很自然——中兵直接推进，逼近黑方的将。\n\n但这步太直接了……',
+        en: 'Looks natural — advance the center pawn, approaching the black king.\n\nBut this is too direct...'
+      },
+      move: 'e3e2',
+      moveNotation: '兵五进一',
+      boardFen: fen,
+      arrowColor: 'red',
+      highlightColor: 'red'
+    },
+    {
+      type: 'refutation',
+      header: { zh: '黑方的反击！', en: 'Black\'s counterattack!' },
+      text: {
+        zh: '黑方卒一进一！黑卒冲过来了。\n\n别忘了黑方也有进攻能力——过河卒的威力不容小觑。\n红方如果只顾进攻忘了防守，反而会被黑方的卒威胁到帅。',
+        en: 'Black Pawn advances! The black pawn charges forward.\n\nDon\'t forget Black also has attacking power — a crossed-river pawn is not to be underestimated.\nIf Red only attacks without defending, Black\'s pawn could threaten Red\'s King.'
+      },
+      move: 'a6a7',
+      moveNotation: '卒一进一',
+      boardFen: null,
+      arrowColor: 'red'
+    },
+    {
+      type: 'explain_bad',
+      header: { zh: '💡 着急了！', en: '💡 Too hasty!' },
+      text: {
+        zh: '这个局面的关键是——红方不能盲目推兵。\n\n你需要先用炮控制局面，限制黑方的反击，然后再找机会推兵。\n\n残局讲究的是"以静制动"，不是猛冲猛打。',
+        en: 'The key to this position — Red can\'t blindly push pawns.\n\nYou need to use the cannon to control the position first, limit Black\'s counterplay, then find the right moment to push.\n\nEndgames are about "stillness controls movement," not brute force charging.'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'reset',
+      header: { zh: '🔄 回到原始局面', en: '🔄 Back to starting position' },
+      text: { zh: '来看正确的思路。', en: 'Let\'s see the correct approach.' },
+      move: null, boardFen: fen, arrowColor: null
+    },
+    {
+      type: 'good_move',
+      header: { zh: '✅ 正确答案：炮五平四！', en: '✅ Correct: Cannon shifts to 4th file!' },
+      text: {
+        zh: '先动炮！炮五平四，控制住黑卒的前进路线。\n\n这步棋看起来"安静"，但实际上暗藏杀机：\n1. 炮牵制住了黑方的卒\n2. 同时准备配合兵的推进\n3. 保持对黑方将的压力',
+        en: 'Move the cannon first! Cannon shifts to the 4th file, controlling the black pawn\'s advance path.\n\nThis move looks "quiet" but hides deadly intent:\n1. The cannon pins Black\'s pawn\n2. Simultaneously prepares to support pawn advances\n3. Maintains pressure on Black\'s king'
+      },
+      move: 'e7d7',
+      moveNotation: '炮五平四',
+      boardFen: fen,
+      arrowColor: 'green',
+      highlightColor: 'green'
+    },
+    {
+      type: 'continuation',
+      header: { zh: '层层推进……', en: 'Step by step...' },
+      text: {
+        zh: '现在红方可以从容地推进兵力。\n\n炮在后方掩护，兵在前方推进。\n这就是残局中"炮兵配合"的经典手法。',
+        en: 'Now Red can advance methodically.\n\nCannon provides cover from behind, pawns advance in front.\nThis is the classic "Cannon-Pawn coordination" technique in endgames.'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'explain_good',
+      header: { zh: '🎯 残局精髓', en: '🎯 Endgame Essence' },
+      text: {
+        zh: '七星聚会教会我们：\n\n1. 残局中，大子（炮）要先布局，再推小子（兵）\n2. 不能让对方有反击机会\n3. "以静制动"——看似不急的棋，往往是最好的棋\n4. 炮在残局中的控制力极强，要充分利用',
+        en: 'Seven Stars Gathering teaches us:\n\n1. In endgames, position major pieces (cannon) before advancing minor pieces (pawns)\n2. Don\'t give the opponent counterplay opportunities\n3. "Stillness controls movement" — a calm-looking move is often the best move\n4. The cannon\'s control in endgames is extremely powerful — use it fully'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'summary',
+      header: { zh: '📚 总结', en: '📚 Summary' },
+      text: {
+        zh: '七星聚会——古谱中的残局智慧：\n\n✨ 大子先行，小子随后\n✨ 不要只看到进攻，也要防守对方的反击\n✨ 残局比拼的是耐心和精确计算\n✨ 炮在残局中是"指挥官"，要善用控制力\n\n这就是为什么老棋手说："残局见功夫"！',
+        en: 'Seven Stars Gathering — endgame wisdom from ancient manuals:\n\n✨ Major pieces first, minor pieces follow\n✨ Don\'t just see the attack — watch for opponent\'s counterplay\n✨ Endgames test patience and precise calculation\n✨ The cannon is the "commander" in endgames — use its control wisely\n\nThis is why veteran players say: "Endgames reveal true skill!"'
+      },
+      move: null, boardFen: null, arrowColor: null
+    }
+  ];
+}
+
+// --- PRESET 4: Famous game critical moment (弃车杀王) ---
+function buildFamousGame() {
+  const fen = '1r2kabr1/4a4/1cn1b1n2/p1p1p3p/6p2/2P6/P3P1P1P/1C2B1N2/4A4/1RBAK2R1 w';
+  return [
+    {
+      type: 'intro',
+      header: { zh: '📍 实战名局：弃车入局', en: '📍 Famous Game: Chariot Sacrifice' },
+      text: {
+        zh: '这是一个实战中的经典中局局面。\n\n红方有双车、马、炮，子力不错。但黑方的防守看起来也很严密——双马护驾，士象齐全。\n\n关键问题：红方怎么打破僵局？',
+        en: 'This is a classic midgame position from actual play.\n\nRed has two chariots, a horse, and a cannon — good material. But Black\'s defense looks solid too — two horses guarding, full advisors and bishops.\n\nThe key question: How does Red break through?'
+      },
+      move: null, boardFen: fen, arrowColor: null
+    },
+    {
+      type: 'pause',
+      header: { zh: '🤔 你能找到突破口吗？', en: '🤔 Can you find the breakthrough?' },
+      text: {
+        zh: '仔细看黑方的阵型。\n\n看到薄弱点了吗？有时候，最强的进攻需要先"舍得"……',
+        en: 'Look carefully at Black\'s formation.\n\nSee the weakness? Sometimes the strongest attack requires sacrifice first...'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'bad_move',
+      header: { zh: '❌ 错误选择 #1：车一进一', en: '❌ Wrong Choice #1: Chariot advance' },
+      text: {
+        zh: '直接出车进攻？看起来稳妥。\n\n但是这步太慢了！黑方有足够的时间调整防守。',
+        en: 'Directly advance the chariot? Looks safe.\n\nBut this is too slow! Black has enough time to adjust defenses.'
+      },
+      move: 'b9b8',
+      moveNotation: '车一进一',
+      boardFen: fen,
+      arrowColor: 'red',
+      highlightColor: 'red'
+    },
+    {
+      type: 'explain_bad',
+      header: { zh: '💡 为什么慢攻不行？', en: '💡 Why doesn\'t slow attack work?' },
+      text: {
+        zh: '在这种局面下，慢慢推进会给黑方太多喘息空间。\n\n黑方可以调马补防，甚至展开反击。\n当你有进攻优势时，必须抓住时机一鼓作气！',
+        en: 'In this type of position, slow advancement gives Black too much breathing room.\n\nBlack can reposition horses for defense, or even launch a counterattack.\nWhen you have an attacking advantage, you must seize the moment and strike decisively!'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'reset',
+      header: { zh: '🔄 回到原始局面', en: '🔄 Back to starting position' },
+      text: { zh: '答案可能出乎你的意料……', en: 'The answer might surprise you...' },
+      move: null, boardFen: fen, arrowColor: null
+    },
+    {
+      type: 'good_move',
+      header: { zh: '✅ 正确答案：车一平四！', en: '✅ Correct: Chariot to 4th file!' },
+      text: {
+        zh: '车直接杀入中路！\n\n这步看起来像是"送车"给黑方吃，但实际上是一步精妙的弃子攻杀。\n\n红方的思路是：牺牲一个车，打开通道，让另一个车和炮配合发动致命攻势！',
+        en: 'Chariot rushes into the center!\n\nThis looks like "giving away" the chariot, but it\'s actually a brilliant sacrifice attack.\n\nRed\'s plan: sacrifice one chariot to open up lines, then let the other chariot and cannon coordinate for a deadly assault!'
+      },
+      move: 'b9e9',
+      moveNotation: '车一平四',
+      boardFen: fen,
+      arrowColor: 'green',
+      highlightColor: 'green'
+    },
+    {
+      type: 'continuation',
+      header: { zh: '后续攻势如潮水……', en: 'The follow-up attack flows like a tide...' },
+      text: {
+        zh: '车冲入敌阵后，黑方的防线被撕开了一个口子。\n\n接下来炮可以借位将军，另一个车可以从侧面杀入。\n\n这就是"弃子攻杀"的魅力——用小的牺牲换取巨大的攻势！',
+        en: 'After the chariot charges in, Black\'s defensive line is torn open.\n\nNext the cannon can check, and the other chariot can rush in from the flank.\n\nThis is the beauty of "sacrifice attacks" — a small sacrifice for a massive assault!'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'explain_good',
+      header: { zh: '🎯 弃子攻杀的精髓', en: '🎯 The Essence of Sacrifice Attacks' },
+      text: {
+        zh: '什么时候应该弃子？\n\n1. 对方的防守看似严密但有"形式上的漏洞"\n2. 弃子后能打开通道给其他子力\n3. 后续攻势可以形成不可阻挡的连续将军\n4. 对方即使吃掉你的子，也来不及防守\n\n记住：棋盘上最重要的不是谁的子多，而是谁的子更有效率！',
+        en: 'When should you sacrifice?\n\n1. The opponent\'s defense looks solid but has "structural weaknesses"\n2. The sacrifice opens lines for other pieces\n3. The follow-up creates unstoppable consecutive checks\n4. Even if the opponent captures your piece, they can\'t defend in time\n\nRemember: What matters most isn\'t who has more pieces, but whose pieces are more efficient!'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'summary',
+      header: { zh: '📚 总结', en: '📚 Summary' },
+      text: {
+        zh: '弃车入局的智慧：\n\n✨ 进攻有时需要"舍得"——弃子可以打开局面\n✨ 慢攻只会让对方从容防守\n✨ 子力的效率比数量更重要\n✨ 看清后续变化，确认弃子后有连续攻势\n\n下棋就像做投资——有时候要先付出，才能获得更大的回报！',
+        en: 'The wisdom of Chariot sacrifice:\n\n✨ Attacking sometimes requires sacrifice — giving up pieces can open the position\n✨ Slow attacks only let the opponent defend comfortably\n✨ Piece efficiency matters more than quantity\n✨ Calculate follow-up variations, confirm continuous attack after sacrifice\n\nPlaying chess is like investing — sometimes you must give first to gain more!'
+      },
+      move: null, boardFen: null, arrowColor: null
+    }
+  ];
+}
+
+// --- PRESET 5: 铁门栓 (Iron Door Bolt checkmate) ---
+function buildTieMenShuan() {
+  const fen = '4kab2/4a4/4b4/9/9/3R5/9/4B4/4A4/4KA3 w';
+  return [
+    {
+      type: 'intro',
+      header: { zh: '📍 局面介绍：铁门栓', en: '📍 Position Overview: Iron Door Bolt' },
+      text: {
+        zh: '"铁门栓"——光听名字就知道有多厉害！\n\n这个杀法就像用铁栓把门锁死一样，让对方的将无处可逃。\n\n红方只有一个车，黑方有士象全。看起来红方不够力量？但是……',
+        en: '"Iron Door Bolt" — the name alone tells you how powerful it is!\n\nThis checkmate pattern locks the king like an iron bolt on a door, leaving no escape.\n\nRed only has one chariot, Black has full advisors and bishops. Not enough firepower? But...'
+      },
+      move: null, boardFen: fen, arrowColor: null
+    },
+    {
+      type: 'pause',
+      header: { zh: '🤔 一个车能将死吗？', en: '🤔 Can one chariot checkmate?' },
+      text: {
+        zh: '黑方士象齐全，防守严密。\n\n但铁门栓的原理是——利用黑方自己的子来堵住自己将的退路！\n\n你能看出怎么操作吗？',
+        en: 'Black has full advisors and bishops, solid defense.\n\nBut the Iron Door Bolt principle is — use Black\'s OWN pieces to block their king\'s escape!\n\nCan you see how to do it?'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'bad_move',
+      header: { zh: '❌ 错误选择 #1：车四进三', en: '❌ Wrong Choice #1: Chariot advances 3' },
+      text: {
+        zh: '直接冲车进去将军？看起来很猛。\n\n但是黑方可以走将避开，红方没有后续手段。',
+        en: 'Rush the chariot in for a check? Looks aggressive.\n\nBut Black can move the king to dodge, and Red has no follow-up.'
+      },
+      move: 'd5d2',
+      moveNotation: '车四进三',
+      boardFen: fen,
+      arrowColor: 'red',
+      highlightColor: 'red'
+    },
+    {
+      type: 'refutation',
+      header: { zh: '黑方轻松化解……', en: 'Black resolves easily...' },
+      text: {
+        zh: '黑方将五平四，向旁边一走就躲开了。\n\n车虽然沉底了，但没有形成杀势。\n红方这次冲击白费了。',
+        en: 'Black King moves sideways, easily dodging the check.\n\nThe chariot reached the back rank, but couldn\'t form a checkmate.\nRed\'s charge was wasted.'
+      },
+      move: 'e0d0',
+      moveNotation: '将五平四',
+      boardFen: null,
+      arrowColor: 'red'
+    },
+    {
+      type: 'explain_bad',
+      header: { zh: '💡 为什么不行？', en: '💡 Why doesn\'t it work?' },
+      text: {
+        zh: '直接冲车进去，黑将可以逃到旁边。\n\n铁门栓的关键是：你要先让黑方的士象"卡住"自己的将，然后车再来绝杀。\n\n要先"栓"住门，再"锁"上！',
+        en: 'Charging the chariot directly allows the black king to escape sideways.\n\nThe key to Iron Door Bolt: first make Black\'s own advisors and bishops "block" their king, THEN the chariot delivers the final blow.\n\nFirst "bolt" the door, THEN "lock" it!'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'reset',
+      header: { zh: '🔄 回到原始局面', en: '🔄 Back to starting position' },
+      text: { zh: '来看铁门栓的正确操作。', en: 'Let\'s see the Iron Door Bolt in action.' },
+      move: null, boardFen: fen, arrowColor: null
+    },
+    {
+      type: 'good_move',
+      header: { zh: '✅ 正确答案：车四平六！', en: '✅ Correct: Chariot to 6th file!' },
+      text: {
+        zh: '车平到六路！\n\n这步不是将军，看起来很"安静"。但这步棋把车对准了黑方将的侧面。\n\n注意看——黑方的士和象把将围在中间，将的活动空间被自己人限制了！',
+        en: 'Chariot moves to the 6th file!\n\nThis isn\'t a check — it looks "quiet." But it lines the chariot up with the black king\'s flank.\n\nNotice — Black\'s advisors and bishops have boxed in their own king! The king\'s mobility is restricted by its own pieces!'
+      },
+      move: 'd5f5',
+      moveNotation: '车四平六',
+      boardFen: fen,
+      arrowColor: 'green',
+      highlightColor: 'green'
+    },
+    {
+      type: 'continuation',
+      header: { zh: '铁门栓成型！', en: 'Iron Door Bolt takes shape!' },
+      text: {
+        zh: '现在红方威胁车六进四直接将杀。\n\n黑方的将被自己的士象围住，无路可逃。\n这就是"铁门栓"——对方自己的子就是那个"门栓"！',
+        en: 'Now Red threatens Chariot advance for a direct checkmate.\n\nBlack\'s king is boxed in by its own advisors and bishops — nowhere to run.\nThis is the "Iron Door Bolt" — the opponent\'s own pieces ARE the bolt!'
+      },
+      move: 'f5f1',
+      moveNotation: '车六进四',
+      boardFen: null,
+      arrowColor: 'green',
+      highlightColor: 'green'
+    },
+    {
+      type: 'explain_good',
+      header: { zh: '🎯 铁门栓的原理', en: '🎯 Iron Door Bolt Principle' },
+      text: {
+        zh: '铁门栓的精妙之处：\n\n1. 利用对方自己的子（士、象）来限制将的活动\n2. 车不急着将军，先找到最佳位置\n3. 当将被自己人"锁"在角落，一步将军就是绝杀\n4. 防守方子越多，反而越容易被铁门栓！\n\n这在象棋中叫"以子困子"——用对方的子来困住对方！',
+        en: 'The brilliance of Iron Door Bolt:\n\n1. Use the opponent\'s own pieces (advisors, bishops) to restrict the king\n2. Don\'t rush to check — find the optimal position first\n3. When the king is "locked" in a corner by its own pieces, one check = checkmate\n4. The more defensive pieces the opponent has, the easier the Iron Door Bolt!\n\nThis is called "using their pieces to trap them" — turning the opponent\'s strength into weakness!'
+      },
+      move: null, boardFen: null, arrowColor: null
+    },
+    {
+      type: 'summary',
+      header: { zh: '📚 总结', en: '📚 Summary' },
+      text: {
+        zh: '铁门栓心法：\n\n✨ 对方的防守子力有时候反而是弱点\n✨ 不要急着将军——找到最佳时机\n✨ 让对方的士象"锁住"自己的将\n✨ 一个车就能绝杀，关键是位置！\n\n象棋里有句话："子多不怕，就怕位差。"\n铁门栓就是位置胜过数量的最佳证明！',
+        en: 'Iron Door Bolt wisdom:\n\n✨ The opponent\'s defensive pieces can become weaknesses\n✨ Don\'t rush to check — find the perfect moment\n✨ Let the opponent\'s advisors/bishops "lock" their own king\n✨ One chariot can checkmate — it\'s all about positioning!\n\nThere\'s a saying in Xiangqi: "Don\'t fear many pieces, fear poor placement."\nThe Iron Door Bolt is the ultimate proof that position beats quantity!'
+      },
+      move: null, boardFen: null, arrowColor: null
+    }
+  ];
+}
+
+// ============================================================
+// BUILD PRESET BUTTONS
+// ============================================================
+function buildPresetButtons() {
+  const container = document.getElementById('presetButtons');
+  container.innerHTML = '';
+  PRESETS.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = p.name;
+    btn.title = p.desc;
+    btn.onclick = () => loadPreset(i);
+    container.appendChild(btn);
+  });
+}
+
+function loadPreset(idx) {
+  const p = PRESETS[idx];
+  activePreset = idx;
+  loadFen(p.fen);
+  explanationSteps = p.steps;
+  currentStep = -1;
+
+  // Highlight active button
+  document.querySelectorAll('.presets-row button').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+
+  // Go to first step
+  goToStep(0);
+}
+
+// ============================================================
+// ENGINE INTEGRATION
+// ============================================================
+let engineConnected = false;
+
+async function checkEngine() {
+  try {
+    const resp = await fetch(ENGINE_URL, { method: 'HEAD', signal: AbortSignal.timeout(2000) });
+    engineConnected = true;
+    document.getElementById('engineDot').classList.add('connected');
+    document.getElementById('engineLabel').textContent = 'Pikafish: connected';
+  } catch {
+    engineConnected = false;
+    document.getElementById('engineDot').classList.remove('connected');
+    document.getElementById('engineLabel').textContent = 'Pikafish: offline';
+  }
+}
+
+async function engineEval(fen, depth = 18) {
+  const resp = await fetch(`${ENGINE_URL}/api/eval`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fen, depth, multipv: 5 })
+  });
+  return await resp.json();
+}
+
+async function analyzeAndGenerate() {
+  if (!engineConnected) {
+    alert('Engine not connected. Please start Pikafish on localhost:8080 first.\n\nYou can still use the pre-loaded explanations by clicking the preset buttons above.');
+    return;
+  }
+
+  const fen = document.getElementById('fenInput').value.trim();
+  const btn = document.getElementById('btnAnalyze');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Analyzing...';
+
+  try {
+    // Get evaluation with multiple PVs
+    const result = await engineEval(fen, 18);
+    const steps = generateExplanationFromEngine(fen, result);
+    loadFen(fen);
+    explanationSteps = steps;
+    currentStep = -1;
+    goToStep(0);
+  } catch (err) {
+    alert('Analysis failed: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Analyze &amp; Generate';
+  }
+}
+
+function generateExplanationFromEngine(fen, engineResult) {
+  const parsed = parseFen(fen);
+  const board = parsed.board;
+  const turn = parsed.turn;
+  const turnName = turn === 'w' ? { zh: '红方', en: 'Red' } : { zh: '黑方', en: 'Black' };
+
+  // Get best and worst moves from PVs
+  const pvs = engineResult.pvs || engineResult.lines || [];
+  if (pvs.length === 0) return [];
+
+  const bestMove = pvs[0];
+  const worstMoves = pvs.slice(-2).reverse();
+
+  const steps = [];
+
+  // Step 1: Intro
+  steps.push({
+    type: 'intro',
+    header: { zh: '📍 局面介绍', en: '📍 Position Overview' },
+    text: {
+      zh: `${turnName.zh}走棋。让我们来分析这个局面，找出最佳走法。`,
+      en: `${turnName.en} to move. Let's analyze this position and find the best move.`
+    },
+    move: null, boardFen: fen, arrowColor: null
+  });
+
+  // Step 2: Pause
+  steps.push({
+    type: 'pause',
+    header: { zh: '🤔 你会怎么走？', en: '🤔 What would you play?' },
+    text: {
+      zh: '先想一想，你会选择什么走法？',
+      en: 'Think about it — what move would you choose?'
+    },
+    move: null, boardFen: null, arrowColor: null
+  });
+
+  // Bad moves
+  for (let i = 0; i < Math.min(2, worstMoves.length); i++) {
+    const bad = worstMoves[i];
+    const badUci = bad.pv ? bad.pv[0] : bad.move;
+    if (!badUci) continue;
+    const notation = toChinese(badUci, board);
+    const evalStr = bad.score !== undefined ? (bad.score / 100).toFixed(1) : '?';
+
+    steps.push({
+      type: 'bad_move',
+      header: { zh: `❌ 错误选择 #${i + 1}：${notation}`, en: `❌ Wrong Choice #${i + 1}: ${notation}` },
+      text: {
+        zh: `这步棋的评估只有 ${evalStr}，远不如最佳走法。\n\n看看为什么这步不好……`,
+        en: `This move evaluates to only ${evalStr}, far worse than the best move.\n\nLet's see why it's bad...`
+      },
+      move: badUci,
+      moveNotation: notation,
+      boardFen: fen,
+      arrowColor: 'red',
+      highlightColor: 'red'
+    });
+
+    // Show refutation if available
+    if (bad.pv && bad.pv.length > 1) {
+      const refutationUci = bad.pv[1];
+      const afterBad = makeMove(board, badUci);
+      const refNotation = toChinese(refutationUci, afterBad.board);
+      steps.push({
+        type: 'refutation',
+        header: { zh: '对方的最佳应对……', en: 'Opponent\'s best response...' },
+        text: {
+          zh: `对方走${refNotation}，局面对${turnName.zh}不利。`,
+          en: `Opponent plays ${refNotation}, and the position turns against ${turnName.en}.`
+        },
+        move: refutationUci,
+        moveNotation: refNotation,
+        boardFen: null,
+        arrowColor: 'red'
+      });
+    }
+
+    steps.push({
+      type: 'reset',
+      header: { zh: '🔄 回到原始局面', en: '🔄 Back to starting position' },
+      text: { zh: '', en: '' },
+      move: null, boardFen: fen, arrowColor: null
+    });
+  }
+
+  // Best move
+  const bestUci = bestMove.pv ? bestMove.pv[0] : bestMove.move;
+  const bestNotation = bestUci ? toChinese(bestUci, board) : '?';
+  const bestEval = bestMove.score !== undefined ? (bestMove.score / 100).toFixed(1) : '?';
+
+  steps.push({
+    type: 'good_move',
+    header: { zh: `✅ 正确答案：${bestNotation}！`, en: `✅ Correct: ${bestNotation}!` },
+    text: {
+      zh: `评估值 ${bestEval}，这是最佳走法！`,
+      en: `Evaluation ${bestEval} — this is the best move!`
+    },
+    move: bestUci,
+    moveNotation: bestNotation,
+    boardFen: fen,
+    arrowColor: 'green',
+    highlightColor: 'green'
+  });
+
+  // Show continuation
+  if (bestMove.pv && bestMove.pv.length > 1) {
+    let contBoard = cloneBoard(board);
+    for (let i = 1; i < Math.min(4, bestMove.pv.length); i++) {
+      const prevBoard = contBoard;
+      const result = makeMove(contBoard, bestMove.pv[i]);
+      const contNotation = toChinese(bestMove.pv[i], prevBoard);
+      steps.push({
+        type: 'continuation',
+        header: { zh: `后续 ${i}……`, en: `Continuation ${i}...` },
+        text: {
+          zh: contNotation,
+          en: contNotation
+        },
+        move: bestMove.pv[i],
+        moveNotation: contNotation,
+        boardFen: null,
+        arrowColor: 'green'
+      });
+      contBoard = result.board;
+    }
+  }
+
+  // Summary
+  steps.push({
+    type: 'summary',
+    header: { zh: '📚 总结', en: '📚 Summary' },
+    text: {
+      zh: `最佳走法是${bestNotation}（评估 ${bestEval}）。\n\n记住分析的关键：不要只看第一感觉的走法，要计算对方的应对！`,
+      en: `The best move is ${bestNotation} (eval ${bestEval}).\n\nRemember the key to analysis: don't just go with your first instinct — calculate the opponent's response!`
+    },
+    move: null, boardFen: null, arrowColor: null
+  });
+
+  return steps;
+}
+
+// ============================================================
+// EXPORT SCRIPT
+// ============================================================
+function exportScript() {
+  if (explanationSteps.length === 0) {
+    alert('No explanation loaded. Please select a preset or analyze a position first.');
+    return;
+  }
+
+  const fen = document.getElementById('fenInput').value.trim();
+  let md = `# Xiangqi Explanation Script\n\n`;
+  md += `## Position (FEN)\n\`\`\`\n${fen}\n\`\`\`\n\n`;
+  md += `---\n\n`;
+
+  let timeOffset = 0;
+  for (let i = 0; i < explanationSteps.length; i++) {
+    const step = explanationSteps[i];
+    const minutes = Math.floor(timeOffset / 60000);
+    const seconds = Math.floor((timeOffset % 60000) / 1000);
+    const timestamp = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    md += `### Step ${i + 1} [${timestamp}]\n\n`;
+
+    if (step.header.zh) md += `**${step.header.zh}**\n\n`;
+    if (step.move && step.moveNotation) md += `Move: \`${step.moveNotation}\` (${step.move})\n\n`;
+    if (step.text.zh) md += `${step.text.zh}\n\n`;
+    if (step.text.en) md += `*${step.text.en}*\n\n`;
+    md += `---\n\n`;
+
+    timeOffset += getReadingTime(step) + ANIM_DURATION;
+  }
+
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `xiangqi-explanation-${Date.now()}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// PIECE LEGEND & ENGLISH LABELS
+// ============================================================
+function togglePieceLegend() {
+  const panel = document.getElementById('pieceLegendPanel');
+  panel.classList.toggle('visible');
+}
+
+function toggleEnglishLabels() {
+  showEnglishLabels = !showEnglishLabels;
+  const toggle = document.getElementById('engLabelToggle');
+  if (showEnglishLabels) {
+    toggle.classList.add('active');
+    // Sync with dropdown
+    if (pieceDisplayStyle === 'traditional') {
+      pieceDisplayStyle = 'dual';
+      document.getElementById('pieceStyleSelect').value = 'dual';
+    }
+  } else {
+    toggle.classList.remove('active');
+    if (pieceDisplayStyle === 'dual') {
+      pieceDisplayStyle = 'traditional';
+      document.getElementById('pieceStyleSelect').value = 'traditional';
+    }
+  }
+  drawBoard();
+}
+
+function changePieceDisplay(style) {
+  pieceDisplayStyle = style;
+  // Sync English Labels toggle
+  showEnglishLabels = (style === 'dual');
+  const toggle = document.getElementById('engLabelToggle');
+  if (toggle) toggle.classList.toggle('active', showEnglishLabels);
+  drawBoard();
+}
+
+// Draggable legend panel
+(function initDragLegend() {
+  let isDragging = false, dragX = 0, dragY = 0;
+  document.addEventListener('mousedown', (e) => {
+    const handle = document.getElementById('pieceLegendDragHandle');
+    if (!handle || !handle.contains(e.target)) return;
+    if (e.target.closest('.piece-legend-close')) return;
+    isDragging = true;
+    const panel = document.getElementById('pieceLegendPanel');
+    const rect = panel.getBoundingClientRect();
+    dragX = e.clientX - rect.left;
+    dragY = e.clientY - rect.top;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const panel = document.getElementById('pieceLegendPanel');
+    panel.style.left = (e.clientX - dragX) + 'px';
+    panel.style.top = (e.clientY - dragY) + 'px';
+    panel.style.right = 'auto';
+  });
+  document.addEventListener('mouseup', () => { isDragging = false; });
+})();
+
+// ============================================================
+// KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  switch (e.key) {
+    case ' ':
+      e.preventDefault();
+      togglePlay();
+      break;
+    case 'ArrowRight':
+      e.preventDefault();
+      nextStep();
+      break;
+    case 'ArrowLeft':
+      e.preventDefault();
+      prevStep();
+      break;
+    case 'Home':
+      e.preventDefault();
+      goToStep(0);
+      break;
+    case 'End':
+      e.preventDefault();
+      goToStep(explanationSteps.length - 1);
+      break;
+  }
+});
+
+// ============================================================
+// INITIALIZATION
+// ============================================================
+function init() {
+  computeGeometry();
+  loadFen('rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w');
+  buildPresetButtons();
+  checkEngine();
+  updateStepLabel();
+
+  // Auto-load first preset
+  loadPreset(0);
+}
+
+window.addEventListener('resize', () => {
+  computeGeometry();
+  drawBoard();
+});
+
+init();
+</script>
+</body>
+</html>

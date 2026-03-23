@@ -1,0 +1,44 @@
+# ==========================================================================
+# Key Opening Positions After 10-15 Moves — 开局定式阵型
+# 15 positions from the main opening systems
+# Format: FEN_STRING # [Opening Name CN — EN] Variation name | Key idea: strategic concept
+# ==========================================================================
+
+# === 中炮对屏风马 (Central Cannon vs Screen Horse) — 3 variations ===
+
+r1bakab2/9/1cn2c3/p1p1p1p1p/9/2P6/P3P1P1P/1CN1BC1C1/9/R1BAK2NR w # [中炮对屏风马 — Central Cannon vs Screen Horse] 五七炮对屏风马 — 57 Cannon variation | Key idea: Red deploys cannons on 5th and 7th files for double pressure
+r1bakab2/9/1cn4c1/p1p1C1p1p/9/2P6/P3P1P1P/2N1BC1N1/9/R1BAK3R w # [中炮对屏风马 — Central Cannon vs Screen Horse] 中炮过河车对屏风马左马盘河 — Central Cannon Crossing-River Rook vs Left Horse | Key idea: Red pushes cannon forward early while activating rook along the river
+r1bakab2/9/1cn2c3/p1p1p1p1p/9/2P6/P1P1P1P1P/1C2BCN2/9/R1BAK2NR w # [中炮对屏风马 — Central Cannon vs Screen Horse] 中炮急进中兵 — Central Cannon Rapid Central Pawn Push | Key idea: Red advances central pawn early to open lines and challenge Black center
+
+# === 中炮对反宫马 (Central Cannon vs Reversed Palace Horse) — 2 variations ===
+
+r1bak1b2/4a4/2n1c1nc1/p1p1p1p1p/9/2P6/P3P1P1P/1CN1BC3/9/R1BAK2NR w # [中炮对反宫马 — Central Cannon vs Reversed Palace Horse] 左炮封车 — Left Cannon Blocks Rook | Key idea: Black's unusual horse placement creates imbalanced pawn structure
+r2akab2/4c4/1cn1b1n2/p1p1p1p1p/9/2P6/P3P1P1P/1CN1BC3/9/R1BAK2NR w # [中炮对反宫马 — Central Cannon vs Reversed Palace Horse] 反宫马单提马 — Reversed Palace Horse with Single Raised Horse | Key idea: Black builds flexible defense allowing multiple counterattack plans
+
+# === 飞相局 (Flying Elephant Opening) — 2 variations ===
+
+r1bakab1r/9/1cn2c3/p1p1p1p1p/9/9/P1P1P1P1P/2N1BC3/9/R1BAK2NR b # [飞相局 — Flying Elephant] 飞相对左中炮 — Flying Elephant vs Left Central Cannon | Key idea: Red develops elephant first to control center passively before choosing attack direction
+r1bakab1r/9/1cn4c1/p1p1p1p1p/9/2P6/P3P1P1P/1CN1B4/9/R1BAKB1NR b # [飞相局 — Flying Elephant] 飞相进三兵 — Flying Elephant with 3rd Pawn Advance | Key idea: Red expands on queenside with flexible piece development
+
+# === 仙人指路 (Immortal's Guide / Pawn Opening) — 2 variations ===
+
+r1bakab1r/9/1cn2cn2/p1p1p1p1p/9/2P6/P3P1P1P/4BC3/9/RNBAK2NR b # [仙人指路 — Immortal's Guide] 仙人指路对卒底炮 — Pawn Opening vs Bottom Cannon | Key idea: Red's pawn probe forces Black to reveal intentions early
+r1bakab1r/9/1cn4c1/p1p1p1p1p/9/2P6/P3P1P1P/2N1BC3/9/R1BAK2NR b # [仙人指路 — Immortal's Guide] 仙人指路对飞象 — Pawn Opening vs Flying Elephant | Key idea: Symmetrical probing moves lead to slow strategic maneuvering
+
+# === 起马局 (Horse Opening) — 2 variations ===
+
+r1bakab1r/9/1cn2cn2/p1p1p1p1p/9/9/P1P1P1P1P/1CN1BC3/9/R1BAK2NR b # [起马局 — Horse Opening] 起马对进卒 — Horse Opening vs Pawn Advance | Key idea: Red develops knight first for flexible transposition possibilities
+r1bakab1r/9/1cn4c1/p1p1p1p1p/9/9/P1P1P1P1P/1CN4C1/9/R1BAKB1NR b # [起马局 — Horse Opening] 起马转仕角炮 — Horse Opening into Advisor-Corner Cannon | Key idea: Red knight development followed by cannon repositioning to advisor corner
+
+# === 过宫炮 (Palace Cannon) — 2 variations ===
+
+r1bakab1r/9/1cn4c1/p1p1p1p1p/9/9/P1P1P1P1P/2C1BC3/9/RNBAK2NR b # [过宫炮 — Palace Cannon] 过宫炮对左马盘河 — Palace Cannon vs Left Horse River Patrol | Key idea: Red shifts cannon through palace for flexible deployment
+r1bakab1r/9/1cn2cn2/p1p1p1p1p/9/2P6/P3P1P1P/2C1BC3/9/RNBAK2NR b # [过宫炮 — Palace Cannon] 过宫炮进三兵 — Palace Cannon with 3rd Pawn Advance | Key idea: Combining palace cannon with pawn push to seize space on the flank
+
+# === 顺炮直车 (Same-direction Cannon with Straight Rook) — 1 variation ===
+
+r1bakab2/9/1cn2cn2/p1p1p1p1p/9/2P6/P3P1P1P/1CN1BCR2/9/2BAK2NR b # [顺炮直车 — Same-direction Cannon] 顺炮直车对横车 — Same-direction Cannon Straight Rook vs Cross Rook | Key idea: Both sides deploy cannons on same flank creating sharp tactical play
+
+# === 列炮 (Opposed Cannons) — 1 variation ===
+
+r1bakab1r/9/1cn2cn2/p1p1p1p1p/9/2P6/P3P1P1P/1CN1BC3/9/R1BAK2NR w # [列炮 — Opposed Cannons] 列炮对局面 — Opposed Cannons Main Line | Key idea: Both cannons face each other on the central file creating tense symmetrical middlegame

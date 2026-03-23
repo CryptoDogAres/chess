@@ -1,0 +1,10 @@
+# Episode 1: Getting Started -- Rules & Board
+# 第一集：象棋入门——规则与棋盘
+# Practice positions for board layout, piece setup, check, checkmate, and stalemate
+# 练习棋盘布局、棋子摆放、将军、将杀和困毙
+
+9/9/9/9/9/9/9/9/9/9 w - - 0 1 # Empty board 空棋盘 — identify the river, palaces, and 90 intersections 认识楚河汉界、九宫格和90个交叉点
+rheakaehr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RHEAKAEHR w - - 0 1 # Standard starting position 标准开局摆法 — name all 7 piece types and their counts 辨认七种棋子及数量
+3aka3/9/9/9/9/9/9/9/1R7/4K4 w - - 0 1 # Simple check 简单将军 — Red Chariot on b2 checks the Black King; practice identifying check 红车将军，练习识别将军
+4k4/4a4/9/9/9/9/9/4R4/9/4K4 w - - 0 1 # Checkmate in 1 将杀练习 — Red Chariot advances to e9 for checkmate; Black King cannot escape 红车进e9将杀，黑将无路可逃
+3k5/9/4R4/9/9/9/9/9/9/4K4 b - - 0 1 # Stalemate (Black loses) 困毙示例 — Black to move has no legal moves and loses; note difference from international chess 黑方无棋可走判负，注意与国际象棋的区别

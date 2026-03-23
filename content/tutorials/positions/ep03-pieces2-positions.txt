@@ -1,0 +1,13 @@
+# Episode 3: Meet the Pieces Part 2 -- Pawn, Advisor, Elephant, King
+# 第三集：认识棋子（下）——兵士象帅
+# Practice positions for pawn crossing, advisor defense, elephant blocking, and face-to-face rule
+# 练习兵过河、士防守、塞象眼、对面笑规则
+
+4k4/9/9/9/9/4P4/9/9/9/4K4 w - - 0 1 # Pawn before crossing 兵过河前 — Red Pawn at river's edge can only move forward; practice pawn movement rules 红兵在河边只能前进，练习兵的走法
+4k4/9/9/9/4P4/9/9/9/9/4K4 w - - 0 1 # Pawn after crossing 兵过河后 — Red Pawn has crossed the river and can now move forward or sideways 红兵已过河，可前进或横走
+3ak4/4a4/9/9/9/9/9/9/9/3AKA3 w - - 0 1 # Advisor positions 士的防守位置 — both sides' Advisors in standard defensive formation; note the 5 possible squares 双方士的标准防守阵型，注意九宫内5个可站位置
+4k4/9/9/9/9/9/9/2n1E4/9/4K4 w - - 0 1 # Elephant blocking 塞象眼演示 — Red Elephant on e3 wants to move to c1 but may be blocked at d2; identify blocking rules 红象e3想走c1，d2有子则被塞象眼
+4k4/9/9/9/9/9/9/9/9/4K4 w - - 0 1 # Face-to-face rule 对面笑规则 — two Kings on same file with nothing between is illegal; understand the rule 两将帅同列无子隔断为违规
+3k5/4R4/9/9/9/9/9/9/9/3K5 w - - 0 1 # Using face-to-face 利用对面笑 — Red King on d1 and Chariot on e9; Black King cannot move to e-file due to face-to-face rule 红帅d1红车e9，黑将不能走e线
+4k4/3Ra4/9/9/9/9/9/9/9/4K4 w - - 0 1 # Face-to-face puzzle 对面笑实战练习 — Red Chariot captures Advisor on e9; Black King cannot recapture due to facing Red King 红车吃士e9，黑将不能吃回
+3k5/4a4/3ae4/p3P4/9/9/9/9/9/4K4 w - - 0 1 # Pawn at bottom rank 老兵示例 — a Pawn on the last rank can only move sideways; reduced value 到达底线的兵只能横走，价值下降

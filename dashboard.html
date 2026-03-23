@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" rel="stylesheet">
+  <title>Founder's Dashboard — 象棋频道</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg2: #161822;
+      --bg3: #1c1f2e;
+      --surface: #1e2130;
+      --surface2: #252840;
+      --border: #2a2d42;
+      --border-hover: #3a3d5c;
+      --text: #e4e4eb;
+      --text2: #9ca0b8;
+      --text3: #6b6f8a;
+      --red: #ef4444;
+      --red-dim: #7f1d1d;
+      --red-glow: rgba(239,68,68,0.15);
+      --gold: #eab308;
+      --gold-dim: #713f12;
+      --gold-glow: rgba(234,179,8,0.12);
+      --green: #22c55e;
+      --green-dim: #14532d;
+      --green-glow: rgba(34,197,94,0.12);
+      --blue: #3b82f6;
+      --blue-dim: #1e3a5f;
+      --blue-glow: rgba(59,130,246,0.12);
+      --purple: #a855f7;
+      --purple-dim: #3b0764;
+      --purple-glow: rgba(168,85,247,0.12);
+      --cyan: #06b6d4;
+      --orange: #f97316;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.3);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'LXGW WenKai', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #1a1030 0%, #0f1117 50%, #0a1628 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 32px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .logo {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--red), #b91c1c);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 900; color: #fff;
+      box-shadow: 0 4px 16px rgba(239,68,68,0.3);
+    }
+    .header-title h1 { font-size: 1.5em; font-weight: 800; letter-spacing: -0.5px; }
+    .header-title p { font-size: 0.82em; color: var(--text3); }
+    .header-actions { display: flex; gap: 10px; }
+    .btn {
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82em;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover { background: var(--surface2); border-color: var(--border-hover); }
+    .btn-red { background: var(--red); border-color: var(--red); color: #fff; }
+    .btn-red:hover { background: #dc2626; }
+
+    /* ── Tools nav ── */
+    .tools-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .tool-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text2);
+      text-decoration: none;
+      font-size: 0.82em;
+      font-weight: 600;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .tool-link:hover { background: var(--surface2); border-color: var(--border-hover); color: var(--text); transform: translateY(-1px); }
+    .tool-icon {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9em; font-weight: 800;
+      flex-shrink: 0;
+      color: #fff;
+    }
+    .ti-board { background: linear-gradient(135deg, #b45309, #d97706); }
+    .ti-games { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+    .ti-cal { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+    .ti-script { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+    .ti-stats { background: linear-gradient(135deg, #047857, #10b981); }
+    .ti-report { background: linear-gradient(135deg, #b45309, #eab308); }
+
+    /* ── Stats strip ── */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .stat:hover { border-color: var(--border-hover); transform: translateY(-1px); }
+    .stat-value {
+      font-size: 1.6em;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+    .stat-label { font-size: 0.72em; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+    .c-red { color: var(--red); }
+    .c-green { color: var(--green); }
+    .c-gold { color: var(--gold); }
+    .c-blue { color: var(--blue); }
+    .c-purple { color: var(--purple); }
+    .c-cyan { color: var(--cyan); }
+
+    /* ── Main layout ── */
+    .main {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: calc(100vh - 160px);
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+      overflow-y: auto;
+      max-height: calc(100vh - 160px);
+      position: sticky;
+      top: 160px;
+    }
+    .sidebar-section { margin-bottom: 8px; }
+    .sidebar-heading {
+      padding: 8px 20px;
+      font-size: 0.68em;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text3);
+      font-weight: 700;
+    }
+    .folder-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 20px;
+      border: none;
+      background: none;
+      color: var(--text2);
+      font-size: 0.88em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
+    }
+    .folder-btn:hover { background: var(--surface); color: var(--text); }
+    .folder-btn.active { background: var(--surface2); color: var(--text); border-right: 3px solid var(--red); }
+    .folder-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85em; flex-shrink: 0;
+    }
+    .fi-red { background: var(--red-glow); color: var(--red); }
+    .fi-blue { background: var(--blue-glow); color: var(--blue); }
+    .fi-green { background: var(--green-glow); color: var(--green); }
+    .fi-gold { background: var(--gold-glow); color: var(--gold); }
+    .fi-purple { background: var(--purple-glow); color: var(--purple); }
+    .fi-cyan { background: rgba(6,182,212,0.12); color: var(--cyan); }
+    .folder-meta { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+    .folder-count {
+      font-size: 0.72em;
+      background: var(--surface);
+      padding: 2px 7px;
+      border-radius: 10px;
+      color: var(--text3);
+      font-weight: 600;
+    }
+    .folder-progress-mini {
+      width: 40px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .folder-progress-mini-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    /* ── Content area ── */
+    .content {
+      padding: 28px 32px;
+      overflow-y: auto;
+      max-height: calc(100vh - 160px);
+    }
+    .content-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .content-header h2 {
+      font-size: 1.3em;
+      font-weight: 800;
+    }
+    .content-header h2 small { font-size: 0.55em; color: var(--text3); font-weight: 400; display: block; margin-top: 2px; }
+    .filter-bar { display: flex; gap: 6px; }
+    .filter-btn {
+      padding: 5px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--text3);
+      font-size: 0.78em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: var(--border-hover); color: var(--text2); }
+    .filter-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
+
+    /* ── Plan cards ── */
+    .plan-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    .plan-card:hover { border-color: var(--border-hover); }
+    .plan-card.expanded { box-shadow: var(--shadow); }
+
+    .plan-header {
+      padding: 18px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      user-select: none;
+    }
+    .plan-header:hover { background: rgba(255,255,255,0.02); }
+
+    .plan-chevron {
+      font-size: 0.7em;
+      color: var(--text3);
+      transition: transform 0.25s;
+      flex-shrink: 0;
+      width: 16px;
+      text-align: center;
+    }
+    .plan-card.expanded .plan-chevron { transform: rotate(90deg); }
+
+    .plan-priority {
+      width: 4px;
+      height: 32px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .priority-critical { background: var(--red); box-shadow: 0 0 8px var(--red-glow); }
+    .priority-high { background: var(--orange); }
+    .priority-medium { background: var(--gold); }
+    .priority-low { background: var(--blue); }
+
+    .plan-info { flex: 1; min-width: 0; }
+    .plan-title { font-weight: 700; font-size: 0.95em; margin-bottom: 2px; }
+    .plan-desc { font-size: 0.78em; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .plan-stats { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+    .plan-progress-wrap { display: flex; align-items: center; gap: 8px; }
+    .plan-progress-bar {
+      width: 80px; height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .plan-progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+    .plan-progress-text { font-size: 0.78em; font-weight: 700; min-width: 32px; text-align: right; }
+    .plan-task-count { font-size: 0.72em; color: var(--text3); white-space: nowrap; }
+
+    .plan-status {
+      font-size: 0.68em;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .status-not_started { background: var(--surface2); color: var(--text3); }
+    .status-in_progress { background: var(--blue-glow); color: var(--blue); }
+    .status-completed { background: var(--green-glow); color: var(--green); }
+
+    /* ── Task list (expandable) ── */
+    .plan-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+    .plan-card.expanded .plan-body { max-height: 2000px; }
+
+    .task-list {
+      padding: 0 20px 16px 20px;
+      border-top: 1px solid var(--border);
+    }
+    .task-group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0 8px;
+    }
+    .task-group-header span { font-size: 0.75em; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      transition: opacity 0.2s;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-item.done { opacity: 0.45; }
+
+    .task-checkbox {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all 0.2s;
+      background: none;
+    }
+    .task-checkbox:hover { border-color: var(--green); background: var(--green-glow); }
+    .task-checkbox.checked {
+      background: var(--green);
+      border-color: var(--green);
+    }
+    .task-checkbox.checked::after {
+      content: '✓';
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .task-text { font-size: 0.88em; flex: 1; }
+    .task-item.done .task-text { text-decoration: line-through; color: var(--text3); }
+
+    .task-priority-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 7px;
+    }
+    .tpd-critical { background: var(--red); }
+    .tpd-high { background: var(--orange); }
+    .tpd-medium { background: var(--gold); }
+    .tpd-low { background: var(--blue); }
+
+    /* ── Add task inline ── */
+    .add-task-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0 4px;
+    }
+    .add-task-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      color: var(--text);
+      font-size: 0.85em;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .add-task-input::placeholder { color: var(--text3); }
+    .add-task-input:focus { border-color: var(--red); }
+    .add-task-select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      color: var(--text2);
+      font-size: 0.82em;
+      outline: none;
+    }
+    .add-task-btn {
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--red);
+      border: none;
+      color: #fff;
+      font-size: 0.82em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .add-task-btn:hover { background: #dc2626; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text3);
+    }
+    .empty-state .empty-icon { font-size: 3em; margin-bottom: 16px; opacity: 0.3; }
+    .empty-state h3 { color: var(--text2); margin-bottom: 8px; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+    /* ── Mobile ── */
+    @media (max-width: 900px) {
+      .main { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static;
+        max-height: none;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 12px 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .sidebar-section { display: contents; }
+      .sidebar-heading { display: none; }
+      .folder-btn { width: auto; padding: 8px 14px; border-radius: var(--radius-sm); }
+      .folder-btn.active { border-right: none; background: var(--red); color: #fff; border-radius: var(--radius-sm); }
+      .folder-meta { display: none; }
+      .content { max-height: none; padding: 20px 16px; }
+      .header { padding: 20px 16px 16px; }
+      .stats-strip { grid-template-columns: repeat(3, 1fr); }
+      .plan-stats { flex-direction: column; align-items: flex-end; gap: 6px; }
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .plan-card { animation: fadeIn 0.3s ease; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="header-left">
+      <div class="logo">棋</div>
+      <div class="header-title">
+        <h1 data-zh="创始人看板" data-en="Founder's Dashboard">Founder's Dashboard</h1>
+        <p data-zh="象棋解说频道" data-en="Chinese Chess Commentary Channel">象棋解说频道 &middot; Chinese Chess Commentary Channel</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="lang-toggle" style="display:inline-flex;gap:3px;margin-left:auto;">
+  <button onclick="setPageLang('zh')" class="lt-btn lt-active" data-lang="zh" style="background:rgba(240,192,96,0.9);color:#1a1d2e;border:none;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">中文</button>
+  <button onclick="setPageLang('en')" class="lt-btn" data-lang="en" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">EN</button>
+  <button onclick="setPageLang('both')" class="lt-btn" data-lang="both" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">双语</button>
+</div>
+      <button class="btn" onclick="expandAll()" data-zh="展开全部" data-en="Expand All">Expand All</button>
+      <button class="btn" onclick="collapseAll()" data-zh="收起全部" data-en="Collapse All">Collapse All</button>
+      <button class="btn" onclick="exportData()" data-zh="导出数据" data-en="Export JSON">Export JSON</button>
+    </div>
+  </div>
+  <nav class="tools-nav">
+    <a class="tool-link" href="board-art.html"><div class="tool-icon ti-board" style="background:linear-gradient(135deg,#c1272d,#e74c3c);">艺</div>Art Board</a>
+    <a class="tool-link" href="board3d.html"><div class="tool-icon ti-board" style="background:linear-gradient(135deg,#d4a854,#f0c060);">3D</div>3D Board</a>
+    <a class="tool-link" href="board.html"><div class="tool-icon ti-board">棋</div>Board</a>
+    <a class="tool-link" href="games.html"><div class="tool-icon ti-games">局</div>Games</a>
+    <a class="tool-link" href="explain.html"><div class="tool-icon ti-script" style="background:linear-gradient(135deg,#059669,#10b981);">讲</div>Explain</a>
+    <a class="tool-link" href="analyze.html"><div class="tool-icon ti-stats" style="background:linear-gradient(135deg,#0891b2,#06b6d4);">析</div>Analyze</a>
+    <a class="tool-link" href="calendar.html"><div class="tool-icon ti-cal">历</div>Calendar</a>
+    <a class="tool-link" href="scripts.html"><div class="tool-icon ti-script">稿</div>Scripts</a>
+    <a class="tool-link" href="analytics.html"><div class="tool-icon ti-stats">数</div>Analytics</a>
+    <a class="tool-link" href="branding.html"><div class="tool-icon ti-brand" style="background:linear-gradient(135deg,#db2777,#ec4899);">品</div>Branding</a>
+    <a class="tool-link" href="seo.html"><div class="tool-icon ti-seo" style="background:linear-gradient(135deg,#6366f1,#818cf8);">搜</div>SEO</a>
+    <a class="tool-link" href="translate.html"><div class="tool-icon ti-script" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">译</div>Translate</a>
+    <a class="tool-link" href="report.html"><div class="tool-icon ti-report">报</div>Report</a>
+  </nav>
+  <div class="stats-strip" id="statsStrip"></div>
+</div>
+
+<div class="main">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="content" id="content"></main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  DATA LAYER — plans loaded from embedded JSON
+//  (mirrors the plans/ folder structure)
+// ═══════════════════════════════════════════
+
+const FOLDERS = [
+  { id: 'all',        label: 'All Plans',           icon: '全', iconClass: 'fi-red'    },
+  { id: 'content',    label: '内容 Content',        icon: '录', iconClass: 'fi-red'    },
+  { id: 'platform',   label: '平台 Platforms',      icon: '台', iconClass: 'fi-blue'   },
+  { id: 'tech-setup', label: '技术 Tech Setup',     icon: '技', iconClass: 'fi-green'  },
+  { id: 'growth',     label: '增长 Growth',         icon: '涨', iconClass: 'fi-gold'   },
+  { id: 'revenue',    label: '变现 Revenue',        icon: '¥', iconClass: 'fi-purple' },
+  { id: 'community',  label: '社群 Community',      icon: '群', iconClass: 'fi-cyan'   },
+];
+
+// Embedded plan data (matches plans/ folder JSON files) — v2 with progress
+const PLAN_DATA_VERSION = 4;
+const DEFAULT_PLANS = [{"id": "community-build", "title": "社群建设 Community Building", "description": "Build engaged communities across platforms — the social layer that drives retention", "folder": "community", "priority": "medium", "status": "in_progress", "progress": 86, "tasks": [{"id": "cc1", "text": "Create QQ group for Chinese-speaking community", "done": true, "priority": "high"}, {"id": "cc2", "text": "Create Discord server for English-speaking / international community", "done": true, "priority": "high"}, {"id": "cc3", "text": "Set up weekly puzzle challenge in community (vote on best move)", "done": true, "priority": "medium"}, {"id": "cc4", "text": "Host first viewer challenge match (play subscribers live on stream)", "done": false, "priority": "medium"}, {"id": "cc5", "text": "Create community roles/tiers for active members", "done": true, "priority": "low"}, {"id": "cc6", "text": "Monthly community tournament with small prizes", "done": true, "priority": "low"}, {"id": "cc7", "text": "Create WeChat group for closest fans (gated behind engagement threshold)", "done": true, "priority": "low"}]}, {"id": "content-beginner", "title": "新手教程 Beginner Tutorial Series", "description": "Evergreen SEO content for beginners — structured learning path from zero to intermediate", "folder": "content", "priority": "medium", "status": "completed", "progress": 100, "tasks": [{"id": "cb1", "text": "Outline 12-episode beginner curriculum: rules → basic kills → openings → endgame", "done": true, "priority": "high"}, {"id": "cb2", "text": "Ep 1-3: Rules, piece movement, basic checkmate patterns (马后炮, 天地炮)", "done": true, "priority": "high"}, {"id": "cb3", "text": "Ep 4-6: Top 5 popular openings with simple explanations", "done": true, "priority": "medium"}, {"id": "cb4", "text": "Ep 7-9: Middle game tactics and piece coordination", "done": true, "priority": "medium"}, {"id": "cb5", "text": "Ep 10-12: Essential endgame patterns (top 50 basic positions)", "done": true, "priority": "medium"}, {"id": "cb6", "text": "SEO-optimize titles and descriptions for search discovery", "done": true, "priority": "medium"}, {"id": "cb7", "text": "Create downloadable practice position sets for each episode", "done": true, "priority": "low"}]}, {"id": "content-endgame", "title": "残局谜题系列 Endgame Puzzle Series", "description": "Create endgame puzzle short-form content — highest engagement format (30% viewer preference)", "folder": "content", "priority": "high", "status": "in_progress", "progress": 80, "tasks": [{"id": "ce1", "text": "Curate 20 classic endgames from《适情雅趣》", "done": true, "priority": "high"}, {"id": "ce2", "text": "Curate 20 tactical puzzles from《桔中秘》", "done": true, "priority": "high"}, {"id": "ce3", "text": "Analyze all 40 positions with Pikafish engine", "done": true, "priority": "high"}, {"id": "ce4", "text": "Write scripts: show bad moves first → reveal correct move", "done": true, "priority": "medium"}, {"id": "ce5", "text": "Record first 10 puzzle videos (vertical, 1-3 min each)", "done": false, "priority": "high"}, {"id": "ce6", "text": "Edit with 剪映 — add auto-captions, bold text overlays", "done": true, "priority": "medium"}, {"id": "ce7", "text": "Create thumbnail templates for puzzle series", "done": true, "priority": "medium"}, {"id": "ce8", "text": "Publish first batch to Douyin + YouTube Shorts", "done": false, "priority": "high"}, {"id": "ce9", "text": "Track engagement: views, completion rate, comments", "done": true, "priority": "low"}, {"id": "ce10", "text": "Iterate format based on first batch analytics", "done": true, "priority": "low"}]}, {"id": "content-famous", "title": "名局解说 Famous Game Commentary", "description": "Full game analysis of iconic xiangqi matches — authority-building long-form content", "folder": "content", "priority": "high", "status": "in_progress", "progress": 78, "tasks": [{"id": "cf1", "text": "Select 10 iconic games (胡荣华 vs 吕钦, 许银川 vs 吕钦, 1979 全运会决赛, etc.)", "done": true, "priority": "high"}, {"id": "cf2", "text": "Source game records from DPxq.com database", "done": true, "priority": "high"}, {"id": "cf3", "text": "Run full Pikafish analysis on each game (identify blunders, brilliancies)", "done": true, "priority": "high"}, {"id": "cf4", "text": "Write commentary scripts using Xu Yinchuan method: no jargon, variation trees", "done": true, "priority": "high"}, {"id": "cf5", "text": "Record first 3 full game analyses (10-30 min each)", "done": false, "priority": "high"}, {"id": "cf6", "text": "Edit in Premiere Pro with engine eval overlays + arrow annotations", "done": true, "priority": "medium"}, {"id": "cf7", "text": "Add historical context and storytelling narrative to each game", "done": true, "priority": "medium"}, {"id": "cf8", "text": "Publish to Bilibili (16:9) + YouTube (16:9)", "done": false, "priority": "high"}, {"id": "cf9", "text": "Create short highlight clips from each game for Douyin", "done": true, "priority": "medium"}]}, {"id": "content-series", "title": "招牌栏目 Signature Series Development", "description": "Develop recurring series that viewers return for — the key to habit-forming audiences", "folder": "content", "priority": "medium", "status": "completed", "progress": 100, "tasks": [{"id": "cs1", "text": "Design \"这步你会走吗？\" (Would You Play This?) format — interactive puzzle", "done": true, "priority": "high"}, {"id": "cs2", "text": "Design \"引擎 vs 大师\" (Engine vs Grandmaster) format — compare engine lines to human choices", "done": true, "priority": "high"}, {"id": "cs3", "text": "Design \"名局故事\" (Famous Game Stories) format — cultural storytelling + analysis", "done": true, "priority": "medium"}, {"id": "cs4", "text": "Create intro/outro templates for each series", "done": true, "priority": "medium"}, {"id": "cs5", "text": "Record pilot episode for each series", "done": true, "priority": "high"}, {"id": "cs6", "text": "A/B test which series gets best retention", "done": true, "priority": "medium"}, {"id": "cs7", "text": "Double down on winning series — commit to weekly cadence", "done": true, "priority": "low"}]}, {"id": "growth-audience", "title": "涨粉策略 Audience Building Strategy", "description": "Systematic growth from 0 to monetization thresholds across all platforms", "folder": "growth", "priority": "high", "status": "in_progress", "progress": 62, "tasks": [{"id": "ga1", "text": "Commit to 5-7 videos/week posting cadence (non-negotiable for algo)", "done": true, "priority": "critical"}, {"id": "ga2", "text": "Reply to 50+ comments within 2 hours of each post (15-20% reach boost)", "done": true, "priority": "high"}, {"id": "ga3", "text": "Cross-post adapted content: vertical for Douyin, 16:9 for Bilibili/YouTube", "done": true, "priority": "high"}, {"id": "ga4", "text": "Identify 10 xiangqi creators to engage with (comment, share, collaborate)", "done": true, "priority": "medium"}, {"id": "ga5", "text": "Reach first milestone: 1K followers on each platform", "done": false, "priority": "high"}, {"id": "ga6", "text": "Reach second milestone: 10K followers on primary platform", "done": false, "priority": "medium"}, {"id": "ga7", "text": "First collaboration with another xiangqi creator", "done": false, "priority": "medium"}, {"id": "ga8", "text": "Analyze top 10 performing videos — identify patterns, double down", "done": true, "priority": "medium"}]}, {"id": "growth-seo", "title": "SEO与算法优化 SEO & Algorithm Optimization", "description": "Maximize discoverability across platforms through systematic optimization", "folder": "growth", "priority": "medium", "status": "completed", "progress": 100, "tasks": [{"id": "gs1", "text": "Research top 50 xiangqi search keywords (YouTube + Bilibili + Douyin)", "done": true, "priority": "high"}, {"id": "gs2", "text": "Create title formula templates: curiosity + benefit, under 60 chars", "done": true, "priority": "high"}, {"id": "gs3", "text": "Design 3 thumbnail styles, A/B test on YouTube", "done": true, "priority": "medium"}, {"id": "gs4", "text": "Optimize first 3 seconds of every video for maximum hook", "done": true, "priority": "high"}, {"id": "gs5", "text": "Bilibili: ensure first 8 characters of title are compelling", "done": true, "priority": "medium"}, {"id": "gs6", "text": "Track traffic sources weekly: search vs suggestions vs Shorts", "done": true, "priority": "medium"}, {"id": "gs7", "text": "Install vidIQ or TubeBuddy for YouTube keyword research", "done": true, "priority": "low"}]}, {"id": "platform-bilibili", "title": "B站频道 Bilibili Channel Setup", "description": "Education-focused long-form content. Younger audience, strong community features.", "folder": "platform", "priority": "high", "status": "in_progress", "progress": 50, "tasks": [{"id": "pb1", "text": "Register Bilibili UP creator account", "done": false, "priority": "high"}, {"id": "pb2", "text": "Design cover image template: 封面大粗字 (large bold text covers)", "done": true, "priority": "high"}, {"id": "pb3", "text": "Set up 16:9 recording workflow for long-form content", "done": true, "priority": "high"}, {"id": "pb4", "text": "Learn MediaCoder for pre-upload compression (avoid quality loss)", "done": true, "priority": "medium"}, {"id": "pb5", "text": "Publish first 3 videos, optimize for 5:30 PM posting time", "done": false, "priority": "high"}, {"id": "pb6", "text": "Reach 1K followers or 100K views (unlock Creation Incentive)", "done": false, "priority": "medium"}, {"id": "pb7", "text": "Create QQ group for community engagement", "done": true, "priority": "medium"}, {"id": "pb8", "text": "Register on 花火 (Huahuo) when eligible for brand deals", "done": false, "priority": "low"}]}, {"id": "platform-douyin", "title": "抖音频道 Douyin Channel Setup", "description": "Primary platform — 60%+ of xiangqi viewers. Short-form + live streaming focus.", "folder": "platform", "priority": "high", "status": "in_progress", "progress": 44, "tasks": [{"id": "pd1", "text": "Register Douyin creator account with consistent branding", "done": false, "priority": "high"}, {"id": "pd2", "text": "Design profile banner and avatar (象棋 themed)", "done": true, "priority": "high"}, {"id": "pd3", "text": "Write bio: niche positioning + value proposition", "done": true, "priority": "medium"}, {"id": "pd4", "text": "Set up OBS → Douyin Live RTMP streaming pipeline", "done": true, "priority": "high"}, {"id": "pd5", "text": "Test vertical video recording workflow (board capture + voiceover)", "done": true, "priority": "high"}, {"id": "pd6", "text": "Publish 3 test videos, analyze Douyin algorithm response", "done": false, "priority": "high"}, {"id": "pd7", "text": "Reach 1K followers milestone (unlock live streaming)", "done": false, "priority": "medium"}, {"id": "pd8", "text": "First live stream: 2-hour chess session with commentary", "done": false, "priority": "medium"}, {"id": "pd9", "text": "Register on 巨量星图 when eligible for brand deals", "done": false, "priority": "low"}]}, {"id": "platform-youtube", "title": "YouTube Channel Setup", "description": "International/diaspora audience. SEO-driven discoverability. English or bilingual content.", "folder": "platform", "priority": "high", "status": "in_progress", "progress": 67, "tasks": [{"id": "py1", "text": "Create YouTube channel with consistent branding", "done": true, "priority": "high"}, {"id": "py2", "text": "Design channel banner, icon, and trailer video", "done": true, "priority": "high"}, {"id": "py3", "text": "Set up playlists: Puzzles, Full Games, Tutorials, Series", "done": true, "priority": "medium"}, {"id": "py4", "text": "Research keywords: xiangqi tutorial, Chinese chess beginner, 象棋 (use vidIQ or TubeBuddy)", "done": true, "priority": "medium"}, {"id": "py5", "text": "Publish first 5 videos with SEO-optimized titles (under 60 chars)", "done": false, "priority": "high"}, {"id": "py6", "text": "Create 3 thumbnail variants per video, use A/B Test & Compare", "done": true, "priority": "medium"}, {"id": "py7", "text": "Reach 1K subscribers + 4K watch hours (YouTube Partner Program)", "done": false, "priority": "medium"}, {"id": "py8", "text": "Set up YouTube Shorts repurposing from Douyin content", "done": true, "priority": "medium"}, {"id": "py9", "text": "Enable memberships and Super Chat when eligible", "done": false, "priority": "low"}]}, {"id": "revenue-monetize", "title": "变现计划 Monetization Roadmap", "description": "Multi-stream revenue plan: ads → tips → courses → sponsorships → coaching", "folder": "revenue", "priority": "medium", "status": "in_progress", "progress": 67, "tasks": [{"id": "rm1", "text": "Phase 1: Reach YouTube Partner Program (1K subs + 4K watch hours)", "done": false, "priority": "high"}, {"id": "rm2", "text": "Phase 1: Reach Bilibili Creation Incentive (1K followers or 100K views)", "done": false, "priority": "high"}, {"id": "rm3", "text": "Phase 2: Enable live streaming tips on Douyin and Bilibili", "done": true, "priority": "medium"}, {"id": "rm4", "text": "Phase 2: Launch YouTube memberships and Super Chat", "done": true, "priority": "medium"}, {"id": "rm5", "text": "Phase 3: Design paid course curriculum (beginner → advanced)", "done": true, "priority": "medium"}, {"id": "rm6", "text": "Phase 3: Record and publish first paid course", "done": false, "priority": "medium"}, {"id": "rm7", "text": "Phase 3: Set up 1-on-1 coaching offering ($50-200/month)", "done": true, "priority": "low"}, {"id": "rm8", "text": "Phase 4: First Douyin sponsored content deal via 巨量星图", "done": true, "priority": "low"}, {"id": "rm9", "text": "Phase 4: Explore merchandise (branded chess sets, books)", "done": true, "priority": "low"}]}, {"id": "tech-software", "title": "软件安装 Core Software Installation", "description": "Install and configure the complete production stack — total cost: $0 for core tools", "folder": "tech-setup", "priority": "critical", "status": "completed", "progress": 100, "tasks": [{"id": "ts1", "text": "Download and install Pikafish engine (latest from pikafish.com)", "done": true, "priority": "critical"}, {"id": "ts2", "text": "Download and install 象棋巫师 Xiangqi Wizard", "done": true, "priority": "critical"}, {"id": "ts3", "text": "Connect Pikafish to Xiangqi Wizard via UCCI protocol", "done": true, "priority": "critical"}, {"id": "ts4", "text": "Download and install OBS Studio", "done": true, "priority": "critical"}, {"id": "ts5", "text": "Configure OBS: Window Capture (board) + Audio Input (mic) + scenes", "done": true, "priority": "high"}, {"id": "ts6", "text": "Install 剪映 (Jianying/CapCut) for short-form editing", "done": true, "priority": "high"}, {"id": "ts7", "text": "Install or set up Premiere Pro / Vegas Pro for long-form editing", "done": true, "priority": "medium"}, {"id": "ts8", "text": "Install 天天象棋 on mobile for playing + AI review features", "done": true, "priority": "medium"}, {"id": "ts9", "text": "Set up xiangqi.com account for online analysis board", "done": true, "priority": "medium"}, {"id": "ts10", "text": "Test full recording pipeline: board → OBS → edit → export", "done": true, "priority": "high"}]}, {"id": "tech-streaming", "title": "直播设备 Streaming Rig Setup", "description": "Hardware and software configuration for live streaming across platforms", "folder": "tech-setup", "priority": "medium", "status": "completed", "progress": 100, "tasks": [{"id": "tr1", "text": "Select USB microphone (clear voice for commentary)", "done": true, "priority": "high"}, {"id": "tr2", "text": "Optional: select webcam for face-cam overlay", "done": true, "priority": "low"}, {"id": "tr3", "text": "Configure OBS scenes: Board + Engine eval + Chat + Webcam layouts", "done": true, "priority": "high"}, {"id": "tr4", "text": "Set up RTMP endpoints for Douyin Live, Bilibili Live", "done": true, "priority": "high"}, {"id": "tr5", "text": "Test stream at 1080p/30fps H.264 — check quality and latency", "done": true, "priority": "high"}, {"id": "tr6", "text": "Create OBS scene presets: 'Live Play', 'Puzzle Review', 'Game Analysis'", "done": true, "priority": "medium"}, {"id": "tr7", "text": "Test multi-platform simultaneous streaming (Restream.io or similar)", "done": true, "priority": "low"}]}];
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+
+const STORAGE_KEY = 'xiangqi-dashboard-plans';
+let plans = [];
+let activeFolder = 'all';
+let activeFilter = 'all'; // all | todo | done
+
+function loadPlans() {
+  const savedVersion = localStorage.getItem(STORAGE_KEY + '_version');
+  if (savedVersion && parseInt(savedVersion) >= PLAN_DATA_VERSION) {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try { plans = JSON.parse(saved); return; } catch(e) {}
+    }
+  }
+  // Version mismatch or no data — load fresh from defaults
+  plans = JSON.parse(JSON.stringify(DEFAULT_PLANS));
+  savePlans();
+  localStorage.setItem(STORAGE_KEY + '_version', String(PLAN_DATA_VERSION));
+}
+
+function savePlans() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
+}
+
+function resetPlans() {
+  if (!confirm('Reset all progress? This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  loadPlans();
+  render();
+}
+
+// ═══════════════════════════════════════════
+//  COMPUTED
+// ═══════════════════════════════════════════
+
+function getPlanProgress(plan) {
+  if (!plan.tasks.length) return 0;
+  const done = plan.tasks.filter(t => t.done).length;
+  return Math.round((done / plan.tasks.length) * 100);
+}
+
+function getPlanStatus(plan) {
+  const p = getPlanProgress(plan);
+  if (p === 100) return 'completed';
+  if (p > 0) return 'in_progress';
+  return 'not_started';
+}
+
+function getFolderStats(folderId) {
+  const fp = folderId === 'all' ? plans : plans.filter(p => p.folder === folderId);
+  const totalTasks = fp.reduce((s, p) => s + p.tasks.length, 0);
+  const doneTasks = fp.reduce((s, p) => s + p.tasks.filter(t => t.done).length, 0);
+  return { plans: fp.length, totalTasks, doneTasks, progress: totalTasks ? Math.round((doneTasks/totalTasks)*100) : 0 };
+}
+
+function getGlobalStats() {
+  const totalPlans = plans.length;
+  const totalTasks = plans.reduce((s, p) => s + p.tasks.length, 0);
+  const doneTasks = plans.reduce((s, p) => s + p.tasks.filter(t => t.done).length, 0);
+  const inProgress = plans.filter(p => getPlanStatus(p) === 'in_progress').length;
+  const completed = plans.filter(p => getPlanStatus(p) === 'completed').length;
+  const critical = plans.reduce((s, p) => s + p.tasks.filter(t => !t.done && t.priority === 'critical').length, 0);
+  return { totalPlans, totalTasks, doneTasks, inProgress, completed, critical, progress: totalTasks ? Math.round((doneTasks/totalTasks)*100) : 0 };
+}
+
+function getFilteredPlans() {
+  let fp = activeFolder === 'all' ? [...plans] : plans.filter(p => p.folder === activeFolder);
+  // sort: critical first, then high, medium, low; within same priority, in_progress first
+  const priOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+  const statusOrder = { in_progress: 0, not_started: 1, completed: 2 };
+  fp.sort((a,b) => {
+    const sa = statusOrder[getPlanStatus(a)] ?? 1;
+    const sb = statusOrder[getPlanStatus(b)] ?? 1;
+    if (sa !== sb) return sa - sb;
+    return (priOrder[a.priority]??3) - (priOrder[b.priority]??3);
+  });
+  return fp;
+}
+
+// ═══════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════
+
+function render() {
+  renderStats();
+  renderSidebar();
+  renderContent();
+}
+
+function renderStats() {
+  const s = getGlobalStats();
+  const progressColor = s.progress >= 75 ? 'c-green' : s.progress >= 40 ? 'c-gold' : 'c-red';
+  document.getElementById('statsStrip').innerHTML = `
+    <div class="stat"><div class="stat-value ${progressColor}">${s.progress}%</div><div class="stat-label">Overall Progress</div></div>
+    <div class="stat"><div class="stat-value c-blue">${s.totalPlans}</div><div class="stat-label">Total Plans</div></div>
+    <div class="stat"><div class="stat-value c-cyan">${s.totalTasks}</div><div class="stat-label">Total Tasks</div></div>
+    <div class="stat"><div class="stat-value c-green">${s.doneTasks}</div><div class="stat-label">Completed</div></div>
+    <div class="stat"><div class="stat-value c-gold">${s.inProgress}</div><div class="stat-label">In Progress</div></div>
+    <div class="stat"><div class="stat-value c-red">${s.critical}</div><div class="stat-label">Critical Left</div></div>
+  `;
+}
+
+function renderSidebar() {
+  let html = '<div class="sidebar-section"><div class="sidebar-heading">Folders</div>';
+  FOLDERS.forEach(f => {
+    const stats = getFolderStats(f.id);
+    const progressColor = stats.progress >= 75 ? 'var(--green)' : stats.progress >= 40 ? 'var(--gold)' : 'var(--red)';
+    html += `
+      <button class="folder-btn ${activeFolder === f.id ? 'active' : ''}" onclick="setFolder('${f.id}')">
+        <div class="folder-icon ${f.iconClass}">${f.icon}</div>
+        <span>${f.label}</span>
+        <div class="folder-meta">
+          <div class="folder-progress-mini"><div class="folder-progress-mini-fill" style="width:${stats.progress}%;background:${progressColor}"></div></div>
+          <span class="folder-count">${stats.doneTasks}/${stats.totalTasks}</span>
+        </div>
+      </button>`;
+  });
+  html += '</div>';
+  html += `<div class="sidebar-section" style="padding:16px 20px;border-top:1px solid var(--border);margin-top:8px;">
+    <button class="btn" style="width:100%;margin-bottom:6px;" onclick="resetPlans()">Reset All Progress</button>
+  </div>`;
+  document.getElementById('sidebar').innerHTML = html;
+}
+
+function renderContent() {
+  const fp = getFilteredPlans();
+  const folderInfo = FOLDERS.find(f => f.id === activeFolder);
+  let html = `
+    <div class="content-header">
+      <h2>${folderInfo.label} <small>${fp.length} plan${fp.length!==1?'s':''} · ${getFolderStats(activeFolder).totalTasks} tasks</small></h2>
+      <div class="filter-bar">
+        <button class="filter-btn ${activeFilter==='all'?'active':''}" onclick="setFilter('all')">All</button>
+        <button class="filter-btn ${activeFilter==='todo'?'active':''}" onclick="setFilter('todo')">To Do</button>
+        <button class="filter-btn ${activeFilter==='done'?'active':''}" onclick="setFilter('done')">Done</button>
+      </div>
+    </div>`;
+
+  if (!fp.length) {
+    html += `<div class="empty-state"><div class="empty-icon">棋</div><h3>No plans in this folder</h3><p>Plans will appear here when added.</p></div>`;
+  }
+
+  fp.forEach(plan => {
+    const progress = getPlanProgress(plan);
+    const status = getPlanStatus(plan);
+    const progressColor = progress >= 75 ? 'var(--green)' : progress >= 40 ? 'var(--gold)' : progress > 0 ? 'var(--blue)' : 'var(--text3)';
+    const doneTasks = plan.tasks.filter(t => t.done).length;
+
+    let tasks = plan.tasks;
+    if (activeFilter === 'todo') tasks = tasks.filter(t => !t.done);
+    if (activeFilter === 'done') tasks = tasks.filter(t => t.done);
+
+    html += `
+    <div class="plan-card" id="plan-${plan.id}">
+      <div class="plan-header" onclick="togglePlan('${plan.id}')">
+        <span class="plan-chevron">▶</span>
+        <div class="plan-priority priority-${plan.priority}"></div>
+        <div class="plan-info">
+          <div class="plan-title">${plan.title}</div>
+          <div class="plan-desc">${plan.description}</div>
+        </div>
+        <div class="plan-stats">
+          <div class="plan-progress-wrap">
+            <div class="plan-progress-bar"><div class="plan-progress-fill" style="width:${progress}%;background:${progressColor}"></div></div>
+            <div class="plan-progress-text" style="color:${progressColor}">${progress}%</div>
+          </div>
+          <div class="plan-task-count">${doneTasks}/${plan.tasks.length} tasks</div>
+          <span class="plan-status status-${status}">${status.replace('_',' ')}</span>
+        </div>
+      </div>
+      <div class="plan-body">
+        <div class="task-list">
+          <div class="task-group-header">
+            <span>Tasks</span>
+            <span>${doneTasks} of ${plan.tasks.length} complete</span>
+          </div>`;
+
+    tasks.forEach(task => {
+      html += `
+          <div class="task-item ${task.done ? 'done' : ''}">
+            <div class="task-checkbox ${task.done ? 'checked' : ''}" onclick="toggleTask('${plan.id}','${task.id}')"></div>
+            <div class="task-priority-dot tpd-${task.priority}"></div>
+            <div class="task-text">${task.text}</div>
+          </div>`;
+    });
+
+    html += `
+          <div class="add-task-row">
+            <input class="add-task-input" id="input-${plan.id}" placeholder="Add a new task..." onkeydown="if(event.key==='Enter')addTask('${plan.id}')">
+            <select class="add-task-select" id="pri-${plan.id}">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+              <option value="critical">Critical</option>
+            </select>
+            <button class="add-task-btn" onclick="addTask('${plan.id}')">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('content').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════════
+
+function setFolder(id) {
+  activeFolder = id;
+  render();
+}
+
+function setFilter(f) {
+  activeFilter = f;
+  renderContent();
+  // update filter button states
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.toLowerCase().replace(' ','') === f);
+  });
+}
+
+function togglePlan(planId) {
+  const el = document.getElementById('plan-' + planId);
+  el.classList.toggle('expanded');
+}
+
+function toggleTask(planId, taskId) {
+  const plan = plans.find(p => p.id === planId);
+  if (!plan) return;
+  const task = plan.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  task.done = !task.done;
+  plan.progress = getPlanProgress(plan);
+  plan.status = getPlanStatus(plan);
+  savePlans();
+  render();
+  // Re-expand the plan card
+  setTimeout(() => {
+    const el = document.getElementById('plan-' + planId);
+    if (el) el.classList.add('expanded');
+  }, 10);
+}
+
+function addTask(planId) {
+  const input = document.getElementById('input-' + planId);
+  const priSelect = document.getElementById('pri-' + planId);
+  const text = input.value.trim();
+  if (!text) return;
+  const plan = plans.find(p => p.id === planId);
+  if (!plan) return;
+  const id = planId.replace(/[^a-z]/g,'').slice(0,2) + '_' + Date.now();
+  plan.tasks.push({ id, text, done: false, priority: priSelect.value });
+  savePlans();
+  render();
+  setTimeout(() => {
+    const el = document.getElementById('plan-' + planId);
+    if (el) el.classList.add('expanded');
+    const newInput = document.getElementById('input-' + planId);
+    if (newInput) newInput.focus();
+  }, 10);
+}
+
+function expandAll() {
+  document.querySelectorAll('.plan-card').forEach(c => c.classList.add('expanded'));
+}
+
+function collapseAll() {
+  document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('expanded'));
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(plans, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'xiangqi-dashboard-plans.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+
+loadPlans();
+render();
+</script>
+<script>
+// Universal language toggle
+(function() {
+  let pageLang = localStorage.getItem('pageLang') || 'zh';
+  
+  window.setPageLang = function(lang) {
+    pageLang = lang;
+    localStorage.setItem('pageLang', lang);
+    document.querySelectorAll('.lt-btn').forEach(b => {
+      const isActive = b.dataset.lang === lang;
+      b.style.background = isActive ? 'rgba(240,192,96,0.9)' : 'rgba(255,255,255,0.08)';
+      b.style.color = isActive ? '#1a1d2e' : '#9ca0b8';
+      b.style.border = isActive ? 'none' : '1px solid rgba(255,255,255,0.06)';
+    });
+    applyLang();
+  };
+  
+  function applyLang() {
+    document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+      if (pageLang === 'zh') el.textContent = el.dataset.zh;
+      else if (pageLang === 'en') el.textContent = el.dataset.en;
+      else el.textContent = el.dataset.zh + ' ' + el.dataset.en;
+    });
+  }
+  
+  // Apply on load
+  setTimeout(() => {
+    setPageLang(pageLang);
+  }, 100);
+})();
+</script>
+</body>
+</html>

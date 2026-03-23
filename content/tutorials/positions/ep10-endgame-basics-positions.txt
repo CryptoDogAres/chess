@@ -1,0 +1,11 @@
+# Episode 10: Endgame Basics -- Chariot Endgames
+# 第十集：残局入门——车的残局
+# Practice positions for lone Chariot vs defense, Chariot+Pawn vs Chariot
+# 单车对士象全、车兵对车等车残局练习
+
+3aka3/4e4/4e4/9/9/9/9/9/4R4/4K4 w - - 0 1 # Chariot vs full defense (draw) 单车对士象全（和棋） — standard fortress; Red struggles to break through; practice defensive recognition 标准防守阵型，红方难以突破，练习识别和棋局面
+3ak4/4a4/4e4/9/9/9/9/9/4R4/4K4 w - - 0 1 # Chariot vs incomplete defense 单车对残缺士象 — Black missing one Elephant; Red can break through with repeated checks 黑方少一象，红车可反复将军破防
+4k4/4a4/4e4/9/9/9/9/4R4/9/4K4 w - - 0 1 # Chariot using face-to-face 车利用对面笑 — Red King on e1 with Chariot on e3; use face-to-face rule to restrict Black King 红帅e1红车e3，利用对面笑限制黑将
+4k4/9/9/4P4/9/9/9/4R4/4r4/4K4 w - - 0 1 # Chariot+Pawn vs Chariot (winning) 车兵对车（进攻方赢） — Red Chariot protects Pawn advance; King joins to help push 红车保护兵前进，帅跟上帮忙
+4k4/9/9/4P4/9/4r4/9/9/4R4/4K4 w - - 0 1 # Chariot+Pawn vs Chariot (drawing defense) 车兵对车（防守方和棋） — Black Chariot blocks the Pawn; active defense holds the draw 黑车挡住兵前进，积极防守守和
+4k4/4a4/4e4/4P4/9/9/9/4R4/9/4K4 w - - 0 1 # Chariot+Pawn vs Advisor+Elephant 车兵对士象 — Red pushes Pawn with Chariot support; incomplete defense should lose 红车保护兵前进，残缺防守难挡

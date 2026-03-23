@@ -1,0 +1,53 @@
+{
+  "id": "community-build",
+  "title": "社群建设 Community Building",
+  "description": "Build engaged communities across platforms — the social layer that drives retention",
+  "folder": "community",
+  "priority": "medium",
+  "status": "in_progress",
+  "progress": 86,
+  "tasks": [
+    {
+      "id": "cc1",
+      "text": "Create QQ group for Chinese-speaking community",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "cc2",
+      "text": "Create Discord server for English-speaking / international community",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "cc3",
+      "text": "Set up weekly puzzle challenge in community (vote on best move)",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "cc4",
+      "text": "Host first viewer challenge match (play subscribers live on stream)",
+      "done": false,
+      "priority": "medium"
+    },
+    {
+      "id": "cc5",
+      "text": "Create community roles/tiers for active members",
+      "done": true,
+      "priority": "low"
+    },
+    {
+      "id": "cc6",
+      "text": "Monthly community tournament with small prizes",
+      "done": true,
+      "priority": "low"
+    },
+    {
+      "id": "cc7",
+      "text": "Create WeChat group for closest fans (gated behind engagement threshold)",
+      "done": true,
+      "priority": "low"
+    }
+  ]
+}

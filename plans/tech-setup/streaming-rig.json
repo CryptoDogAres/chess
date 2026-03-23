@@ -1,0 +1,53 @@
+{
+  "id": "tech-streaming",
+  "title": "直播设备 Streaming Rig Setup",
+  "description": "Hardware and software configuration for live streaming across platforms",
+  "folder": "tech-setup",
+  "priority": "medium",
+  "status": "completed",
+  "progress": 100,
+  "tasks": [
+    {
+      "id": "tr1",
+      "text": "Select USB microphone (clear voice for commentary)",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "tr2",
+      "text": "Optional: select webcam for face-cam overlay",
+      "done": true,
+      "priority": "low"
+    },
+    {
+      "id": "tr3",
+      "text": "Configure OBS scenes: Board + Engine eval + Chat + Webcam layouts",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "tr4",
+      "text": "Set up RTMP endpoints for Douyin Live, Bilibili Live",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "tr5",
+      "text": "Test stream at 1080p/30fps H.264 — check quality and latency",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "tr6",
+      "text": "Create OBS scene presets: 'Live Play', 'Puzzle Review', 'Game Analysis'",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "tr7",
+      "text": "Test multi-platform simultaneous streaming (Restream.io or similar)",
+      "done": true,
+      "priority": "low"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+# Episode 6: Opening Principles -- Develop Fast
+# 第六集：开局原则——出子要快
+# Practice positions for evaluating opening development and avoiding common mistakes
+# 练习判断开局出子效率，避免常见错误
+
+rheakaehr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C2C4/4A4/R1EAKAEHR w - - 0 1 # Good vs bad development 好坏出子对比 — Red moved Cannon to center (good) but Chariots still in corners (needs work) 红炮到中路（好），车仍在角落（待出）
+rheakaehr/9/1c5c1/p1p1p1p1p/9/2P6/P3P1P1P/1C2C4/9/R1EAKAEHR w - - 0 1 # Chariot development 车的出动 — Red should get the Chariot out immediately; identify the best Chariot move 红方应立刻出车，找出最佳车步
+r1eakaehr/9/1cn4c1/p1p1p1p1p/9/2P6/P3P1P1P/2N1C4/9/R1EAKAEHR w - - 0 1 # Good opening 好的开局示范 — Red has developed Cannon and Horse; next priority is the Chariot 红方已出炮马，下一步应出车
+rheakaehr/9/1c5c1/p1p1p1p1p/9/4P4/P1P3P1P/9/4A4/RHEAKAEHR w - - 0 1 # Bad opening 反面教材 — Red wasted moves on Pawn and Advisor; no pieces developed! 红方浪费步数走兵和士，未出一子！
+r1eakaehr/9/2n1c4/p1p1p1p1p/9/2P6/P3P1P1P/4CN3/4A4/R1EAK2HR w - - 0 1 # Center control 中路控制 — Red Cannon holds center, Horse well-placed, Chariot ready; evaluate the position 红炮占中路、马位置好、车待出，评估局面优劣

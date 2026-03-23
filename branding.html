@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" rel="stylesheet">
+<title>品牌工具 — Branding Kit</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f1117;--surface:#1e2130;--surface2:#282b3d;--border:#333652;--text:#e8e8f0;--text2:#9a9bb5;--accent:#e74c3c;--accent2:#f5c542;--radius:10px}
+body{background:var(--bg);color:var(--text);font-family:'LXGW WenKai',-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;line-height:1.6;min-height:100vh}
+a{color:var(--accent2);text-decoration:none}
+a:hover{text-decoration:underline}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+header h1{font-size:22px;font-weight:700}
+header h1 span{color:var(--accent2);font-weight:400;font-size:16px;margin-left:8px}
+.nav-links{display:flex;gap:16px;font-size:14px}
+main{max-width:1400px;margin:0 auto;padding:24px}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px}
+.section h2{font-size:18px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.section h2::before{content:'';display:inline-block;width:4px;height:20px;background:var(--accent);border-radius:2px}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.col{flex:1;min-width:250px}
+label{display:block;font-size:13px;color:var(--text2);margin-bottom:4px;margin-top:12px}
+label:first-child{margin-top:0}
+input[type="text"],input[type="number"],select,textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:14px;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent2)}
+textarea{resize:vertical;min-height:60px}
+.scheme-cards{display:flex;gap:12px;flex-wrap:wrap}
+.scheme-card{cursor:pointer;border:2px solid var(--border);border-radius:8px;padding:12px;text-align:center;min-width:140px;transition:all .2s}
+.scheme-card.active{border-color:var(--accent2);box-shadow:0 0 12px rgba(245,197,66,.25)}
+.scheme-card .colors{display:flex;gap:4px;justify-content:center;margin-bottom:6px}
+.scheme-card .colors span{width:24px;height:24px;border-radius:50%;display:inline-block;border:1px solid rgba(255,255,255,.15)}
+.scheme-card .name{font-size:13px;font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#c0392b}
+.btn-gold{background:var(--accent2);color:#111}
+.btn-gold:hover{background:#d4a62e}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--accent2);color:var(--accent2)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.style-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
+.style-tab{padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--text2);cursor:pointer;font-size:13px;font-family:inherit;transition:all .15s}
+.style-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.canvas-wrap{background:#000;border-radius:8px;overflow:hidden;display:inline-block;max-width:100%}
+.canvas-wrap canvas{display:block;max-width:100%;height:auto}
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.preview-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.preview-card canvas{width:100%;height:auto;display:block}
+.preview-card .meta{padding:8px 12px;font-size:12px;color:var(--text2);display:flex;justify-content:space-between;align-items:center}
+.banner-set{display:flex;flex-direction:column;gap:16px}
+.banner-item{display:flex;flex-direction:column;gap:6px}
+.banner-item h3{font-size:14px;color:var(--text2)}
+.fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.fields-grid label{margin-top:10px}
+.fields-grid .full{grid-column:1/-1}
+.stars-input{display:flex;gap:4px;margin-top:4px}
+.stars-input span{font-size:22px;cursor:pointer;color:var(--border);transition:color .15s}
+.stars-input span.on{color:var(--accent2)}
+@media(max-width:768px){.row{flex-direction:column}.fields-grid{grid-template-columns:1fr}.preview-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav style="background:#131520;border-bottom:1px solid rgba(255,255,255,0.06);padding:8px 16px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-family:-apple-system,sans-serif;">
+  <a href="dashboard.html" style="color:#ef4444;font-weight:700;text-decoration:none;font-size:0.82em;padding:4px 12px;">棋 Dashboard</a>
+  <a href="board-art.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Art Board</a>
+  <a href="board3d.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">3D Board</a>
+  <a href="board.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Board</a>
+  <a href="games.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Games</a>
+  <a href="explain.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Explain</a>
+  <a href="analyze.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analyze</a>
+  <a href="calendar.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Calendar</a>
+  <a href="scripts.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Scripts</a>
+  <a href="analytics.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analytics</a>
+  <a href="branding.html" style="color:#fff;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);">Branding</a>
+  <a href="seo.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">SEO</a>
+  <a href="translate.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Translate</a>
+  <a href="report.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Report</a>
+</nav>
+
+<header>
+  <h1><span data-zh="品牌工具" data-en="Branding Kit">品牌工具</span><span data-zh="" data-en="">— Branding Kit</span></h1>
+  <div class="lang-toggle" style="display:inline-flex;gap:3px;margin-left:auto;">
+  <button onclick="setPageLang('zh')" class="lt-btn lt-active" data-lang="zh" style="background:rgba(240,192,96,0.9);color:#1a1d2e;border:none;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">中文</button>
+  <button onclick="setPageLang('en')" class="lt-btn" data-lang="en" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">EN</button>
+  <button onclick="setPageLang('both')" class="lt-btn" data-lang="both" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">双语</button>
+</div>
+</header>
+<main>
+
+<!-- SECTION 1: Channel Identity -->
+<div class="section" id="identity-section">
+  <h2 data-zh="频道身份" data-en="Channel Identity">频道身份 Channel Identity</h2>
+  <div class="row">
+    <div class="col">
+      <label>频道名称 Channel Name</label>
+      <input type="text" id="channelName" value="棋道 ChessDAO" oninput="onIdentityChange()">
+      <label>标语 Tagline</label>
+      <input type="text" id="tagline" value="象棋解说 · 名局分析 · 残局谜题" oninput="onIdentityChange()">
+      <label>Logo 文字 Logo Character</label>
+      <input type="text" id="logoChar" value="棋" maxlength="2" oninput="onIdentityChange()">
+    </div>
+    <div class="col">
+      <label>配色方案 Color Scheme</label>
+      <div class="scheme-cards" id="schemeCards"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: Logo Generator -->
+<div class="section">
+  <h2 data-zh="Logo 生成器" data-en="Logo Generator">Logo 生成器</h2>
+  <div class="style-tabs" id="logoStyleTabs"></div>
+  <div class="row">
+    <div class="col" style="max-width:540px">
+      <div class="canvas-wrap"><canvas id="logoCanvas" width="512" height="512"></canvas></div>
+      <div class="btn-group">
+        <button class="btn btn-gold" onclick="downloadCanvas('logoCanvas','logo_512.png')">下载 PNG (512×512)</button>
+        <label style="display:flex;align-items:center;gap:6px;margin-top:0;cursor:pointer"><input type="checkbox" id="logoRounded" onchange="renderLogo()" checked> 圆角</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: Banner Generator -->
+<div class="section">
+  <h2>横幅生成器 Banner Generator</h2>
+  <div class="banner-set" id="bannerSet"></div>
+</div>
+
+<!-- SECTION 4: Thumbnail Generator -->
+<div class="section">
+  <h2>缩略图模板 Thumbnail Templates</h2>
+  <div class="style-tabs" id="thumbStyleTabs"></div>
+  <div id="thumbEditor"></div>
+</div>
+
+<!-- SECTION 5: Batch Export -->
+<div class="section">
+  <h2>批量导出 Batch Export</h2>
+  <div class="btn-group">
+    <button class="btn btn-gold" onclick="downloadAllThumbnails()">下载全部缩略图 Download All Thumbnails</button>
+    <button class="btn btn-primary" onclick="downloadBrandPackage()">下载品牌套件 Download Brand Package</button>
+  </div>
+  <p style="margin-top:10px;font-size:13px;color:var(--text2)">品牌套件包含: Logo + 全部横幅 + 全部缩略图模板</p>
+</div>
+
+<!-- SECTION 6: Preview Grid -->
+<div class="section">
+  <h2>预览网格 Preview Grid (实际搜索尺寸)</h2>
+  <div class="preview-grid" id="previewGrid"></div>
+</div>
+
+</main>
+
+<script>
+// ==================== DATA ====================
+const SCHEMES = [
+  {id:'red',   name:'经典红 Classic Red',    primary:'#d4380d', secondary:'#f5c542', bg1:'#1a0a0a', bg2:'#2d1010', text:'#fff', dark:'#0d0505'},
+  {id:'blue',  name:'现代蓝 Modern Blue',    primary:'#1890ff', secondary:'#13c2c2', bg1:'#091428', bg2:'#0d1f3c', text:'#fff', dark:'#050e1a'},
+  {id:'purple',name:'皇家紫 Royal Purple',   primary:'#722ed1', secondary:'#f5c542', bg1:'#1a0d2e', bg2:'#2a1545', text:'#fff', dark:'#0d0518'}
+];
+
+const LOGO_STYLES = ['简约 Minimal','粗体 Bold','圆标 Circle Badge','方印 Square Seal'];
+const THUMB_STYLES = [
+  {id:0, name:'谜题挑战 Puzzle'},
+  {id:1, name:'名局对弈 Famous Game'},
+  {id:2, name:'教学入门 Tutorial'},
+  {id:3, name:'引擎分析 Engine'},
+  {id:4, name:'残局破解 Endgame'},
+  {id:5, name:'直播精华 Live Recap'}
+];
+
+let currentScheme = SCHEMES[0];
+let currentLogoStyle = 0;
+let currentThumbStyle = 0;
+
+// Thumbnail editable data
+let thumbData = [
+  {title:'这步你会走吗？', subtitle:'车马冷着妙手连环', episode:12},
+  {title:'胡荣华 VS 杨官璘', subtitle:'1980年全国象棋个人赛 · 经典对局', episode:5, playerL:'胡荣华', playerR:'杨官璘'},
+  {title:'开局必学：中炮对屏风马', subtitle:'新手快速入门系列', episode:3, lessonNum:3},
+  {title:'AI发现惊天妙手！', subtitle:'引擎深度分析名局关键转折', episode:8, evalScore:'+3.5'},
+  {title:'残局破解：车马绝杀', subtitle:'五步之内锁定胜局', episode:22, difficulty:4},
+  {title:'直播精华：惊天翻盘局', subtitle:'2026年3月15日 直播回顾', episode:1, liveDate:'2026-03-15'}
+];
+
+// ==================== INIT ====================
+function init(){
+  renderSchemeCards();
+  renderLogoTabs();
+  renderThumbTabs();
+  renderBanners();
+  renderAll();
+}
+
+function onIdentityChange(){renderAll()}
+function getChannel(){return document.getElementById('channelName').value||'棋道 ChessDAO'}
+function getTagline(){return document.getElementById('tagline').value||'象棋解说 · 名局分析 · 残局谜题'}
+function getLogoChar(){return document.getElementById('logoChar').value||'棋'}
+
+function renderAll(){
+  renderLogo();
+  renderAllBanners();
+  renderThumbEditor();
+  renderAllThumbnails();
+  renderPreviewGrid();
+}
+
+// ==================== SCHEME CARDS ====================
+function renderSchemeCards(){
+  const c=document.getElementById('schemeCards');
+  c.innerHTML='';
+  SCHEMES.forEach((s,i)=>{
+    const d=document.createElement('div');
+    d.className='scheme-card'+(s.id===currentScheme.id?' active':'');
+    d.innerHTML=`<div class="colors"><span style="background:${s.primary}"></span><span style="background:${s.secondary}"></span><span style="background:${s.bg2}"></span></div><div class="name">${s.name}</div>`;
+    d.onclick=()=>{currentScheme=s;renderSchemeCards();renderAll()};
+    c.appendChild(d);
+  });
+}
+
+// ==================== LOGO ====================
+function renderLogoTabs(){
+  const c=document.getElementById('logoStyleTabs');
+  c.innerHTML='';
+  LOGO_STYLES.forEach((n,i)=>{
+    const b=document.createElement('button');
+    b.className='style-tab'+(i===currentLogoStyle?' active':'');
+    b.textContent=n;
+    b.onclick=()=>{currentLogoStyle=i;renderLogoTabs();renderLogo()};
+    c.appendChild(b);
+  });
+}
+
+function renderLogo(){
+  const cv=document.getElementById('logoCanvas');
+  const ctx=cv.getContext('2d');
+  const W=512,s=currentScheme,ch=getLogoChar(),name=getChannel();
+  const rounded=document.getElementById('logoRounded').checked;
+  ctx.clearRect(0,0,W,W);
+  ctx.save();
+  if(rounded){roundedClip(ctx,0,0,W,W,60)}
+
+  // Background gradient
+  const g=ctx.createLinearGradient(0,0,W,W);
+  g.addColorStop(0,s.bg1);g.addColorStop(1,s.bg2);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,W);
+
+  if(currentLogoStyle===0){
+    // Minimal
+    ctx.fillStyle=s.primary;
+    ctx.font='bold 200px "PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(ch,W/2,W/2-30);
+    ctx.fillStyle=s.secondary;
+    ctx.font='bold 36px "PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif';
+    ctx.fillText(name,W/2,W/2+120);
+  } else if(currentLogoStyle===1){
+    // Bold
+    const g2=ctx.createLinearGradient(0,100,0,350);
+    g2.addColorStop(0,s.primary);g2.addColorStop(1,s.secondary);
+    ctx.fillStyle=g2;
+    ctx.font='900 240px "PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.shadowColor=s.primary;ctx.shadowBlur=30;
+    ctx.fillText(ch,W/2,W/2-30);
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#fff';
+    ctx.font='bold 38px "PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif';
+    ctx.fillText(name,W/2,W/2+130);
+  } else if(currentLogoStyle===2){
+    // Circle Badge
+    ctx.beginPath();ctx.arc(W/2,W/2-10,190,0,Math.PI*2);
+    ctx.strokeStyle=s.secondary;ctx.lineWidth=6;ctx.stroke();
+    ctx.beginPath();ctx.arc(W/2,W/2-10,175,0,Math.PI*2);
+    ctx.strokeStyle=s.primary;ctx.lineWidth=3;ctx.stroke();
+    ctx.fillStyle=s.secondary;
+    ctx.font='bold 160px "PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(ch,W/2,W/2-20);
+    ctx.fillStyle=s.text;
+    ctx.font='bold 28px "PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif';
+    ctx.fillText(name,W/2,W/2+210);
+  } else if(currentLogoStyle===3){
+    // Square Seal 印章
+    const pad=60;
+    ctx.fillStyle=s.primary;
+    roundedRect(ctx,pad,pad-20,W-pad*2,W-pad*2-20,12);ctx.fill();
+    // Inner border
+    ctx.strokeStyle=s.bg1;ctx.lineWidth=4;
+    roundedRect(ctx,pad+12,pad-8,W-pad*2-24,W-pad*2-44,6);ctx.stroke();
+    ctx.fillStyle='#fff';
+    ctx.font='bold 180px "PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(ch,W/2,W/2-30);
+    ctx.fillStyle=s.secondary;
+    ctx.font='bold 30px "PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif';
+    ctx.fillText(name,W/2,W/2+130);
+  }
+
+  ctx.restore();
+}
+
+// ==================== BANNERS ====================
+function renderBanners(){
+  const set=document.getElementById('bannerSet');
+  const banners=[
+    {id:'yt',  label:'YouTube 横幅 (2560×1440)', w:2560, h:1440},
+    {id:'bili', label:'Bilibili 横幅 (2120×340)', w:2120, h:340},
+    {id:'dy',  label:'抖音头像预览 (800×800)', w:800, h:800}
+  ];
+  set.innerHTML='';
+  banners.forEach(b=>{
+    const item=document.createElement('div');
+    item.className='banner-item';
+    // Display scale
+    const scale=Math.min(1, 700/b.w);
+    item.innerHTML=`<h3>${b.label}</h3><div class="canvas-wrap"><canvas id="banner_${b.id}" width="${b.w}" height="${b.h}" style="max-width:700px"></canvas></div><div class="btn-group"><button class="btn btn-gold btn-sm" onclick="downloadCanvas('banner_${b.id}','banner_${b.id}.png')">下载 PNG</button></div>`;
+    set.appendChild(item);
+  });
+}
+
+function renderAllBanners(){
+  renderBannerYT();
+  renderBannerBili();
+  renderBannerDY();
+}
+
+function drawXiangqiPieces(ctx, x, y, size, scheme, count){
+  // Draw decorative xiangqi piece silhouettes
+  const pieces=['車','馬','炮','兵','將','士','象'];
+  for(let i=0;i<count;i++){
+    const px=x+i*(size+20);
+    ctx.save();
+    ctx.globalAlpha=0.12;
+    ctx.beginPath();ctx.arc(px,y,size/2,0,Math.PI*2);
+    ctx.fillStyle=scheme.secondary;ctx.fill();
+    ctx.globalAlpha=0.18;
+    ctx.fillStyle=scheme.text;
+    ctx.font=`bold ${size*0.6}px "PingFang SC","Noto Sans SC",sans-serif`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(pieces[i%pieces.length],px,y);
+    ctx.restore();
+  }
+}
+
+function drawBoardPattern(ctx, x, y, w, h, scheme, alpha){
+  ctx.save();
+  ctx.globalAlpha=alpha||0.08;
+  ctx.strokeStyle=scheme.secondary;
+  ctx.lineWidth=1;
+  const cols=9,rows=10;
+  const cw=w/(cols-1), ch2=h/(rows-1);
+  for(let r=0;r<rows;r++){ctx.beginPath();ctx.moveTo(x,y+r*ch2);ctx.lineTo(x+w,y+r*ch2);ctx.stroke()}
+  for(let c=0;c<cols;c++){ctx.beginPath();ctx.moveTo(x+c*cw,y);ctx.lineTo(x+c*cw,y+h);ctx.stroke()}
+  // River
+  ctx.globalAlpha=(alpha||0.08)*1.5;
+  ctx.fillStyle=scheme.primary;
+  ctx.font=`bold ${ch2*0.6}px "PingFang SC",sans-serif`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  const ry=y+4.5*ch2;
+  ctx.fillText('楚 河',x+w*0.25,ry);
+  ctx.fillText('漢 界',x+w*0.75,ry);
+  ctx.restore();
+}
+
+function renderBannerYT(){
+  const cv=document.getElementById('banner_yt');if(!cv)return;
+  const ctx=cv.getContext('2d'),W=2560,H=1440,s=currentScheme;
+  const g=ctx.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,s.bg1);g.addColorStop(0.5,s.bg2);g.addColorStop(1,s.dark);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  drawBoardPattern(ctx,W*0.6,H*0.15,W*0.35,H*0.7,s,0.06);
+  drawXiangqiPieces(ctx,200,H*0.2,80,s,8);
+  drawXiangqiPieces(ctx,200,H*0.8,80,s,8);
+
+  // Safe area guide (dashed)
+  ctx.save();ctx.setLineDash([10,10]);ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=2;
+  // Title safe: 1546×423 centered
+  const sx=(W-1546)/2, sy=(H-423)/2;
+  ctx.strokeRect(sx,sy,1546,423);
+  ctx.restore();
+
+  // Channel name
+  ctx.fillStyle=s.secondary;
+  ctx.font='bold 120px "PingFang SC","Noto Sans SC",sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.shadowColor='rgba(0,0,0,0.5)';ctx.shadowBlur=20;
+  ctx.fillText(getChannel(),W/2,H/2-40);
+  ctx.shadowBlur=0;
+
+  // Tagline
+  ctx.fillStyle=s.text;
+  ctx.font='36px "PingFang SC","Noto Sans SC",sans-serif';
+  ctx.fillText(getTagline(),W/2,H/2+60);
+
+  // Decorative line
+  ctx.fillStyle=s.primary;
+  ctx.fillRect(W/2-200,H/2+100,400,4);
+
+  // Mini logo char
+  ctx.fillStyle=s.primary;ctx.globalAlpha=0.15;
+  ctx.font='bold 400px "PingFang SC",sans-serif';
+  ctx.fillText(getLogoChar(),W*0.12,H*0.55);
+  ctx.globalAlpha=1;
+}
+
+function renderBannerBili(){
+  const cv=document.getElementById('banner_bili');if(!cv)return;
+  const ctx=cv.getContext('2d'),W=2120,H=340,s=currentScheme;
+  const g=ctx.createLinearGradient(0,0,W,0);
+  g.addColorStop(0,s.bg2);g.addColorStop(0.5,s.bg1);g.addColorStop(1,s.bg2);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  drawXiangqiPieces(ctx,100,H/2,50,s,12);
+  drawBoardPattern(ctx,W*0.65,20,W*0.3,H-40,s,0.05);
+
+  ctx.fillStyle=s.secondary;
+  ctx.font='bold 64px "PingFang SC","Noto Sans SC",sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.shadowColor='rgba(0,0,0,0.5)';ctx.shadowBlur=10;
+  ctx.fillText(getChannel(),W/2,H/2-20);
+  ctx.shadowBlur=0;
+  ctx.fillStyle=s.text;ctx.globalAlpha=0.8;
+  ctx.font='24px "PingFang SC","Noto Sans SC",sans-serif';
+  ctx.fillText(getTagline(),W/2,H/2+30);
+  ctx.globalAlpha=1;
+
+  // Accent lines
+  ctx.fillStyle=s.primary;
+  ctx.fillRect(W/2-180,H-8,360,4);
+}
+
+function renderBannerDY(){
+  const cv=document.getElementById('banner_dy');if(!cv)return;
+  const ctx=cv.getContext('2d'),W=800,H=800,s=currentScheme;
+  const g=ctx.createRadialGradient(W/2,W/2,50,W/2,W/2,W/2);
+  g.addColorStop(0,s.bg2);g.addColorStop(1,s.bg1);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  // Big character
+  ctx.fillStyle=s.primary;
+  ctx.font='bold 320px "PingFang SC","Noto Sans SC",sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.globalAlpha=0.1;
+  ctx.fillText(getLogoChar(),W/2,W/2);
+  ctx.globalAlpha=1;
+
+  // Circle border
+  ctx.beginPath();ctx.arc(W/2,W/2,340,0,Math.PI*2);
+  ctx.strokeStyle=s.secondary;ctx.lineWidth=4;ctx.globalAlpha=0.3;ctx.stroke();
+  ctx.globalAlpha=1;
+
+  // Foreground
+  ctx.fillStyle=s.secondary;
+  ctx.font='bold 90px "PingFang SC","Noto Sans SC",sans-serif';
+  ctx.shadowColor='rgba(0,0,0,0.6)';ctx.shadowBlur=15;
+  ctx.fillText(getLogoChar(),W/2,W/2-40);
+  ctx.shadowBlur=0;
+  ctx.fillStyle=s.text;
+  ctx.font='bold 36px "PingFang SC","Noto Sans SC",sans-serif';
+  ctx.fillText(getChannel(),W/2,W/2+50);
+  ctx.fillStyle=s.text;ctx.globalAlpha=0.7;
+  ctx.font='20px "PingFang SC","Noto Sans SC",sans-serif';
+  ctx.fillText(getTagline(),W/2,W/2+90);
+  ctx.globalAlpha=1;
+}
+
+// ==================== THUMBNAIL EDITOR ====================
+function renderThumbTabs(){
+  const c=document.getElementById('thumbStyleTabs');
+  c.innerHTML='';
+  THUMB_STYLES.forEach((t,i)=>{
+    const b=document.createElement('button');
+    b.className='style-tab'+(i===currentThumbStyle?' active':'');
+    b.textContent=t.name;
+    b.onclick=()=>{currentThumbStyle=i;renderThumbTabs();renderThumbEditor();renderCurrentThumbnail()};
+    c.appendChild(b);
+  });
+}
+
+function renderThumbEditor(){
+  const c=document.getElementById('thumbEditor');
+  const d=thumbData[currentThumbStyle];
+  const i=currentThumbStyle;
+  let extra='';
+  if(i===1) extra=`<label>左方棋手</label><input type="text" value="${d.playerL||''}" onchange="thumbData[1].playerL=this.value;renderCurrentThumbnail()"><label>右方棋手</label><input type="text" value="${d.playerR||''}" onchange="thumbData[1].playerR=this.value;renderCurrentThumbnail()">`;
+  if(i===2) extra=`<label>课程编号</label><input type="number" value="${d.lessonNum||1}" min="1" onchange="thumbData[2].lessonNum=+this.value;renderCurrentThumbnail()">`;
+  if(i===3) extra=`<label>引擎评分</label><input type="text" value="${d.evalScore||'+0.0'}" onchange="thumbData[3].evalScore=this.value;renderCurrentThumbnail()">`;
+  if(i===4) extra=`<label>难度 (1-5星)</label><div class="stars-input" id="starsInput">${[1,2,3,4,5].map(n=>`<span class="${n<=d.difficulty?'on':''}" onclick="setDifficulty(${n})">★</span>`).join('')}</div>`;
+  if(i===5) extra=`<label>直播日期</label><input type="text" value="${d.liveDate||''}" onchange="thumbData[5].liveDate=this.value;renderCurrentThumbnail()">`;
+
+  c.innerHTML=`<div class="row"><div class="col" style="max-width:320px"><div class="fields-grid"><div class="full"><label>标题 Title</label><input type="text" value="${escH(d.title)}" oninput="thumbData[${i}].title=this.value;renderCurrentThumbnail()"></div><div class="full"><label>副标题 Subtitle</label><input type="text" value="${escH(d.subtitle)}" oninput="thumbData[${i}].subtitle=this.value;renderCurrentThumbnail()"></div><label>集数 Episode</label><input type="number" value="${d.episode||1}" min="1" onchange="thumbData[${i}].episode=+this.value;renderCurrentThumbnail()">${extra}</div></div><div class="col"><div class="canvas-wrap"><canvas id="thumbCanvas" width="1280" height="720"></canvas></div><div class="btn-group"><button class="btn btn-gold btn-sm" onclick="downloadCanvas('thumbCanvas','thumbnail_${THUMB_STYLES[i].id}_${i+1}.png')">下载 PNG</button></div></div></div>`;
+  renderCurrentThumbnail();
+}
+
+function setDifficulty(n){thumbData[4].difficulty=n;renderThumbEditor()}
+
+function renderCurrentThumbnail(){
+  const cv=document.getElementById('thumbCanvas');
+  if(!cv)return;
+  renderThumbnail(cv,currentThumbStyle);
+}
+
+function renderAllThumbnails(){
+  // Also render hidden canvases for batch export
+  renderCurrentThumbnail();
+}
+
+// ==================== THUMBNAIL RENDERERS ====================
+function renderThumbnail(cv, styleIdx){
+  const ctx=cv.getContext('2d'),W=1280,H=720,s=currentScheme,d=thumbData[styleIdx];
+  ctx.clearRect(0,0,W,H);
+
+  switch(styleIdx){
+    case 0: renderThumb_Puzzle(ctx,W,H,s,d); break;
+    case 1: renderThumb_FamousGame(ctx,W,H,s,d); break;
+    case 2: renderThumb_Tutorial(ctx,W,H,s,d); break;
+    case 3: renderThumb_Engine(ctx,W,H,s,d); break;
+    case 4: renderThumb_Endgame(ctx,W,H,s,d); break;
+    case 5: renderThumb_LiveRecap(ctx,W,H,s,d); break;
+  }
+}
+
+function renderThumb_Puzzle(ctx,W,H,s,d){
+  // Background
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,s.bg1);g.addColorStop(1,s.bg2);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  // Board
+  drawBoardPattern(ctx,W*0.05,H*0.05,W*0.9,H*0.6,s,0.15);
+  drawRandomPieces(ctx,W*0.05,H*0.05,W*0.9,H*0.6,s);
+
+  // Dark overlay on board for text
+  ctx.fillStyle='rgba(0,0,0,0.35)';
+  ctx.fillRect(0,0,W,H*0.5);
+
+  // Title text
+  drawTextWithStroke(ctx,d.title,W/2,H*0.3,'bold 82px "PingFang SC","Noto Sans SC",sans-serif','#fff',s.primary,4);
+
+  // Bottom gradient bar
+  const gb=ctx.createLinearGradient(0,H*0.75,0,H);
+  gb.addColorStop(0,s.primary);gb.addColorStop(1,s.secondary);
+  ctx.fillStyle=gb;ctx.fillRect(0,H*0.78,W,H*0.22);
+
+  // Subtitle
+  ctx.fillStyle='#fff';
+  ctx.font='bold 32px "PingFang SC","Noto Sans SC",sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(d.subtitle,W/2,H*0.86);
+
+  // Episode badge
+  drawBadge(ctx,W-100,60,`EP ${d.episode}`,s);
+
+  // Channel
+  ctx.fillStyle='rgba(255,255,255,0.6)';
+  ctx.font='22px "PingFang SC",sans-serif';
+  ctx.textAlign='left';
+  ctx.fillText(getChannel(),30,H*0.86);
+}
+
+function renderThumb_FamousGame(ctx,W,H,s,d){
+  // Dark dramatic background
+  const g=ctx.createRadialGradient(W/2,H/2,100,W/2,H/2,W*0.7);
+  g.addColorStop(0,s.bg2);g.addColorStop(1,'#000');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  // Vertical split line
+  ctx.fillStyle=s.primary;
+  ctx.fillRect(W/2-3,50,6,H-160);
+
+  // VS Circle
+  ctx.beginPath();ctx.arc(W/2,H/2-30,65,0,Math.PI*2);
+  ctx.fillStyle=s.primary;ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.font='bold 52px "PingFang SC",sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('VS',W/2,H/2-30);
+
+  // Player names
+  ctx.fillStyle=s.secondary;
+  ctx.font='bold 72px "PingFang SC","Noto Sans SC",sans-serif';
+  drawTextWithStroke(ctx,d.playerL||'红方',W*0.25,H/2-30,'bold 72px "PingFang SC","Noto Sans SC",sans-serif',s.secondary,'#000',3);
+  drawTextWithStroke(ctx,d.playerR||'黑方',W*0.75,H/2-30,'bold 72px "PingFang SC","Noto Sans SC",sans-serif','#fff','#000',3);
+
+  // Bottom bar
+  ctx.fillStyle=s.bg2;ctx.fillRect(0,H-110,W,110);
+  ctx.fillStyle=s.secondary;
+  ctx.font='bold 36px "PingFang SC","Noto Sans SC",sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText(d.subtitle||d.title,W/2,H-55);
+
+  // Episode
+  drawBadge(ctx,W-100,50,`EP ${d.episode}`,s);
+  ctx.fillStyle='rgba(255,255,255,0.4)';
+  ctx.font='20px "PingFang SC",sans-serif';
+  ctx.textAlign='left';
+  ctx.fillText(getChannel(),30,H-20);
+}
+
+function renderThumb_Tutorial(ctx,W,H,s,d){
+  // Clean gradient bg
+  const g=ctx.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,s.bg1);g.addColorStop(1,s.bg2);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  // Board diagram in corner
+  drawBoardPattern(ctx,W*0.6,H*0.1,W*0.35,H*0.75,s,0.12);
+  drawRandomPieces(ctx,W*0.6,H*0.1,W*0.35,H*0.75,s);
+
+  // Lesson number
+  ctx.fillStyle=s.primary;
+  roundedRect(ctx,40,40,180,60,8);ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.font='bold 28px "PingFang SC",sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(`第 ${d.lessonNum||1} 课`,130,70);
+
+  // "新手必看" badge
+  ctx.fillStyle=s.secondary;
+  roundedRect(ctx,240,40,140,60,8);ctx.fill();
+  ctx.fillStyle='#111';
+  ctx.font='bold 26px "PingFang SC",sans-serif';
+  ctx.fillText('新手必看',310,70);
+
+  // Title
+  ctx.textAlign='left';
+  drawTextWithStroke(ctx,d.title,50,H*0.42,'bold 68px "PingFang SC","Noto Sans SC",sans-serif','#fff',s.primary,3);
+
+  // Subtitle
+  ctx.fillStyle='rgba(255,255,255,0.8)';
+  ctx.font='32px "PingFang SC","Noto Sans SC",sans-serif';
+  ctx.textAlign='left';
+  ctx.fillText(d.subtitle,50,H*0.56);
+
+  // Bottom
+  ctx.fillStyle=s.primary;ctx.fillRect(0,H-60,W,60);
+  ctx.fillStyle='#fff';
+  ctx.font='24px "PingFang SC",sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(getChannel()+' · '+getTagline(),W/2,H-30);
+
+  drawBadge(ctx,W-100,50,`EP ${d.episode}`,s);
+}
+
+function renderThumb_Engine(ctx,W,H,s,d){
+  // Dark bg
+  ctx.fillStyle='#050510';ctx.fillRect(0,0,W,H);
+
+  // Board
+  drawBoardPattern(ctx,80,30,W*0.65,H-60,s,0.12);
+  drawRandomPieces(ctx,80,30,W*0.65,H-60,s);
+
+  // Eval bar on right side
+  const barX=W*0.78, barW=50, barH=H-80;
+  ctx.fillStyle='#222';
+  roundedRect(ctx,barX,40,barW,barH,8);ctx.fill();
+  // Fill portion (based on eval)
+  const evalNum=parseFloat(d.evalScore)||0;
+  const pct=Math.max(0.05,Math.min(0.95,0.5+evalNum/10));
+  const fillH=barH*pct;
+  ctx.fillStyle='#fff';
+  roundedRect(ctx,barX,40+barH-fillH,barW,fillH,8);ctx.fill();
+
+  // Eval text
+  ctx.fillStyle=s.secondary;
+  ctx.font='bold 38px "PingFang SC",sans-serif';
+  ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(`引擎评分: ${d.evalScore||'+0.0'}`,barX+70,60);
+
+  // "AI vs 大师" badge
+  ctx.fillStyle=s.primary;
+  roundedRect(ctx,barX+70,120,180,50,8);ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.font='bold 26px "PingFang SC",sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('AI vs 大师',barX+160,145);
+
+  // Title at bottom
+  ctx.fillStyle='rgba(0,0,0,0.7)';ctx.fillRect(0,H-150,W,150);
+  drawTextWithStroke(ctx,d.title,W/2,H-90,'bold 56px "PingFang SC","Noto Sans SC",sans-serif','#fff',s.primary,3);
+  ctx.fillStyle='rgba(255,255,255,0.6)';
+  ctx.font='24px "PingFang SC",sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText(d.subtitle,W/2,H-35);
+
+  drawBadge(ctx,W-100,H-90,`EP ${d.episode}`,s);
+}
+
+function renderThumb_Endgame(ctx,W,H,s,d){
+  // Zoomed board bg
+  const g=ctx.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,s.bg2);g.addColorStop(1,'#000');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  drawBoardPattern(ctx,-50,-30,W+100,H+60,s,0.1);
+  drawRandomPieces(ctx,50,50,W-100,H-100,s);
+
+  // Dark overlay
+  ctx.fillStyle='rgba(0,0,0,0.45)';ctx.fillRect(0,0,W,H);
+
+  // "残局破解" title
+  ctx.fillStyle=s.primary;
+  roundedRect(ctx,W/2-140,40,280,70,10);ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.font='bold 40px "PingFang SC",sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('残局破解',W/2,75);
+
+  // Main title
+  drawTextWithStroke(ctx,d.title,W/2,H*0.4,'bold 76px "PingFang SC","Noto Sans SC",sans-serif','#fff',s.primary,4);
+
+  // Subtitle
+  ctx.fillStyle='rgba(255,255,255,0.85)';
+  ctx.font='34px "PingFang SC","Noto Sans SC",sans-serif';
+  ctx.fillText(d.subtitle,W/2,H*0.55);
+
+  // Difficulty stars
+  const diff=d.difficulty||3;
+  ctx.font='40px sans-serif';
+  const starStr='★'.repeat(diff)+'☆'.repeat(5-diff);
+  ctx.fillStyle=s.secondary;
+  ctx.fillText(starStr,W/2,H*0.68);
+
+  // Episode & channel
+  drawBadge(ctx,W-100,50,`EP ${d.episode}`,s);
+  ctx.fillStyle='rgba(255,255,255,0.5)';
+  ctx.font='22px "PingFang SC",sans-serif';
+  ctx.textAlign='left';
+  ctx.fillText(getChannel(),30,H-30);
+}
+
+function renderThumb_LiveRecap(ctx,W,H,s,d){
+  // Streamer style bg
+  const g=ctx.createLinearGradient(0,0,W*0.5,H);
+  g.addColorStop(0,s.primary);g.addColorStop(1,s.bg1);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  // Board snapshot area
+  drawBoardPattern(ctx,W*0.4,0,W*0.6,H,s,0.1);
+  drawRandomPieces(ctx,W*0.45,30,W*0.5,H-60,s);
+  ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(W*0.4,0,W*0.6,H);
+
+  // "直播精华" badge top left
+  ctx.fillStyle=s.secondary;
+  roundedRect(ctx,30,30,160,55,8);ctx.fill();
+  ctx.fillStyle='#111';
+  ctx.font='bold 28px "PingFang SC",sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('直播精华',110,57);
+
+  // Date badge
+  ctx.fillStyle='rgba(255,255,255,0.15)';
+  roundedRect(ctx,210,30,220,55,8);ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.font='24px "PingFang SC",sans-serif';
+  ctx.fillText(d.liveDate||'2026-03-15',320,57);
+
+  // Title
+  ctx.textAlign='left';
+  drawTextWithStroke(ctx,d.title,40,H*0.42,'bold 64px "PingFang SC","Noto Sans SC",sans-serif','#fff','#000',4);
+
+  // Subtitle
+  ctx.fillStyle='rgba(255,255,255,0.85)';
+  ctx.font='30px "PingFang SC","Noto Sans SC",sans-serif';
+  ctx.textAlign='left';
+  ctx.fillText(d.subtitle,40,H*0.56);
+
+  // Bottom bar
+  ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(0,H-70,W,70);
+  ctx.fillStyle=s.secondary;
+  ctx.font='bold 26px "PingFang SC",sans-serif';
+  ctx.textAlign='left';
+  ctx.fillText(getChannel(),30,H-32);
+
+  drawBadge(ctx,W-100,H-55,`EP ${d.episode}`,s);
+}
+
+// ==================== PREVIEW GRID ====================
+function renderPreviewGrid(){
+  const grid=document.getElementById('previewGrid');
+  grid.innerHTML='';
+  THUMB_STYLES.forEach((t,i)=>{
+    const card=document.createElement('div');
+    card.className='preview-card';
+    const cv=document.createElement('canvas');
+    cv.width=1280;cv.height=720;
+    cv.id='preview_thumb_'+i;
+    card.appendChild(cv);
+    const meta=document.createElement('div');
+    meta.className='meta';
+    meta.innerHTML=`<span>${t.name}</span><button class="btn btn-outline btn-sm" onclick="downloadCanvas('preview_thumb_${i}','thumb_${t.id}.png')">下载</button>`;
+    card.appendChild(meta);
+    grid.appendChild(card);
+    renderThumbnail(cv,i);
+  });
+}
+
+// ==================== BATCH EXPORT ====================
+async function downloadAllThumbnails(){
+  for(let i=0;i<6;i++){
+    const cv=document.createElement('canvas');
+    cv.width=1280;cv.height=720;
+    renderThumbnail(cv,i);
+    await delayedDownload(cv,`thumbnail_${i+1}_${THUMB_STYLES[i].id}.png`,i*300);
+  }
+}
+
+async function downloadBrandPackage(){
+  // Logo
+  downloadCanvas('logoCanvas','brand_logo.png');
+  await delay(200);
+  // Banners
+  downloadCanvas('banner_yt','brand_banner_youtube.png');
+  await delay(200);
+  downloadCanvas('banner_bili','brand_banner_bilibili.png');
+  await delay(200);
+  downloadCanvas('banner_dy','brand_banner_douyin.png');
+  await delay(200);
+  // All thumbnails
+  for(let i=0;i<6;i++){
+    const cv=document.createElement('canvas');
+    cv.width=1280;cv.height=720;
+    renderThumbnail(cv,i);
+    await delayedDownload(cv,`brand_thumb_${i+1}_${THUMB_STYLES[i].id}.png`,0);
+    await delay(200);
+  }
+}
+
+function delay(ms){return new Promise(r=>setTimeout(r,ms))}
+
+async function delayedDownload(cv,name,ms){
+  await delay(ms);
+  const a=document.createElement('a');
+  a.href=cv.toDataURL('image/png');
+  a.download=name;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+// ==================== HELPERS ====================
+function downloadCanvas(id,filename){
+  const cv=document.getElementById(id);
+  if(!cv)return;
+  const a=document.createElement('a');
+  a.href=cv.toDataURL('image/png');
+  a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+function roundedClip(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();ctx.clip();
+}
+
+function roundedRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+function drawTextWithStroke(ctx,text,x,y,font,fill,stroke,lw){
+  ctx.save();
+  ctx.font=font;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.lineWidth=lw||3;ctx.strokeStyle=stroke||'#000';ctx.lineJoin='round';
+  ctx.shadowColor='rgba(0,0,0,0.6)';ctx.shadowBlur=10;ctx.shadowOffsetX=2;ctx.shadowOffsetY=2;
+  ctx.strokeText(text,x,y);
+  ctx.shadowBlur=0;ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;
+  ctx.fillStyle=fill||'#fff';
+  ctx.fillText(text,x,y);
+  ctx.restore();
+}
+
+function drawBadge(ctx,x,y,text,s){
+  ctx.save();
+  ctx.fillStyle=s.secondary;
+  const m=ctx.measureText||null;
+  ctx.font='bold 22px "PingFang SC",sans-serif';
+  const tw=ctx.measureText(text).width;
+  roundedRect(ctx,x-tw/2-14,y-16,tw+28,36,18);ctx.fill();
+  ctx.fillStyle='#111';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(text,x,y+1);
+  ctx.restore();
+}
+
+function drawRandomPieces(ctx,bx,by,bw,bh,s){
+  // Draw some representative xiangqi pieces on the board
+  const positions=[
+    {col:4,row:0,text:'將',red:false},{col:4,row:9,text:'帥',red:true},
+    {col:1,row:0,text:'馬',red:false},{col:7,row:9,text:'馬',red:true},
+    {col:0,row:0,text:'車',red:false},{col:0,row:9,text:'車',red:true},
+    {col:4,row:3,text:'兵',red:true},{col:2,row:6,text:'卒',red:false},
+    {col:1,row:7,text:'炮',red:true},{col:7,row:2,text:'炮',red:false},
+    {col:3,row:9,text:'士',red:true},{col:5,row:0,text:'士',red:false},
+  ];
+  const cw=bw/8, ch=bh/9;
+  ctx.save();
+  positions.forEach(p=>{
+    const px=bx+p.col*cw;
+    const py=by+p.row*ch;
+    const r=Math.min(cw,ch)*0.38;
+    ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);
+    ctx.fillStyle=p.red?'rgba(180,40,20,0.7)':'rgba(30,30,30,0.8)';
+    ctx.fill();
+    ctx.strokeStyle=p.red?'rgba(220,80,50,0.8)':'rgba(120,120,120,0.7)';
+    ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle=p.red?'#fff':'rgba(200,200,200,0.9)';
+    ctx.font=`bold ${r*1.1}px "PingFang SC","Noto Sans SC",sans-serif`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(p.text,px,py);
+  });
+  ctx.restore();
+}
+
+function escH(s){return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+
+// ==================== BOOT ====================
+window.addEventListener('DOMContentLoaded', init);
+</script>
+<script>
+// Universal language toggle
+(function() {
+  let pageLang = localStorage.getItem('pageLang') || 'zh';
+  
+  window.setPageLang = function(lang) {
+    pageLang = lang;
+    localStorage.setItem('pageLang', lang);
+    document.querySelectorAll('.lt-btn').forEach(b => {
+      const isActive = b.dataset.lang === lang;
+      b.style.background = isActive ? 'rgba(240,192,96,0.9)' : 'rgba(255,255,255,0.08)';
+      b.style.color = isActive ? '#1a1d2e' : '#9ca0b8';
+      b.style.border = isActive ? 'none' : '1px solid rgba(255,255,255,0.06)';
+    });
+    applyLang();
+  };
+  
+  function applyLang() {
+    document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+      if (pageLang === 'zh') el.textContent = el.dataset.zh;
+      else if (pageLang === 'en') el.textContent = el.dataset.en;
+      else el.textContent = el.dataset.zh + ' ' + el.dataset.en;
+    });
+  }
+  
+  // Apply on load
+  setTimeout(() => {
+    setPageLang(pageLang);
+  }, 100);
+})();
+</script>
+</body>
+</html>

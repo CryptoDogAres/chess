@@ -1,0 +1,13 @@
+# Episode 12: Putting It All Together -- Full Game Analysis
+# 第十二集：实战演练——完整对局分析
+# Key positions from a complete beginner-level game (Central Cannon vs Screen Horse)
+# 一盘完整初学者对局（中炮对屏风马）的关键局面
+
+rheakaehr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RHEAKAEHR w - - 0 1 # Move 0: Starting position 第0步：初始局面 — the game begins; Red to play first 对局开始，红方先行
+rheakaehr/9/1cn4c1/p1p1p1p1p/9/9/P1P1P1P1P/2N1C4/R8/1HEAKAEHR w - - 0 1 # After move 3 第3步后 — Red developed Cannon, Horse, and Chariot in 3 moves; excellent opening 红方三步出了炮马车，出子效率极高
+r1eak4r/4a4/2n1e4/p1p1p1p1p/6n2/2P6/P3P1P1P/2N1C1N2/R8/2EAKAEHR w - - 0 1 # After move 10 第10步后 — typical Central Cannon vs Screen Horse; both sides developed; midgame begins 典型中炮对屏风马，双方出子完毕，进入中局
+r1eak4r/4a4/4e4/p1N1C1p1p/2p6/2P6/P3P1P1P/6N2/R8/2EAKAEHR w - - 0 1 # Tactical opportunity 战术机会 — Horse on c7 can deliver discovered check! Recall Episode 8 tactics 马c7可抽将！回顾第8集战术
+r1eak3r/4a4/4e4/p3C1p1p/2p6/2P6/P3P1P1P/4N4/R8/2EAKAEHR w - - 0 1 # Chariot-Horse coordination 车马配合攻杀 — Red Chariot and Horse prepare combined attack on Black's palace (Episode 9) 红车马准备联合攻击黑方九宫（第9集内容）
+3k5/4a4/3a5/4P4/9/3N5/9/4R4/4r4/4K4 w - - 0 1 # Entering endgame 进入残局 — Red Chariot+Horse+Pawn vs Black Chariot+two Advisors; Red should win 红车马兵对黑车双士，红方应能获胜
+3k5/4a4/3a5/4P4/9/4N4/9/9/4R4/4K4 w - - 0 1 # Endgame technique 残局技巧 — Horse to palace gate, coordinate with Chariot and Pawn to finish 马到九宫口，配合车兵完成将杀
+2eak4/4a4/4N4/9/9/9/9/4C4/9/4K4 w - - 0 1 # Final checkmate puzzle 最终将杀 — Horse to d10 check, then Cannon to e9 for Horse-behind-Cannon mate; full circle! 马跳d10将军，炮到e9马后炮杀，首尾呼应！

@@ -1,0 +1,13 @@
+# Episode 8: Midgame Tactics -- Discovered Check, Pins, Forks & Discovered Attacks
+# 第八集：中局战术——抽将、牵制、捉双与闪击
+# Tactical puzzle positions; find the winning move in each
+# 战术练习题，找出每个局面的制胜着法
+
+3ak4/9/9/4N4/9/4R4/9/3r5/9/4K4 w - - 0 1 # Discovered check 抽将吃车 — Horse on e7 jumps away with check, revealing Chariot to capture Black's Chariot 马e7跳开将军，露出红车吃黑车
+3ak4/4a4/9/4C4/4r4/4R4/9/9/9/4K4 w - - 0 1 # Discovered check with Cannon 炮抽将 — Chariot on e5 moves to capture, revealing Cannon check on Black King 车e5走开吃子，露出炮将军
+3ak4/4n4/9/4R4/9/9/9/9/9/4K4 w - - 0 1 # Absolute pin 绝对牵制 — Chariot on e7 pins the Black Horse; behind it is the King, Horse cannot move 车e7牵制黑马，马后是将，绝对不能动
+3ak4/4c4/4n4/4P4/9/4R4/9/9/9/4K4 w - - 0 1 # Pin and capture 利用牵制吃子 — Pawn on e7 captures the pinned Horse; Horse is pinned by Chariot to Cannon 红兵e7吃被牵制的马，马被车牵制于炮
+3ak4/9/9/9/9/3N5/9/2r3r1/9/4K4 w - - 0 1 # Horse fork 马捉双 — Horse on d5 can jump to fork both Black Chariots; find the forking square 马d5跳到某处同时威胁两个黑车
+3ak4/9/9/3c1c3/4P4/9/9/9/9/4K4 w - - 0 1 # Pawn fork 兵捉双 — crossed Pawn on e6 moves sideways to fork both Black Cannons 过河兵e6横走同时威胁两个黑炮
+3ak4/9/4e4/3rN4/9/4R4/9/4C4/9/4K4 w - - 0 1 # Discovered attack 马的闪击 — Horse on e7 moves away revealing Chariot attack on Black Chariot; double threat 马e7走开露出红车攻击黑车，双重威胁
+3ak4/4a4/4N4/9/4c4/4R4/9/9/9/4K4 w - - 0 1 # Discovered check puzzle 抽将综合练习 — Horse on e8 jumps to d10 or f10 with discovered Chariot check; Horse captures freely 马e8跳走露出车将军，马可自由吃子

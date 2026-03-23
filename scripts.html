@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" rel="stylesheet">
+<title>解说脚本 — Commentary Scripts</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0f1117; --surface: #1e2130; --surface2: #282c3e; --surface3: #323752;
+  --border: #3a3f55; --text: #e4e4e8; --text2: #9ca3b4; --accent: #4a9eff;
+  --accent2: #3a7fd5; --green: #4caf7c; --red: #e05555; --orange: #e8a840;
+  --yellow: #f0d060; --purple: #9b7aed;
+}
+body { font-family: 'LXGW WenKai', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: var(--text); }
+input, textarea, select { font-family: inherit; background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; outline: none; }
+input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+textarea { resize: vertical; }
+
+/* Header */
+.header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+.header-left { display: flex; align-items: center; gap: 16px; }
+.header h1 { font-size: 20px; font-weight: 600; }
+.header h1 span { color: var(--text2); font-weight: 400; font-size: 15px; }
+.back-link { color: var(--text2); font-size: 14px; display: flex; align-items: center; gap: 4px; }
+.back-link:hover { color: var(--accent); text-decoration: none; }
+.header-actions { display: flex; gap: 8px; }
+
+/* Buttons */
+.btn { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-secondary { background: var(--surface2); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--surface3); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { background: #c04444; }
+.btn-success { background: var(--green); color: #fff; }
+.btn-success:hover { background: #3d9066; }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* Tabs */
+.tab-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; }
+.tab-btn { padding: 12px 20px; font-size: 14px; color: var(--text2); border-bottom: 2px solid transparent; transition: all 0.15s; }
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Layout */
+.main-layout { display: flex; height: calc(100vh - 147px); }
+.editor-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.sidebar { width: 320px; background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+.sidebar.collapsed { width: 0; min-width: 0; }
+
+/* Editor toolbar */
+.editor-toolbar { padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.editor-toolbar label { font-size: 13px; color: var(--text2); }
+.editor-toolbar select { font-size: 13px; padding: 6px 10px; }
+.stats-bar { margin-left: auto; display: flex; gap: 16px; font-size: 13px; color: var(--text2); }
+.stats-bar .stat { display: flex; align-items: center; gap: 4px; }
+.stats-bar .stat-val { color: var(--accent); font-weight: 600; }
+
+/* Sections editor */
+.sections-container { flex: 1; overflow-y: auto; padding: 20px 24px; }
+.section-block { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; transition: border-color 0.15s, box-shadow 0.15s; }
+.section-block:hover { border-color: var(--surface3); }
+.section-block.dragging { opacity: 0.5; border-color: var(--accent); }
+.section-block.drag-over { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2); }
+.section-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--border); cursor: grab; user-select: none; }
+.section-header:active { cursor: grabbing; }
+.drag-handle { color: var(--text2); font-size: 16px; line-height: 1; }
+.section-title-input { flex: 1; background: transparent; border: none; font-size: 14px; font-weight: 600; color: var(--text); padding: 2px 4px; }
+.section-title-input:focus { background: var(--surface2); border-radius: 4px; }
+.section-timing { display: flex; align-items: center; gap: 4px; }
+.section-timing input { width: 50px; text-align: center; font-size: 12px; padding: 3px 6px; }
+.section-timing span { font-size: 12px; color: var(--text2); }
+.section-delete { color: var(--text2); font-size: 16px; padding: 2px 6px; border-radius: 4px; }
+.section-delete:hover { color: var(--red); background: rgba(224, 85, 85, 0.1); }
+.section-body { padding: 12px 14px; }
+.section-body textarea { width: 100%; min-height: 80px; background: transparent; border: 1px solid transparent; border-radius: 4px; font-size: 14px; line-height: 1.7; color: var(--text); padding: 8px; }
+.section-body textarea:focus { border-color: var(--border); background: var(--surface2); }
+
+/* Sidebar tabs */
+.sidebar-tabs { display: flex; border-bottom: 1px solid var(--border); }
+.sidebar-tab { flex: 1; padding: 10px 8px; font-size: 12px; text-align: center; color: var(--text2); border-bottom: 2px solid transparent; }
+.sidebar-tab:hover { color: var(--text); }
+.sidebar-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.sidebar-content { flex: 1; overflow-y: auto; padding: 12px; }
+
+/* Phrases */
+.phrase-category { margin-bottom: 16px; }
+.phrase-category-title { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+.phrase-item { padding: 6px 10px; font-size: 13px; border-radius: 4px; cursor: pointer; margin-bottom: 2px; line-height: 1.5; transition: background 0.1s; }
+.phrase-item:hover { background: var(--surface2); }
+.phrase-item .phrase-en { color: var(--text2); font-size: 12px; display: block; }
+.phrase-item .phrase-en.hidden { display: none; }
+
+/* Library */
+.library-header { padding: 12px; display: flex; gap: 8px; border-bottom: 1px solid var(--border); }
+.library-header input { flex: 1; font-size: 13px; }
+.library-header select { font-size: 13px; }
+.library-list { flex: 1; overflow-y: auto; }
+.library-item { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+.library-item:hover { background: var(--surface2); }
+.library-item-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.library-item-meta { font-size: 12px; color: var(--text2); display: flex; gap: 12px; }
+.library-item-actions { display: flex; gap: 6px; margin-top: 8px; }
+.status-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+.status-draft { background: rgba(232, 168, 64, 0.15); color: var(--orange); }
+.status-final { background: rgba(76, 175, 124, 0.15); color: var(--green); }
+
+/* Tab panels */
+.tab-panel { display: none; height: 100%; }
+.tab-panel.active { display: flex; flex-direction: column; }
+.main-tab-panel { display: none; }
+.main-tab-panel.active { display: flex; flex: 1; overflow: hidden; }
+
+/* Toggle */
+.toggle-wrap { display: flex; align-items: center; gap: 8px; }
+.toggle { width: 36px; height: 20px; background: var(--surface3); border-radius: 10px; position: relative; cursor: pointer; transition: background 0.2s; }
+.toggle.on { background: var(--accent); }
+.toggle::after { content: ''; width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 0.2s; }
+.toggle.on::after { transform: translateX(16px); }
+.toggle-label { font-size: 12px; color: var(--text2); }
+
+/* Print view modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; max-width: 700px; width: 90%; max-height: 85vh; display: flex; flex-direction: column; }
+.modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.modal-header h2 { font-size: 16px; }
+.modal-close { font-size: 20px; color: var(--text2); padding: 4px 8px; }
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; background: var(--green); color: #fff; border-radius: 8px; font-size: 14px; z-index: 2000; transform: translateY(80px); opacity: 0; transition: all 0.3s; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* Print view content */
+.print-content { font-size: 14px; line-height: 1.8; }
+.print-content h2 { font-size: 18px; margin-bottom: 12px; color: var(--accent); }
+.print-content h3 { font-size: 15px; margin: 16px 0 8px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+.print-content p { margin-bottom: 8px; white-space: pre-wrap; }
+.print-content .print-meta { color: var(--text2); font-size: 13px; margin-bottom: 16px; }
+
+/* Sidebar toggle */
+.sidebar-toggle { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 13px; }
+.sidebar-toggle:hover { background: var(--surface3); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .sidebar { width: 260px; }
+  .main-layout { height: auto; min-height: calc(100vh - 147px); }
+}
+@media (max-width: 700px) {
+  .sidebar { position: fixed; right: 0; top: 110px; bottom: 0; z-index: 100; width: 300px; box-shadow: -4px 0 20px rgba(0,0,0,0.3); }
+  .sidebar.collapsed { width: 0; }
+}
+
+@media print {
+  body { background: #fff; color: #000; }
+  .header, .tab-bar, .editor-toolbar, .sidebar, .modal-overlay { display: none !important; }
+  .section-block { border: 1px solid #ccc; break-inside: avoid; }
+  .section-header { background: #f5f5f5; }
+  .section-body textarea { border: none; }
+}
+</style>
+</head>
+<body>
+
+<nav style="background:#131520;border-bottom:1px solid rgba(255,255,255,0.06);padding:8px 16px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-family:-apple-system,sans-serif;">
+  <a href="dashboard.html" style="color:#ef4444;font-weight:700;text-decoration:none;font-size:0.82em;padding:4px 12px;">棋 Dashboard</a>
+  <a href="board-art.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Art Board</a>
+  <a href="board3d.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">3D Board</a>
+  <a href="board.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Board</a>
+  <a href="games.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Games</a>
+  <a href="explain.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Explain</a>
+  <a href="analyze.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analyze</a>
+  <a href="calendar.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Calendar</a>
+  <a href="scripts.html" style="color:#fff;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);">Scripts</a>
+  <a href="analytics.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analytics</a>
+  <a href="branding.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Branding</a>
+  <a href="seo.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">SEO</a>
+  <a href="translate.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Translate</a>
+  <a href="report.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Report</a>
+</nav>
+
+<div class="header">
+  <div class="header-left">
+    <a href="dashboard.html" class="back-link"><span>&#8592;</span> Dashboard</a>
+    <h1><span data-zh="解说脚本" data-en="Commentary Scripts">解说脚本</span> <span data-zh="" data-en=""></span></h1>
+  </div>
+  <div class="header-actions">
+    <div class="lang-toggle" style="display:inline-flex;gap:3px;margin-left:auto;">
+  <button onclick="setPageLang('zh')" class="lt-btn lt-active" data-lang="zh" style="background:rgba(240,192,96,0.9);color:#1a1d2e;border:none;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">中文</button>
+  <button onclick="setPageLang('en')" class="lt-btn" data-lang="en" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">EN</button>
+  <button onclick="setPageLang('both')" class="lt-btn" data-lang="both" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">双语</button>
+</div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776; Panel</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="editor" onclick="switchMainTab('editor')" data-zh="脚本编辑" data-en="Script Editor">Script Editor</button>
+  <button class="tab-btn" data-tab="library" onclick="switchMainTab('library')" data-zh="脚本库" data-en="Script Library">Script Library</button>
+</div>
+
+<!-- EDITOR TAB -->
+<div class="main-tab-panel active" id="tab-editor">
+  <div class="editor-toolbar">
+    <label>Template:</label>
+    <select id="templateSelect" onchange="loadTemplate()">
+      <option value="">-- Select Template --</option>
+      <option value="endgame">残局谜题 Endgame Puzzle (1-3 min)</option>
+      <option value="famous">名局解说 Famous Game (10-30 min)</option>
+      <option value="beginner">新手教程 Beginner Tutorial (8-15 min)</option>
+      <option value="engine">引擎vs大师 Engine vs GM (5-10 min)</option>
+    </select>
+    <label>Title:</label>
+    <input type="text" id="scriptTitle" placeholder="Script title..." style="width:200px">
+    <div class="toggle-wrap">
+      <div class="toggle" id="bilingualToggle" onclick="toggleBilingual()"></div>
+      <span class="toggle-label">Bilingual</span>
+    </div>
+    <div class="stats-bar">
+      <div class="stat">Words: <span class="stat-val" id="wordCount">0</span></div>
+      <div class="stat">Chars: <span class="stat-val" id="charCount">0</span></div>
+      <div class="stat">Total: <span class="stat-val" id="totalTime">0:00</span></div>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <div class="editor-area">
+      <div class="sections-container" id="sectionsContainer"></div>
+      <div style="padding: 12px 24px; border-top: 1px solid var(--border); display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="addSection()">+ Add Section</button>
+        <button class="btn btn-success btn-sm" onclick="saveScript('draft')">Save Draft</button>
+        <button class="btn btn-primary btn-sm" onclick="saveScript('final')">Save Final</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportClipboard()">Copy to Clipboard</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportTxt()">Export .txt</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportMd()">Export .md</button>
+        <button class="btn btn-secondary btn-sm" onclick="showPrintView()">Print View</button>
+      </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" data-stab="phrases" onclick="switchSidebarTab('phrases')">Phrases</button>
+        <button class="sidebar-tab" data-stab="saved" onclick="switchSidebarTab('saved')">Saved</button>
+      </div>
+
+      <!-- Phrases Panel -->
+      <div class="tab-panel active" id="stab-phrases">
+        <div class="sidebar-content" id="phrasesContent"></div>
+      </div>
+
+      <!-- Saved Panel -->
+      <div class="tab-panel" id="stab-saved">
+        <div class="library-header">
+          <input type="text" id="sidebarSearch" placeholder="Search..." oninput="renderSidebarLibrary()">
+        </div>
+        <div class="library-list" id="sidebarLibraryList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIBRARY TAB -->
+<div class="main-tab-panel" id="tab-library">
+  <div style="flex:1; display:flex; flex-direction:column; max-width:900px; margin:0 auto; width:100%; padding:20px;">
+    <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+      <input type="text" id="librarySearch" placeholder="Search scripts..." style="flex:1; min-width:200px;" oninput="renderLibrary()">
+      <select id="libraryFilter" onchange="renderLibrary()" style="font-size:14px;">
+        <option value="">All Types</option>
+        <option value="endgame">残局谜题</option>
+        <option value="famous">名局解说</option>
+        <option value="beginner">新手教程</option>
+        <option value="engine">引擎vs大师</option>
+        <option value="custom">Custom</option>
+      </select>
+      <select id="libraryStatus" onchange="renderLibrary()" style="font-size:14px;">
+        <option value="">All Status</option>
+        <option value="draft">Draft</option>
+        <option value="final">Final</option>
+      </select>
+    </div>
+    <div id="libraryContainer" style="flex:1; overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- Print/Preview Modal -->
+<div class="modal-overlay" id="printModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Print Preview</h2>
+      <button class="modal-close" onclick="closePrintModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="print-content" id="printContent"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closePrintModal()">Close</button>
+      <button class="btn btn-primary" onclick="window.print()">Print</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ======== DATA ========
+const TEMPLATES = {
+  endgame: {
+    name: '残局谜题 Endgame Puzzle',
+    type: 'endgame',
+    sections: [
+      { title: '开场吸引 Opening Hook', time: 3, content: '【3秒抓住注意力】\n\n', contentEn: '[3 seconds — grab attention]\n\n' },
+      { title: '局面介绍 Position Setup', time: 15, content: '红方/黑方的局面是...\n\n棋子位置：\n', contentEn: 'Red/Black situation is...\n\nPiece positions:\n' },
+      { title: '互动暂停 Interactive Pause', time: 10, content: '这步你会走吗？\n暂停一下，想想看...\n\n', contentEn: 'What would you play?\nPause and think...\n\n' },
+      { title: '错误走法 Bad Move Demo', time: 30, content: '【展示1-2个错误走法，说明为什么在3-5步内失败】\n\n错误走法1：\n失败原因：\n\n错误走法2：\n失败原因：\n', contentEn: '[Show 1-2 wrong moves, explain why they fail in 3-5 moves]\n\nWrong move 1:\nWhy it fails:\n\nWrong move 2:\nWhy it fails:\n' },
+      { title: '正确走法 Correct Move Reveal', time: 15, content: '正确答案是...\n\n', contentEn: 'The correct answer is...\n\n' },
+      { title: '后续变化 Winning Continuation', time: 40, content: '【主要变化5-10步】\n\n1. \n2. \n3. \n4. \n5. \n', contentEn: '[Main line 5-10 moves]\n\n1. \n2. \n3. \n4. \n5. \n' },
+      { title: '原理总结 Principle Explanation', time: 20, content: '这道残局教会我们的棋理：\n\n', contentEn: 'The pattern/concept this teaches:\n\n' },
+      { title: '引导关注 Call to Action', time: 10, content: '如果觉得有收获，记得点赞关注！\n下期我们继续...\n', contentEn: 'If you found this helpful, like and subscribe!\nNext time we will...\n' }
+    ]
+  },
+  famous: {
+    name: '名局解说 Famous Game Commentary',
+    type: 'famous',
+    sections: [
+      { title: '历史背景 Historical Introduction', time: 60, content: '【谁、什么时候、为什么这盘棋重要】\n\n对局双方：\n比赛名称：\n日期：\n背景故事：\n', contentEn: '[Who, when, why this game matters]\n\nPlayers:\nTournament:\nDate:\nBackground:\n' },
+      { title: '开局阶段 Opening Phase', time: 180, content: '【前15步左右，开局名称，关键思路】\n\n开局名称：\n关键走法：\n双方意图：\n', contentEn: '[Moves 1-15, opening name, key ideas]\n\nOpening name:\nKey moves:\nBoth sides\' plans:\n' },
+      { title: '中局关键1 Middlegame Moment 1', time: 120, content: '【关键局面分析，变化分析】\n\n局面描述：\n关键走法：\n如果走其他的话...\n', contentEn: '[Key position analysis with variations]\n\nPosition description:\nKey move:\nIf instead...\n' },
+      { title: '中局关键2 Middlegame Moment 2', time: 120, content: '【第二个关键局面】\n\n局面描述：\n关键走法：\n变化分析：\n', contentEn: '[Second key position]\n\nPosition description:\nKey move:\nVariation analysis:\n' },
+      { title: '中局关键3 Middlegame Moment 3', time: 120, content: '【第三个关键局面（如需要）】\n\n局面描述：\n关键走法：\n变化分析：\n', contentEn: '[Third key position (if needed)]\n\nPosition description:\nKey move:\nVariation analysis:\n' },
+      { title: '决定性时刻 Climactic Moment', time: 120, content: '【决定性的错误或精彩走法】\n\n这步棋改变了整盘棋的走势...\n', contentEn: '[The decisive error or brilliant move]\n\nThis move changed the entire game...\n' },
+      { title: '残局技巧 Endgame Technique', time: 90, content: '【残局技术（如适用）】\n\n', contentEn: '[Endgame technique (if applicable)]\n\n' },
+      { title: '总结回顾 Summary', time: 60, content: '这盘棋告诉我们...\n\n我们学到了什么：\n1. \n2. \n3. \n\n这盘棋之所以出名，是因为...\n', contentEn: 'This game teaches us...\n\nWhat we learned:\n1. \n2. \n3. \n\nThis game is famous because...\n' }
+    ]
+  },
+  beginner: {
+    name: '新手教程 Beginner Tutorial',
+    type: 'beginner',
+    sections: [
+      { title: '主题介绍 Topic Introduction', time: 30, content: '今天我们来学习...\n\n【用最简单的语言解释，徐银川教学法：不用术语】\n', contentEn: 'Today we will learn...\n\n[Explain with simple language, Xu Yinchuan method: no jargon]\n' },
+      { title: '概念讲解 Concept Explanation', time: 120, content: '【用简单语言解释概念】\n\n什么是...：\n为什么重要：\n记住这个口诀：\n', contentEn: '[Explain the concept with simple language]\n\nWhat is...:\nWhy it matters:\nRemember this rule:\n' },
+      { title: '示例1 Example Position 1', time: 120, content: '【演示这个概念的第一个例子】\n\n局面设置：\n演示步骤：\n1. \n2. \n3. \n\n注意看这里...\n', contentEn: '[First example demonstrating the concept]\n\nPosition setup:\nDemonstration steps:\n1. \n2. \n3. \n\nPay attention here...\n' },
+      { title: '示例2 Example Position 2', time: 120, content: '【加深理解的第二个例子】\n\n局面设置：\n这次有什么不同：\n演示步骤：\n1. \n2. \n3. \n', contentEn: '[Second example to reinforce]\n\nPosition setup:\nWhat is different this time:\nDemonstration steps:\n1. \n2. \n3. \n' },
+      { title: '练习题 Practice Puzzle', time: 60, content: '现在轮到你了！\n\n【给观众的练习题】\n\n局面：\n提示：\n答案（下期揭晓/视频末尾）：\n', contentEn: 'Now it is your turn!\n\n[Practice puzzle for the viewer]\n\nPosition:\nHint:\nAnswer (revealed next episode / end of video):\n' },
+      { title: '总结预告 Summary & Preview', time: 30, content: '今天我们学到了：\n1. \n2. \n3. \n\n下一期我们将学习...\n', contentEn: 'Today we learned:\n1. \n2. \n3. \n\nNext episode we will learn...\n' }
+    ]
+  },
+  engine: {
+    name: '引擎vs大师 Engine vs Grandmaster',
+    type: 'engine',
+    sections: [
+      { title: '局面设定 Position Setup', time: 30, content: '大师走了X，但引擎推荐Y\n\n对局信息：\n局面描述：\n', contentEn: 'The grandmaster played X, but the engine says Y\n\nGame info:\nPosition description:\n' },
+      { title: '大师走法 Grandmaster\'s Move', time: 60, content: '【展示大师的走法和思路】\n\n大师的走法：\n大师的想法可能是：\n', contentEn: '[Show the grandmaster\'s move and reasoning]\n\nGrandmaster\'s move:\nThe reasoning was likely:\n' },
+      { title: '引擎推荐 Engine\'s Recommendation', time: 60, content: '【展示引擎推荐的走法】\n\n引擎推荐：\n评估分数：\n引擎的逻辑：\n', contentEn: '[Show the engine\'s recommended move]\n\nEngine recommends:\nEvaluation score:\nEngine\'s logic:\n' },
+      { title: '差异分析 Difference Analysis', time: 90, content: '【分析分歧的原因】\n\n为什么引擎不同意？\n\n关键区别在于：\n', contentEn: '[Analyze the difference — why does the engine disagree?]\n\nWhy does the engine disagree?\n\nThe key difference is:\n' },
+      { title: '变化推演 Line Exploration', time: 120, content: '【两条线各推演5-10步】\n\n大师走法的后续：\n1. \n2. \n3. \n4. \n5. \n\n引擎走法的后续：\n1. \n2. \n3. \n4. \n5. \n', contentEn: '[Explore both lines 5-10 moves deep]\n\nGrandmaster\'s line:\n1. \n2. \n3. \n4. \n5. \n\nEngine\'s line:\n1. \n2. \n3. \n4. \n5. \n' },
+      { title: '结论 Verdict', time: 40, content: '谁是对的？\n\n最终结论：\n我们能学到什么：\n', contentEn: 'Who was right?\n\nFinal verdict:\nWhat can we learn:\n' }
+    ]
+  }
+};
+
+const PHRASES = [
+  {
+    category: '开场用语 Opening Phrases',
+    items: [
+      { zh: '让我们来看这盘棋...', en: 'Let\'s take a look at this game...' },
+      { zh: '这是一盘经典的...', en: 'This is a classic game of...' },
+      { zh: '今天给大家带来一道残局', en: 'Today I bring you an endgame puzzle' },
+      { zh: '欢迎回来，今天我们继续学习...', en: 'Welcome back, today we continue learning...' },
+      { zh: '这盘棋发生在...年的...比赛中', en: 'This game took place in the ... tournament of ...' },
+      { zh: '各位棋友大家好', en: 'Hello fellow chess enthusiasts' }
+    ]
+  },
+  {
+    category: '分析用语 Analysis Phrases',
+    items: [
+      { zh: '这步棋的关键在于...', en: 'The key to this move is...' },
+      { zh: '如果走这步的话...', en: 'If we play this move...' },
+      { zh: '这是一步妙棋', en: 'This is a brilliant move' },
+      { zh: '这是一步败着', en: 'This is a losing move' },
+      { zh: '红方/黑方占优', en: 'Red/Black has the advantage' },
+      { zh: '这步棋看似平淡，实则暗藏杀机', en: 'This move seems quiet but hides a deadly threat' },
+      { zh: '此时局面已经是胜势了', en: 'At this point, the position is winning' },
+      { zh: '这步棋的目的是...', en: 'The purpose of this move is...' },
+      { zh: '变化很复杂，我们一步步来看', en: 'The variations are complex, let\'s go step by step' }
+    ]
+  },
+  {
+    category: '互动用语 Interactive Phrases',
+    items: [
+      { zh: '大家觉得这步应该怎么走？', en: 'What do you think should be played here?' },
+      { zh: '暂停一下，想想看...', en: 'Pause for a moment, think about it...' },
+      { zh: '你找到了吗？', en: 'Did you find it?' },
+      { zh: '评论区告诉我你的答案', en: 'Tell me your answer in the comments' },
+      { zh: '给你5秒钟时间思考', en: 'I\'ll give you 5 seconds to think' },
+      { zh: '这步你走对了吗？', en: 'Did you get this move right?' }
+    ]
+  },
+  {
+    category: '过渡用语 Transition Phrases',
+    items: [
+      { zh: '接下来我们看...', en: 'Next let\'s look at...' },
+      { zh: '进入中局阶段...', en: 'Entering the middlegame phase...' },
+      { zh: '现在局面发生了变化', en: 'Now the position has changed' },
+      { zh: '我们快进几步...', en: 'Let\'s fast forward a few moves...' },
+      { zh: '到了关键时刻', en: 'We\'ve reached the critical moment' },
+      { zh: '来到残局阶段', en: 'We\'ve entered the endgame' }
+    ]
+  },
+  {
+    category: '总结用语 Conclusion Phrases',
+    items: [
+      { zh: '这盘棋告诉我们...', en: 'This game teaches us...' },
+      { zh: '总结一下今天学到的...', en: 'To summarize what we learned today...' },
+      { zh: '记住这个棋理：...', en: 'Remember this principle: ...' },
+      { zh: '希望大家有所收获', en: 'I hope you found this helpful' },
+      { zh: '下期再见！', en: 'See you next time!' },
+      { zh: '如果喜欢请点赞关注，我们下期继续', en: 'If you enjoyed this, like and subscribe, see you next time' }
+    ]
+  }
+];
+
+// ======== STATE ========
+let sections = [];
+let currentScriptId = null;
+let bilingualMode = false;
+let dragSrcIndex = null;
+
+// ======== INIT ========
+document.addEventListener('DOMContentLoaded', () => {
+  renderPhrases();
+  renderSidebarLibrary();
+  updateStats();
+});
+
+// ======== TEMPLATES ========
+function loadTemplate() {
+  const key = document.getElementById('templateSelect').value;
+  if (!key) return;
+  const tpl = TEMPLATES[key];
+  if (!confirm('Load template "' + tpl.name + '"? This will replace current content.')) {
+    document.getElementById('templateSelect').value = '';
+    return;
+  }
+  currentScriptId = null;
+  sections = tpl.sections.map((s, i) => ({
+    id: Date.now() + i,
+    title: s.title,
+    content: bilingualMode ? s.content + '\n---\n' + s.contentEn : s.content,
+    time: s.time
+  }));
+  document.getElementById('scriptTitle').value = '';
+  renderSections();
+  updateStats();
+}
+
+// ======== SECTIONS RENDERING ========
+function renderSections() {
+  const c = document.getElementById('sectionsContainer');
+  c.innerHTML = '';
+  sections.forEach((sec, idx) => {
+    const block = document.createElement('div');
+    block.className = 'section-block';
+    block.draggable = true;
+    block.dataset.index = idx;
+
+    block.addEventListener('dragstart', onDragStart);
+    block.addEventListener('dragover', onDragOver);
+    block.addEventListener('dragenter', onDragEnter);
+    block.addEventListener('dragleave', onDragLeave);
+    block.addEventListener('drop', onDrop);
+    block.addEventListener('dragend', onDragEnd);
+
+    block.innerHTML = `
+      <div class="section-header">
+        <span class="drag-handle">&#9776;</span>
+        <input class="section-title-input" value="${escHtml(sec.title)}" data-idx="${idx}" onchange="updateSectionTitle(${idx}, this.value)">
+        <div class="section-timing">
+          <input type="number" min="0" value="${sec.time}" data-idx="${idx}" onchange="updateSectionTime(${idx}, this.value)" title="Duration in seconds">
+          <span>sec</span>
+        </div>
+        <button class="section-delete" onclick="deleteSection(${idx})" title="Delete section">&times;</button>
+      </div>
+      <div class="section-body">
+        <textarea data-idx="${idx}" oninput="updateSectionContent(${idx}, this.value)" placeholder="Write your script here...">${escHtml(sec.content)}</textarea>
+      </div>
+    `;
+    c.appendChild(block);
+  });
+  autoResizeAll();
+  updateStats();
+}
+
+function autoResizeAll() {
+  document.querySelectorAll('.section-body textarea').forEach(ta => {
+    ta.style.height = 'auto';
+    ta.style.height = Math.max(80, ta.scrollHeight) + 'px';
+  });
+}
+
+function updateSectionTitle(idx, val) { sections[idx].title = val; }
+function updateSectionContent(idx, val) {
+  sections[idx].content = val;
+  const ta = document.querySelectorAll('.section-body textarea')[idx];
+  if (ta) { ta.style.height = 'auto'; ta.style.height = Math.max(80, ta.scrollHeight) + 'px'; }
+  updateStats();
+}
+function updateSectionTime(idx, val) { sections[idx].time = parseInt(val) || 0; updateStats(); }
+
+function deleteSection(idx) {
+  if (!confirm('Delete this section?')) return;
+  sections.splice(idx, 1);
+  renderSections();
+}
+
+function addSection() {
+  sections.push({ id: Date.now(), title: 'New Section', content: '', time: 30 });
+  renderSections();
+  const container = document.getElementById('sectionsContainer');
+  container.scrollTop = container.scrollHeight;
+}
+
+// ======== DRAG AND DROP ========
+function onDragStart(e) {
+  dragSrcIndex = parseInt(e.currentTarget.dataset.index);
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function onDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+function onDragEnter(e) {
+  e.preventDefault();
+  const block = e.currentTarget.closest('.section-block');
+  if (block) block.classList.add('drag-over');
+}
+function onDragLeave(e) {
+  const block = e.currentTarget.closest('.section-block');
+  if (block) block.classList.remove('drag-over');
+}
+function onDrop(e) {
+  e.preventDefault();
+  const targetIndex = parseInt(e.currentTarget.dataset.index);
+  if (dragSrcIndex !== null && dragSrcIndex !== targetIndex) {
+    const [moved] = sections.splice(dragSrcIndex, 1);
+    sections.splice(targetIndex, 0, moved);
+    renderSections();
+  }
+  e.currentTarget.classList.remove('drag-over');
+}
+function onDragEnd(e) {
+  dragSrcIndex = null;
+  document.querySelectorAll('.section-block').forEach(b => {
+    b.classList.remove('dragging', 'drag-over');
+  });
+}
+
+// ======== STATS ========
+function updateStats() {
+  let totalWords = 0, totalChars = 0, totalTime = 0;
+  sections.forEach(s => {
+    const text = s.content || '';
+    totalChars += text.length;
+    // Count Chinese chars + English words
+    const chinese = (text.match(/[\u4e00-\u9fff]/g) || []).length;
+    const english = text.replace(/[\u4e00-\u9fff]/g, '').trim().split(/\s+/).filter(w => w.length > 0).length;
+    totalWords += chinese + english;
+    totalTime += s.time;
+  });
+  document.getElementById('wordCount').textContent = totalWords;
+  document.getElementById('charCount').textContent = totalChars;
+  const mins = Math.floor(totalTime / 60);
+  const secs = totalTime % 60;
+  document.getElementById('totalTime').textContent = mins + ':' + String(secs).padStart(2, '0');
+}
+
+// ======== BILINGUAL ========
+function toggleBilingual() {
+  bilingualMode = !bilingualMode;
+  document.getElementById('bilingualToggle').classList.toggle('on', bilingualMode);
+}
+
+// ======== PHRASES ========
+function renderPhrases() {
+  const c = document.getElementById('phrasesContent');
+  c.innerHTML = '';
+  PHRASES.forEach(cat => {
+    const div = document.createElement('div');
+    div.className = 'phrase-category';
+    div.innerHTML = `<div class="phrase-category-title">${escHtml(cat.category)}</div>`;
+    cat.items.forEach(item => {
+      const p = document.createElement('div');
+      p.className = 'phrase-item';
+      p.innerHTML = `${escHtml(item.zh)}<span class="phrase-en${bilingualMode ? '' : ' hidden'}">${escHtml(item.en)}</span>`;
+      p.onclick = () => insertPhrase(bilingualMode ? item.zh + ' / ' + item.en : item.zh);
+      div.appendChild(p);
+    });
+    c.appendChild(div);
+  });
+}
+
+function insertPhrase(text) {
+  // Find the last focused textarea or the first one
+  const textareas = document.querySelectorAll('.section-body textarea');
+  let target = null;
+  textareas.forEach(ta => { if (ta === document.activeElement) target = ta; });
+  if (!target && textareas.length > 0) target = textareas[0];
+
+  if (target) {
+    const start = target.selectionStart;
+    const end = target.selectionEnd;
+    const val = target.value;
+    target.value = val.substring(0, start) + text + val.substring(end);
+    target.selectionStart = target.selectionEnd = start + text.length;
+    target.focus();
+    const idx = parseInt(target.dataset.idx);
+    if (!isNaN(idx)) updateSectionContent(idx, target.value);
+  } else {
+    // Copy to clipboard
+    navigator.clipboard.writeText(text).then(() => showToast('Copied: ' + text));
+  }
+}
+
+// ======== SAVE / LOAD ========
+function getScripts() {
+  try { return JSON.parse(localStorage.getItem('chess_scripts') || '[]'); } catch { return []; }
+}
+function setScripts(arr) { localStorage.setItem('chess_scripts', JSON.stringify(arr)); }
+
+function saveScript(status) {
+  const title = document.getElementById('scriptTitle').value.trim();
+  if (!title) { alert('Please enter a script title.'); document.getElementById('scriptTitle').focus(); return; }
+  const tplVal = document.getElementById('templateSelect').value;
+  const script = {
+    id: currentScriptId || Date.now().toString(),
+    title: title,
+    type: tplVal || 'custom',
+    status: status,
+    date: new Date().toISOString(),
+    sections: JSON.parse(JSON.stringify(sections))
+  };
+  const scripts = getScripts();
+  const existIdx = scripts.findIndex(s => s.id === script.id);
+  if (existIdx >= 0) scripts[existIdx] = script;
+  else scripts.unshift(script);
+  setScripts(scripts);
+  currentScriptId = script.id;
+  showToast('Script saved as ' + status);
+  renderSidebarLibrary();
+  renderLibrary();
+}
+
+function loadScript(id) {
+  const scripts = getScripts();
+  const s = scripts.find(x => x.id === id);
+  if (!s) return;
+  currentScriptId = s.id;
+  document.getElementById('scriptTitle').value = s.title;
+  document.getElementById('templateSelect').value = s.type in TEMPLATES ? s.type : '';
+  sections = JSON.parse(JSON.stringify(s.sections));
+  renderSections();
+  updateStats();
+  switchMainTab('editor');
+  showToast('Loaded: ' + s.title);
+}
+
+function deleteScript(id) {
+  if (!confirm('Delete this script permanently?')) return;
+  let scripts = getScripts();
+  scripts = scripts.filter(s => s.id !== id);
+  setScripts(scripts);
+  if (currentScriptId === id) {
+    currentScriptId = null;
+    sections = [];
+    document.getElementById('scriptTitle').value = '';
+    renderSections();
+  }
+  renderSidebarLibrary();
+  renderLibrary();
+  showToast('Script deleted');
+}
+
+// ======== LIBRARY RENDERING ========
+function renderLibrary() {
+  const search = (document.getElementById('librarySearch').value || '').toLowerCase();
+  const filterType = document.getElementById('libraryFilter').value;
+  const filterStatus = document.getElementById('libraryStatus').value;
+  let scripts = getScripts();
+  if (search) scripts = scripts.filter(s => s.title.toLowerCase().includes(search));
+  if (filterType) scripts = scripts.filter(s => s.type === filterType);
+  if (filterStatus) scripts = scripts.filter(s => s.status === filterStatus);
+
+  const c = document.getElementById('libraryContainer');
+  if (scripts.length === 0) {
+    c.innerHTML = '<div style="text-align:center; color:var(--text2); padding:40px;">No scripts found. Create one in the Editor tab.</div>';
+    return;
+  }
+  c.innerHTML = scripts.map(s => {
+    const typeName = TEMPLATES[s.type] ? TEMPLATES[s.type].name : 'Custom';
+    const date = new Date(s.date).toLocaleDateString();
+    const wordCount = s.sections.reduce((sum, sec) => sum + (sec.content || '').length, 0);
+    return `<div class="library-item">
+      <div class="library-item-title">${escHtml(s.title)}</div>
+      <div class="library-item-meta">
+        <span>${typeName}</span>
+        <span>${date}</span>
+        <span>${wordCount} chars</span>
+        <span class="status-badge status-${s.status}">${s.status}</span>
+      </div>
+      <div class="library-item-actions">
+        <button class="btn btn-primary btn-sm" onclick="loadScript('${s.id}')">Open</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteScript('${s.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderSidebarLibrary() {
+  const search = (document.getElementById('sidebarSearch')?.value || '').toLowerCase();
+  let scripts = getScripts();
+  if (search) scripts = scripts.filter(s => s.title.toLowerCase().includes(search));
+
+  const c = document.getElementById('sidebarLibraryList');
+  if (!c) return;
+  if (scripts.length === 0) {
+    c.innerHTML = '<div style="text-align:center; color:var(--text2); padding:20px; font-size:13px;">No saved scripts</div>';
+    return;
+  }
+  c.innerHTML = scripts.map(s => {
+    const date = new Date(s.date).toLocaleDateString();
+    return `<div class="library-item" onclick="loadScript('${s.id}')">
+      <div class="library-item-title">${escHtml(s.title)}</div>
+      <div class="library-item-meta">
+        <span>${date}</span>
+        <span class="status-badge status-${s.status}">${s.status}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ======== TABS ========
+function switchMainTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.main-tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tab));
+  if (tab === 'library') renderLibrary();
+}
+
+function switchSidebarTab(tab) {
+  document.querySelectorAll('.sidebar-tab').forEach(b => b.classList.toggle('active', b.dataset.stab === tab));
+  document.querySelectorAll('.sidebar .tab-panel').forEach(p => p.classList.toggle('active', p.id === 'stab-' + tab));
+  if (tab === 'saved') renderSidebarLibrary();
+  if (tab === 'phrases') renderPhrases();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+// ======== EXPORT ========
+function buildPlainText() {
+  const title = document.getElementById('scriptTitle').value || 'Untitled Script';
+  const tplVal = document.getElementById('templateSelect').value;
+  const typeName = TEMPLATES[tplVal] ? TEMPLATES[tplVal].name : 'Custom';
+  let out = title + '\n' + typeName + '\n' + '='.repeat(40) + '\n\n';
+  sections.forEach(sec => {
+    out += '## ' + sec.title + ' [' + sec.time + 's]\n\n';
+    out += (sec.content || '').trim() + '\n\n';
+  });
+  const totalTime = sections.reduce((s, sec) => s + sec.time, 0);
+  out += '='.repeat(40) + '\nTotal time: ' + Math.floor(totalTime/60) + ':' + String(totalTime%60).padStart(2,'0') + '\n';
+  return out;
+}
+
+function buildMarkdown() {
+  const title = document.getElementById('scriptTitle').value || 'Untitled Script';
+  const tplVal = document.getElementById('templateSelect').value;
+  const typeName = TEMPLATES[tplVal] ? TEMPLATES[tplVal].name : 'Custom';
+  let out = '# ' + title + '\n\n';
+  out += '**Type:** ' + typeName + '  \n';
+  out += '**Date:** ' + new Date().toLocaleDateString() + '\n\n---\n\n';
+  sections.forEach(sec => {
+    out += '## ' + sec.title + '\n\n';
+    out += '*Duration: ' + sec.time + ' seconds*\n\n';
+    out += (sec.content || '').trim() + '\n\n---\n\n';
+  });
+  const totalTime = sections.reduce((s, sec) => s + sec.time, 0);
+  out += '**Total estimated time:** ' + Math.floor(totalTime/60) + ':' + String(totalTime%60).padStart(2,'0') + '\n';
+  return out;
+}
+
+function exportClipboard() {
+  navigator.clipboard.writeText(buildPlainText()).then(() => showToast('Copied to clipboard'));
+}
+
+function exportTxt() {
+  downloadFile(buildPlainText(), (document.getElementById('scriptTitle').value || 'script') + '.txt', 'text/plain');
+}
+
+function exportMd() {
+  downloadFile(buildMarkdown(), (document.getElementById('scriptTitle').value || 'script') + '.md', 'text/markdown');
+}
+
+function downloadFile(content, filename, type) {
+  const blob = new Blob([content], { type: type + ';charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Downloaded: ' + filename);
+}
+
+// ======== PRINT VIEW ========
+function showPrintView() {
+  const title = document.getElementById('scriptTitle').value || 'Untitled Script';
+  const tplVal = document.getElementById('templateSelect').value;
+  const typeName = TEMPLATES[tplVal] ? TEMPLATES[tplVal].name : 'Custom';
+  const totalTime = sections.reduce((s, sec) => s + sec.time, 0);
+
+  let html = '<h2>' + escHtml(title) + '</h2>';
+  html += '<div class="print-meta">' + escHtml(typeName) + ' | ' + new Date().toLocaleDateString() + ' | Est. ' + Math.floor(totalTime/60) + ':' + String(totalTime%60).padStart(2,'0') + '</div>';
+
+  sections.forEach(sec => {
+    html += '<h3>' + escHtml(sec.title) + ' <span style="font-weight:normal;color:var(--text2);">(' + sec.time + 's)</span></h3>';
+    html += '<p>' + escHtml(sec.content || '(empty)') + '</p>';
+  });
+
+  document.getElementById('printContent').innerHTML = html;
+  document.getElementById('printModal').classList.add('show');
+}
+
+function closePrintModal() {
+  document.getElementById('printModal').classList.remove('show');
+}
+
+// ======== UTILS ========
+function escHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Close modal on overlay click
+document.getElementById('printModal').addEventListener('click', function(e) {
+  if (e.target === this) closePrintModal();
+});
+</script>
+<script>
+// Universal language toggle
+(function() {
+  let pageLang = localStorage.getItem('pageLang') || 'zh';
+  
+  window.setPageLang = function(lang) {
+    pageLang = lang;
+    localStorage.setItem('pageLang', lang);
+    document.querySelectorAll('.lt-btn').forEach(b => {
+      const isActive = b.dataset.lang === lang;
+      b.style.background = isActive ? 'rgba(240,192,96,0.9)' : 'rgba(255,255,255,0.08)';
+      b.style.color = isActive ? '#1a1d2e' : '#9ca0b8';
+      b.style.border = isActive ? 'none' : '1px solid rgba(255,255,255,0.06)';
+    });
+    applyLang();
+  };
+  
+  function applyLang() {
+    document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+      if (pageLang === 'zh') el.textContent = el.dataset.zh;
+      else if (pageLang === 'en') el.textContent = el.dataset.en;
+      else el.textContent = el.dataset.zh + ' ' + el.dataset.en;
+    });
+  }
+  
+  // Apply on load
+  setTimeout(() => {
+    setPageLang(pageLang);
+  }, 100);
+})();
+</script>
+</body>
+</html>

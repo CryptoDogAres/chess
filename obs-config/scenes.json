@@ -1,0 +1,384 @@
+{
+  "description": "OBS Studio scene configurations for Chinese Chess content creation",
+  "version": "1.0",
+  "project_root": "/Users/changchunshi/codebase/chess",
+  "overlay_base_url": "file:///Users/changchunshi/codebase/chess/overlays",
+  "scenes": [
+    {
+      "name": "棋局分析 Board Analysis",
+      "id": "board-analysis",
+      "use_case": "Pre-recorded puzzle and game analysis videos",
+      "profile": "landscape",
+      "canvas": {
+        "width": 1920,
+        "height": 1080
+      },
+      "sources": [
+        {
+          "name": "棋盘窗口 Board Window",
+          "type": "window_capture",
+          "description": "Browser window showing board-art.html or explain.html",
+          "target_windows": [
+            "board-art.html",
+            "explain.html"
+          ],
+          "transform": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080,
+            "crop": {
+              "top": 0,
+              "bottom": 0,
+              "left": 0,
+              "right": 0
+            }
+          },
+          "z_order": 0
+        },
+        {
+          "name": "麦克风 Microphone",
+          "type": "audio_input_capture",
+          "description": "Microphone for voice commentary",
+          "settings": {
+            "device": "default",
+            "filters": [
+              {
+                "type": "noise_suppress",
+                "method": "rnnoise"
+              },
+              {
+                "type": "compressor",
+                "ratio": 3,
+                "threshold_db": -18
+              }
+            ]
+          },
+          "z_order": 1
+        }
+      ],
+      "notes": "Full-screen capture of the analysis board. Use board-art.html for artistic presentations or explain.html for annotated analysis."
+    },
+    {
+      "name": "残局挑战 Puzzle Challenge",
+      "id": "puzzle-challenge",
+      "use_case": "Interactive puzzle videos with countdown timer",
+      "profile": "landscape",
+      "canvas": {
+        "width": 1920,
+        "height": 1080
+      },
+      "sources": [
+        {
+          "name": "棋盘窗口 Board Window",
+          "type": "window_capture",
+          "description": "Browser window showing the chess board with puzzle position",
+          "target_windows": [
+            "board.html",
+            "board-art.html"
+          ],
+          "transform": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 1080,
+            "crop": {
+              "top": 0,
+              "bottom": 0,
+              "left": 0,
+              "right": 0
+            }
+          },
+          "z_order": 0
+        },
+        {
+          "name": "残局挑战覆层 Puzzle Overlay",
+          "type": "browser_source",
+          "description": "Puzzle challenge overlay with countdown, difficulty badge, and hints",
+          "url": "file:///Users/changchunshi/codebase/chess/overlays/puzzle-challenge.html",
+          "parameters": {
+            "example_url": "file:///Users/changchunshi/codebase/chess/overlays/puzzle-challenge.html?time=60&difficulty=hard"
+          },
+          "transform": {
+            "x": 1440,
+            "y": 0,
+            "width": 480,
+            "height": 1080
+          },
+          "settings": {
+            "fps": 30,
+            "shutdown_when_invisible": false,
+            "refresh_on_scene_activate": true,
+            "custom_css": ""
+          },
+          "z_order": 1
+        },
+        {
+          "name": "麦克风 Microphone",
+          "type": "audio_input_capture",
+          "description": "Microphone for puzzle explanation",
+          "settings": {
+            "device": "default"
+          },
+          "z_order": 2
+        }
+      ],
+      "notes": "Board on left (75%), puzzle challenge sidebar on right (25%). The overlay shows countdown timer and puzzle info."
+    },
+    {
+      "name": "直播对弈 Live Stream",
+      "id": "live-stream",
+      "use_case": "Live streaming on Douyin/Bilibili with full overlay suite",
+      "profile": "landscape",
+      "canvas": {
+        "width": 1920,
+        "height": 1080
+      },
+      "sources": [
+        {
+          "name": "棋盘窗口 Board Window",
+          "type": "window_capture",
+          "description": "Browser window showing the live game board",
+          "target_windows": [
+            "board.html",
+            "board-art.html"
+          ],
+          "transform": {
+            "x": 0,
+            "y": 0,
+            "width": 1280,
+            "height": 1080
+          },
+          "z_order": 0
+        },
+        {
+          "name": "直播边框 Stream Frame",
+          "type": "browser_source",
+          "description": "Decorative stream frame overlay with branding",
+          "url": "file:///Users/changchunshi/codebase/chess/overlays/stream-frame.html",
+          "transform": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "settings": {
+            "fps": 30,
+            "shutdown_when_invisible": false,
+            "refresh_on_scene_activate": true
+          },
+          "z_order": 4,
+          "notes": "Full-screen overlay — must be above board but below interactive elements. Ensure transparent background."
+        },
+        {
+          "name": "评估条 Eval Bar",
+          "type": "browser_source",
+          "description": "Engine evaluation bar showing position advantage",
+          "url": "file:///Users/changchunshi/codebase/chess/overlays/eval-bar.html",
+          "transform": {
+            "x": 1280,
+            "y": 0,
+            "width": 40,
+            "height": 1080
+          },
+          "settings": {
+            "fps": 30,
+            "shutdown_when_invisible": false,
+            "refresh_on_scene_activate": true
+          },
+          "z_order": 1
+        },
+        {
+          "name": "棋手信息 Player Info",
+          "type": "browser_source",
+          "description": "Player names, ratings, clocks, and game info panel",
+          "url": "file:///Users/changchunshi/codebase/chess/overlays/player-info.html",
+          "transform": {
+            "x": 1320,
+            "y": 0,
+            "width": 600,
+            "height": 1080
+          },
+          "settings": {
+            "fps": 30,
+            "shutdown_when_invisible": false,
+            "refresh_on_scene_activate": true
+          },
+          "z_order": 2
+        },
+        {
+          "name": "摄像头 Webcam (可选)",
+          "type": "video_capture_device",
+          "description": "Optional webcam for face cam during stream",
+          "optional": true,
+          "transform": {
+            "x": 1580,
+            "y": 820,
+            "width": 320,
+            "height": 240
+          },
+          "settings": {
+            "resolution": "640x480",
+            "fps": 30,
+            "chroma_key": false
+          },
+          "z_order": 3
+        },
+        {
+          "name": "麦克风 Microphone",
+          "type": "audio_input_capture",
+          "description": "Microphone for live commentary",
+          "settings": {
+            "device": "default",
+            "filters": [
+              {
+                "type": "noise_suppress",
+                "method": "rnnoise"
+              },
+              {
+                "type": "compressor",
+                "ratio": 3,
+                "threshold_db": -18
+              },
+              {
+                "type": "noise_gate",
+                "open_threshold_db": -26,
+                "close_threshold_db": -32
+              }
+            ]
+          },
+          "z_order": 5
+        }
+      ],
+      "streaming_settings": {
+        "douyin": {
+          "server": "rtmp://push.douyin.com/live/",
+          "notes": "Get stream key from Douyin creator dashboard"
+        },
+        "bilibili": {
+          "server": "rtmp://live-push.bilivideo.com/live-bvc/",
+          "notes": "Get stream key from Bilibili live dashboard"
+        }
+      },
+      "notes": "Board left (67%), eval bar narrow strip, player info right panel. Webcam in bottom-right corner over player info. Stream frame as top-level overlay."
+    },
+    {
+      "name": "竖屏短视频 Vertical Short",
+      "id": "vertical-short",
+      "use_case": "Douyin/YouTube Shorts vertical recording (9:16)",
+      "profile": "vertical",
+      "canvas": {
+        "width": 1080,
+        "height": 1920
+      },
+      "sources": [
+        {
+          "name": "棋盘窗口 Board Window (裁剪)",
+          "type": "window_capture",
+          "description": "Browser window cropped to square and centered vertically",
+          "target_windows": [
+            "board.html",
+            "board-art.html"
+          ],
+          "transform": {
+            "x": 0,
+            "y": 420,
+            "width": 1080,
+            "height": 1080
+          },
+          "crop_notes": "Crop the window capture to a 1:1 square showing only the board. Use Edit Transform (Ctrl+E on the source) to set crop values. Center vertically at y=420 to leave 420px above and below for text/branding.",
+          "z_order": 0
+        },
+        {
+          "name": "麦克风 Microphone",
+          "type": "audio_input_capture",
+          "description": "Microphone for short-form voiceover",
+          "settings": {
+            "device": "default"
+          },
+          "z_order": 1
+        }
+      ],
+      "recording_settings": {
+        "format": "mp4",
+        "encoder": "x264",
+        "rate_control": "CBR",
+        "bitrate_kbps": 6000,
+        "max_duration_seconds": 60,
+        "notes": "Keep videos under 60 seconds for Shorts. Use vertical profile (1080x1920)."
+      },
+      "notes": "Switch to the vertical profile before using this scene. Board centered as a square in the middle of the vertical canvas. Top and bottom areas (420px each) can be used for text overlays added in post-production."
+    }
+  ],
+  "global_settings": {
+    "video": {
+      "base_resolution_landscape": "1920x1080",
+      "base_resolution_vertical": "1080x1920",
+      "output_resolution_landscape": "1920x1080",
+      "output_resolution_vertical": "1080x1920",
+      "fps": 30,
+      "color_format": "NV12",
+      "color_space": "709",
+      "color_range": "Partial"
+    },
+    "output": {
+      "mode": "Advanced",
+      "recording": {
+        "encoder": "x264",
+        "rate_control": "CBR",
+        "bitrate_kbps": 6000,
+        "keyframe_interval": 2,
+        "cpu_preset": "medium",
+        "profile": "high",
+        "format": "mkv",
+        "notes": "Record in MKV for crash safety, remux to MP4 via File → Remux Recordings after recording."
+      },
+      "streaming": {
+        "encoder": "x264",
+        "rate_control": "CBR",
+        "bitrate_kbps": 6000,
+        "keyframe_interval": 2,
+        "cpu_preset": "veryfast",
+        "profile": "high"
+      }
+    },
+    "audio": {
+      "sample_rate": 48000,
+      "channels": "Stereo",
+      "audio_bitrate_kbps": 160,
+      "codec": "AAC"
+    }
+  },
+  "overlay_files": [
+    {
+      "file": "overlays/stream-frame.html",
+      "description": "Decorative stream frame with branding",
+      "recommended_size": "1920x1080"
+    },
+    {
+      "file": "overlays/eval-bar.html",
+      "description": "Engine evaluation bar",
+      "recommended_size": "40x1080"
+    },
+    {
+      "file": "overlays/player-info.html",
+      "description": "Player names, ratings, and clock display",
+      "recommended_size": "600x1080"
+    },
+    {
+      "file": "overlays/puzzle-challenge.html",
+      "description": "Puzzle challenge panel with countdown",
+      "recommended_size": "480x1080"
+    },
+    {
+      "file": "overlays/move-ticker.html",
+      "description": "Scrolling move history ticker",
+      "recommended_size": "1920x60"
+    },
+    {
+      "file": "overlays/subscriber-alert.html",
+      "description": "Subscriber/follower alert popup",
+      "recommended_size": "400x200"
+    }
+  ]
+}

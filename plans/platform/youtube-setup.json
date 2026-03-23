@@ -1,0 +1,65 @@
+{
+  "id": "platform-youtube",
+  "title": "YouTube Channel Setup",
+  "description": "International/diaspora audience. SEO-driven discoverability. English or bilingual content.",
+  "folder": "platform",
+  "priority": "high",
+  "status": "in_progress",
+  "progress": 67,
+  "tasks": [
+    {
+      "id": "py1",
+      "text": "Create YouTube channel with consistent branding",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "py2",
+      "text": "Design channel banner, icon, and trailer video",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "py3",
+      "text": "Set up playlists: Puzzles, Full Games, Tutorials, Series",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "py4",
+      "text": "Research keywords: xiangqi tutorial, Chinese chess beginner, 象棋 (use vidIQ or TubeBuddy)",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "py5",
+      "text": "Publish first 5 videos with SEO-optimized titles (under 60 chars)",
+      "done": false,
+      "priority": "high"
+    },
+    {
+      "id": "py6",
+      "text": "Create 3 thumbnail variants per video, use A/B Test & Compare",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "py7",
+      "text": "Reach 1K subscribers + 4K watch hours (YouTube Partner Program)",
+      "done": false,
+      "priority": "medium"
+    },
+    {
+      "id": "py8",
+      "text": "Set up YouTube Shorts repurposing from Douyin content",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "py9",
+      "text": "Enable memberships and Super Chat when eligible",
+      "done": false,
+      "priority": "low"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# Episode 4: Basic Checkmates Part 1 -- Horse-Behind-Cannon & Heaven-Earth Cannons
+# 第四集：基本杀法（上）——马后炮与天地炮
+# Mate-in-1 and mate-in-2 puzzles for mastering these two classic patterns
+# 一步杀和两步杀练习，掌握两种经典杀法
+
+4k4/4N4/9/4C4/9/9/9/9/9/4K4 w - - 0 1 # Horse-behind-Cannon basic 马后炮基本型 — Cannon to e8 using Horse on e9 as platform; mate in 1 炮走e8以e9马做架将杀，一步杀
+3ak4/4a4/4N4/9/9/9/9/4C4/9/4K4 w - - 0 1 # Horse-behind-Cannon setup 马后炮两步杀 — Horse e8 to d10 check, then Cannon to e10 for mate in 2 马e8跳d10将军，再炮到e10马后炮杀
+3ka4/9/4N4/4C4/9/9/9/9/9/4K4 w - - 0 1 # Horse-behind-Cannon puzzle 马后炮练习 — find where Horse must jump to create the checkmate pattern 找到马跳哪里形成马后炮杀局
+4k4/4C4/4a4/9/9/9/9/4C4/9/4K4 w - - 0 1 # Heaven-Earth basic 天地炮基本型 — two Cannons on e-file with Advisor as platform; top Cannon checks, mate in 1 双炮e列以士做架，上炮将军一步杀
+3ak4/4a4/9/9/4C4/9/9/9/4C4/4K4 w - - 0 1 # Heaven-Earth setup 天地炮两步杀 — advance front Cannon to e9 using Advisor as platform; double Cannon mate 前炮进到e9以士做架，天地炮将杀
+3k5/9/9/4N4/9/9/9/9/3CK4/9 w - - 0 1 # Horizontal Horse-behind-Cannon 横向马后炮 — Horse-behind-Cannon works on ranks too; find the mate 马后炮也可横向，找到将杀方法

@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" rel="stylesheet">
+<title>SEO优化 — Keyword Research & SEO</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0f1117;--surface:#1e2130;--surface2:#282d42;--surface3:#333854;
+--text:#e0e0e0;--text2:#9ca3af;--accent:#6366f1;--accent2:#818cf8;
+--douyin:#ff2d55;--bilibili:#00a1d6;--youtube:#aaa;
+--green:#22c55e;--yellow:#eab308;--orange:#f97316;--red:#ef4444;
+--border:#2a2f45;--radius:10px;
+}
+body{background:var(--bg);color:var(--text);font-family:'LXGW WenKai',-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;line-height:1.5}
+a{color:var(--accent2);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.header h1{font-size:22px;font-weight:700}
+.header h1 span{color:var(--text2);font-weight:400;font-size:14px;margin-left:8px}
+.nav-links{display:flex;gap:14px;font-size:13px;flex-wrap:wrap}
+
+.tabs{display:flex;gap:2px;background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;overflow-x:auto}
+.tab{padding:12px 18px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent2);border-bottom-color:var(--accent2)}
+
+main{max-width:1400px;margin:0 auto;padding:24px}
+.panel{display:none}
+.panel.active{display:block}
+
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.section h2{font-size:17px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.section h2::before{content:'';display:inline-block;width:4px;height:18px;background:var(--accent);border-radius:2px}
+
+.row{display:flex;gap:16px;flex-wrap:wrap}
+.col{flex:1;min-width:250px}
+
+label{display:block;font-size:13px;color:var(--text2);margin-bottom:4px;margin-top:10px}
+label:first-child{margin-top:0}
+input[type="text"],input[type="number"],input[type="date"],select,textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:14px;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent2)}
+textarea{resize:vertical;min-height:60px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--surface3)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{opacity:.85}
+.btn-copy{background:var(--surface2);color:var(--accent2);border:1px solid var(--border);font-size:11px;padding:3px 8px}
+.btn-copy:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* Badge */
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge-high{background:rgba(239,68,68,.2);color:var(--red)}
+.badge-medium{background:rgba(234,179,8,.2);color:var(--yellow)}
+.badge-low{background:rgba(34,197,94,.2);color:var(--green)}
+.badge-douyin{background:rgba(255,45,85,.15);color:var(--douyin)}
+.badge-bilibili{background:rgba(0,161,214,.15);color:var(--bilibili)}
+.badge-youtube{background:rgba(170,170,170,.15);color:var(--youtube)}
+.badge-all{background:rgba(99,102,241,.15);color:var(--accent2)}
+
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+th{background:var(--surface2);color:var(--text2);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0}
+tr:hover td{background:rgba(99,102,241,.04)}
+.table-wrap{max-height:500px;overflow-y:auto;border:1px solid var(--border);border-radius:8px}
+
+/* Filters */
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.filters input,.filters select{width:auto;min-width:140px}
+.filters input[type="text"]{min-width:220px}
+
+/* Score bar */
+.score-bar{display:flex;align-items:center;gap:8px}
+.score-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;max-width:120px}
+.score-fill{height:100%;border-radius:4px;transition:width .3s}
+.score-num{font-size:13px;font-weight:700;min-width:28px}
+
+/* Title card */
+.title-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;position:relative}
+.title-card .platform-label{font-size:11px;font-weight:600;margin-bottom:6px}
+.title-card .title-text{font-size:15px;margin-bottom:8px;line-height:1.4}
+.title-card .title-meta{display:flex;gap:12px;font-size:12px;color:var(--text2);align-items:center;flex-wrap:wrap}
+.title-card .copy-btn{position:absolute;top:10px;right:10px}
+
+/* Description box */
+.desc-output{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;white-space:pre-wrap;font-size:13px;line-height:1.6;max-height:300px;overflow-y:auto;position:relative}
+.desc-output .copy-btn{position:absolute;top:8px;right:8px}
+
+/* Tag cloud */
+.tag-cloud{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag-pill{padding:4px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;font-size:12px;cursor:pointer;transition:all .15s}
+.tag-pill:hover{border-color:var(--accent2);color:var(--accent2)}
+.tag-pill.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* Analysis card */
+.analysis-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.analysis-item{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center}
+.analysis-item .val{font-size:24px;font-weight:700;margin-bottom:4px}
+.analysis-item .label{font-size:12px;color:var(--text2)}
+
+/* Competitor table */
+.comp-form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end}
+.comp-form .field{display:flex;flex-direction:column;gap:2px}
+.comp-form .field label{margin:0;font-size:11px}
+.comp-form .field input,.comp-form .field select{padding:6px 10px;font-size:13px}
+
+/* Calendar readiness */
+.readiness-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px}
+.readiness-card h4{font-size:14px;margin-bottom:8px}
+.readiness-check{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:4px}
+.readiness-check .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-green{background:var(--green)}
+.dot-yellow{background:var(--yellow)}
+.dot-red{background:var(--red)}
+
+/* Word freq bar */
+.freq-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.freq-bar .word{min-width:80px;font-size:13px;text-align:right}
+.freq-bar .bar{height:18px;border-radius:3px;background:var(--accent);min-width:4px;display:flex;align-items:center;padding-left:6px;font-size:11px;color:#fff}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:500;transform:translateY(100px);opacity:0;transition:all .3s;z-index:999}
+.toast.show{transform:translateY(0);opacity:1}
+
+@media(max-width:768px){
+.row{flex-direction:column}
+.filters{flex-direction:column}
+.filters input,.filters select{width:100%}
+main{padding:12px}
+.section{padding:16px}
+.analysis-grid{grid-template-columns:1fr 1fr}
+.comp-form{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<nav style="background:#131520;border-bottom:1px solid rgba(255,255,255,0.06);padding:8px 16px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-family:-apple-system,sans-serif;">
+  <a href="dashboard.html" style="color:#ef4444;font-weight:700;text-decoration:none;font-size:0.82em;padding:4px 12px;">棋 Dashboard</a>
+  <a href="board-art.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Art Board</a>
+  <a href="board3d.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">3D Board</a>
+  <a href="board.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Board</a>
+  <a href="games.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Games</a>
+  <a href="explain.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Explain</a>
+  <a href="analyze.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analyze</a>
+  <a href="calendar.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Calendar</a>
+  <a href="scripts.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Scripts</a>
+  <a href="analytics.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analytics</a>
+  <a href="branding.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Branding</a>
+  <a href="seo.html" style="color:#fff;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);">SEO</a>
+  <a href="translate.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Translate</a>
+  <a href="report.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Report</a>
+</nav>
+
+<div class="header">
+  <h1><span data-zh="SEO优化" data-en="SEO Tools">SEO优化</span> <span data-zh="" data-en="">— Keyword Research & SEO</span></h1>
+  <div class="lang-toggle" style="display:inline-flex;gap:3px;margin-left:auto;">
+  <button onclick="setPageLang('zh')" class="lt-btn lt-active" data-lang="zh" style="background:rgba(240,192,96,0.9);color:#1a1d2e;border:none;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">中文</button>
+  <button onclick="setPageLang('en')" class="lt-btn" data-lang="en" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">EN</button>
+  <button onclick="setPageLang('both')" class="lt-btn" data-lang="both" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">双语</button>
+</div>
+</div>
+
+<div class="tabs" id="tabBar">
+  <div class="tab active" data-tab="keywords">Keyword Database</div>
+  <div class="tab" data-tab="titlegen">Title Generator</div>
+  <div class="tab" data-tab="descgen">Description Generator</div>
+  <div class="tab" data-tab="analyzer">Title Analyzer</div>
+  <div class="tab" data-tab="competitor">Competitor Tracker</div>
+  <div class="tab" data-tab="tags">Tag/Hashtag Manager</div>
+  <div class="tab" data-tab="calendar">Calendar SEO</div>
+</div>
+
+<main>
+<!-- ===================== PANEL 1: KEYWORD DATABASE ===================== -->
+<div class="panel active" id="panel-keywords">
+<div class="section">
+  <h2>Keyword Database</h2>
+  <div class="filters">
+    <input type="text" id="kwSearch" placeholder="Search keywords..." oninput="renderKeywords()">
+    <select id="kwCatFilter" onchange="renderKeywords()"><option value="">All Categories</option></select>
+    <select id="kwVolFilter" onchange="renderKeywords()"><option value="">All Volume</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+    <select id="kwCompFilter" onchange="renderKeywords()"><option value="">All Competition</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+    <select id="kwPlatFilter" onchange="renderKeywords()"><option value="">All Platforms</option><option value="all">All Platforms</option><option value="douyin">Douyin</option><option value="bilibili">Bilibili</option><option value="youtube">YouTube</option></select>
+    <span id="kwCount" style="font-size:12px;color:var(--text2)"></span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Chinese</th><th>English</th><th>Category</th><th>Volume</th><th>Competition</th><th>Platform</th>
+      </tr></thead>
+      <tbody id="kwTableBody"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ===================== PANEL 2: TITLE GENERATOR ===================== -->
+<div class="panel" id="panel-titlegen">
+<div class="section">
+  <h2>Title Generator</h2>
+  <div class="row">
+    <div class="col">
+      <label>Video Topic / 视频主题</label>
+      <input type="text" id="tgTopic" placeholder="e.g. 中炮对屏风马">
+      <label>Content Type / 内容类型</label>
+      <select id="tgType">
+        <option value="教程">教程 Tutorial</option>
+        <option value="实战">实战 Live Game</option>
+        <option value="讲解">讲解 Commentary</option>
+        <option value="残局">残局 Endgame</option>
+        <option value="开局">开局 Opening</option>
+        <option value="直播">直播 Livestream</option>
+        <option value="挑战">挑战 Challenge</option>
+      </select>
+    </div>
+    <div class="col">
+      <label>Key Move / Concept / 关键招法</label>
+      <input type="text" id="tgMove" placeholder="e.g. 弃马十三招">
+      <label>Target Audience</label>
+      <select id="tgAudience">
+        <option value="beginner">Beginner / 初学者</option>
+        <option value="intermediate">Intermediate / 中级</option>
+        <option value="advanced">Advanced / 高级</option>
+        <option value="all">All Levels / 全部</option>
+      </select>
+    </div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="generateTitles()">Generate Titles</button>
+  </div>
+</div>
+<div id="titleResults"></div>
+</div>
+
+<!-- ===================== PANEL 3: DESCRIPTION GENERATOR ===================== -->
+<div class="panel" id="panel-descgen">
+<div class="section">
+  <h2>Description Template Generator</h2>
+  <div class="row">
+    <div class="col">
+      <label>Video Topic / 视频主题</label>
+      <input type="text" id="dgTopic" placeholder="e.g. 飞相局入门教学">
+      <label>Key Keywords (comma separated)</label>
+      <input type="text" id="dgKeywords" placeholder="e.g. 飞相局,象棋开局,入门">
+    </div>
+    <div class="col">
+      <label>Content Type</label>
+      <select id="dgType">
+        <option value="教程">教程 Tutorial</option>
+        <option value="实战">实战 Live Game</option>
+        <option value="讲解">讲解 Commentary</option>
+        <option value="残局">残局 Endgame</option>
+        <option value="开局">开局 Opening</option>
+      </select>
+      <label>Video Duration (min)</label>
+      <input type="number" id="dgDuration" value="10" min="1">
+    </div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="generateDescriptions()">Generate Descriptions</button>
+  </div>
+</div>
+<div id="descResults"></div>
+</div>
+
+<!-- ===================== PANEL 4: TITLE ANALYZER ===================== -->
+<div class="panel" id="panel-analyzer">
+<div class="section">
+  <h2>Title Analyzer</h2>
+  <label>Paste your title here</label>
+  <input type="text" id="azTitle" placeholder="Paste a video title..." oninput="analyzeTitle()">
+  <label style="margin-top:8px">Select platform for scoring</label>
+  <select id="azPlatform" onchange="analyzeTitle()">
+    <option value="all">All Platforms</option>
+    <option value="douyin">Douyin</option>
+    <option value="bilibili">Bilibili</option>
+    <option value="youtube">YouTube</option>
+  </select>
+</div>
+<div id="analyzerResults"></div>
+</div>
+
+<!-- ===================== PANEL 5: COMPETITOR TRACKER ===================== -->
+<div class="panel" id="panel-competitor">
+<div class="section">
+  <h2>Competitor Title Tracker</h2>
+  <div class="comp-form">
+    <div class="field"><label>Title</label><input type="text" id="compTitle" placeholder="Video title" style="min-width:260px"></div>
+    <div class="field"><label>Channel</label><input type="text" id="compChannel" placeholder="Channel name" style="min-width:140px"></div>
+    <div class="field"><label>Platform</label><select id="compPlatform"><option value="douyin">Douyin</option><option value="bilibili">Bilibili</option><option value="youtube">YouTube</option></select></div>
+    <div class="field"><label>Views</label><input type="number" id="compViews" placeholder="e.g. 50000" style="width:120px"></div>
+    <div class="field"><label>Date</label><input type="date" id="compDate"></div>
+    <div class="field"><label>&nbsp;</label><button class="btn btn-primary" onclick="addCompetitor()">Add Entry</button></div>
+  </div>
+  <div class="filters">
+    <select id="compSortBy" onchange="renderCompetitors()"><option value="views-desc">Views (High to Low)</option><option value="views-asc">Views (Low to High)</option><option value="date-desc">Date (Newest)</option><option value="date-asc">Date (Oldest)</option></select>
+    <select id="compPlatFilter" onchange="renderCompetitors()"><option value="">All Platforms</option><option value="douyin">Douyin</option><option value="bilibili">Bilibili</option><option value="youtube">YouTube</option></select>
+    <span id="compCount" style="font-size:12px;color:var(--text2)"></span>
+  </div>
+  <div class="table-wrap" style="max-height:360px">
+    <table>
+      <thead><tr><th>Title</th><th>Channel</th><th>Platform</th><th>Views</th><th>Date</th><th>Action</th></tr></thead>
+      <tbody id="compTableBody"></tbody>
+    </table>
+  </div>
+</div>
+<div class="section">
+  <h2>Top Word Frequency Analysis</h2>
+  <div id="wordFreqBars"></div>
+</div>
+</div>
+
+<!-- ===================== PANEL 6: TAG/HASHTAG MANAGER ===================== -->
+<div class="panel" id="panel-tags">
+<div class="section">
+  <h2>Tag / Hashtag Manager</h2>
+  <div class="row">
+    <div class="col">
+      <label>Content Type</label>
+      <select id="tagContentType" onchange="renderTagSets()">
+        <option value="教程">教程 Tutorial</option>
+        <option value="实战">实战 Live Game</option>
+        <option value="讲解">讲解 Commentary</option>
+        <option value="残局">残局 Endgame</option>
+        <option value="开局">开局 Opening</option>
+        <option value="直播">直播 Livestream</option>
+        <option value="挑战">挑战 Challenge</option>
+      </select>
+    </div>
+    <div class="col">
+      <label>Platform</label>
+      <select id="tagPlatform" onchange="renderTagSets()">
+        <option value="youtube">YouTube</option>
+        <option value="bilibili">Bilibili</option>
+        <option value="douyin">Douyin</option>
+      </select>
+    </div>
+  </div>
+</div>
+<div id="tagSetsContainer"></div>
+</div>
+
+<!-- ===================== PANEL 7: CALENDAR SEO ===================== -->
+<div class="panel" id="panel-calendar">
+<div class="section">
+  <h2>Content Calendar — SEO Readiness</h2>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Shows upcoming videos from <a href="calendar.html">Content Calendar</a> with SEO completion status.</p>
+  <div id="calendarReadiness"></div>
+  <div style="margin-top:16px">
+    <a href="calendar.html" class="btn btn-secondary">Open Content Calendar</a>
+  </div>
+</div>
+</div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-'+t.dataset.tab).classList.add('active');
+  });
+});
+
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+function copyText(text){
+  navigator.clipboard.writeText(text).then(()=>toast('Copied!')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('Copied!');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  KEYWORD DATABASE (100+ keywords)
+// ═══════════════════════════════════════════════════════════════
+const KEYWORDS = [
+  // Opening terms
+  {zh:"中炮",en:"Central Cannon",cat:"opening",vol:"high",comp:"high",plat:"all"},
+  {zh:"飞相局",en:"Flying Elephant Opening",cat:"opening",vol:"high",comp:"medium",plat:"all"},
+  {zh:"仙人指路",en:"Immortal Pointing the Way",cat:"opening",vol:"high",comp:"medium",plat:"all"},
+  {zh:"屏风马",en:"Screen Horse Defense",cat:"opening",vol:"high",comp:"medium",plat:"all"},
+  {zh:"反宫马",en:"Counter Palace Horse",cat:"opening",vol:"medium",comp:"low",plat:"all"},
+  {zh:"顺炮",en:"Same Direction Cannons",cat:"opening",vol:"medium",comp:"medium",plat:"all"},
+  {zh:"列炮",en:"Opposite Direction Cannons",cat:"opening",vol:"medium",comp:"medium",plat:"all"},
+  {zh:"过宫炮",en:"Cross Palace Cannon",cat:"opening",vol:"medium",comp:"low",plat:"all"},
+  {zh:"起马局",en:"Knight Opening",cat:"opening",vol:"medium",comp:"low",plat:"all"},
+  {zh:"士角炮",en:"Advisor Corner Cannon",cat:"opening",vol:"low",comp:"low",plat:"bilibili"},
+  {zh:"中炮对屏风马",en:"Central Cannon vs Screen Horse",cat:"opening",vol:"high",comp:"high",plat:"all"},
+  {zh:"五六炮",en:"56 Cannon",cat:"opening",vol:"medium",comp:"medium",plat:"bilibili"},
+  {zh:"五七炮",en:"57 Cannon",cat:"opening",vol:"medium",comp:"medium",plat:"bilibili"},
+  {zh:"左正马",en:"Left Proper Horse",cat:"opening",vol:"low",comp:"low",plat:"bilibili"},
+  {zh:"右正马",en:"Right Proper Horse",cat:"opening",vol:"low",comp:"low",plat:"bilibili"},
+  {zh:"单提马",en:"Single Raised Horse",cat:"opening",vol:"medium",comp:"low",plat:"all"},
+  {zh:"对兵局",en:"Pawn Opening",cat:"opening",vol:"medium",comp:"low",plat:"all"},
+  {zh:"飞相对左中炮",en:"Flying Elephant vs Left Central Cannon",cat:"opening",vol:"low",comp:"low",plat:"bilibili"},
+  {zh:"先手",en:"Initiative / First Move",cat:"opening",vol:"medium",comp:"low",plat:"all"},
+  {zh:"后手",en:"Second Player",cat:"opening",vol:"medium",comp:"low",plat:"all"},
+
+  // Tactics
+  {zh:"将军",en:"Check",cat:"tactics",vol:"high",comp:"high",plat:"all"},
+  {zh:"抽将",en:"Discovered Check",cat:"tactics",vol:"medium",comp:"medium",plat:"all"},
+  {zh:"捉双",en:"Double Attack / Fork",cat:"tactics",vol:"medium",comp:"medium",plat:"all"},
+  {zh:"闷杀",en:"Smothered Checkmate",cat:"tactics",vol:"medium",comp:"low",plat:"all"},
+  {zh:"铁门栓",en:"Iron Bolt Mate",cat:"tactics",vol:"medium",comp:"low",plat:"bilibili"},
+  {zh:"双车错",en:"Double Rook Interplay",cat:"tactics",vol:"low",comp:"low",plat:"bilibili"},
+  {zh:"卧槽马",en:"Crouching Horse Mate",cat:"tactics",vol:"medium",comp:"low",plat:"all"},
+  {zh:"马后炮",en:"Horse + Cannon Checkmate",cat:"tactics",vol:"high",comp:"medium",plat:"all"},
+  {zh:"连将杀",en:"Consecutive Check Mate",cat:"tactics",vol:"medium",comp:"medium",plat:"all"},
+  {zh:"弃子攻杀",en:"Sacrifice Attack",cat:"tactics",vol:"medium",comp:"low",plat:"all"},
+  {zh:"钓鱼马",en:"Fishing Horse",cat:"tactics",vol:"medium",comp:"low",plat:"all"},
+  {zh:"天地炮",en:"Sky-Earth Cannon",cat:"tactics",vol:"medium",comp:"low",plat:"bilibili"},
+  {zh:"双将",en:"Double Check",cat:"tactics",vol:"medium",comp:"medium",plat:"all"},
+  {zh:"绝杀",en:"Forced Checkmate",cat:"tactics",vol:"high",comp:"medium",plat:"all"},
+  {zh:"妙手",en:"Brilliant Move",cat:"tactics",vol:"high",comp:"medium",plat:"all"},
+  {zh:"战术组合",en:"Tactical Combination",cat:"tactics",vol:"medium",comp:"low",plat:"all"},
+  {zh:"解杀还杀",en:"Counter-checkmate",cat:"tactics",vol:"low",comp:"low",plat:"bilibili"},
+  {zh:"先弃后取",en:"Sacrifice then Capture",cat:"tactics",vol:"low",comp:"low",plat:"bilibili"},
+  {zh:"运子",en:"Piece Maneuvering",cat:"tactics",vol:"low",comp:"low",plat:"all"},
+  {zh:"牵制",en:"Pin",cat:"tactics",vol:"medium",comp:"low",plat:"all"},
+
+  // Endgame
+  {zh:"残局",en:"Endgame",cat:"endgame",vol:"high",comp:"high",plat:"all"},
+  {zh:"车马冷着",en:"Rook-Horse Cold Move",cat:"endgame",vol:"medium",comp:"low",plat:"bilibili"},
+  {zh:"残局破解",en:"Endgame Puzzle Solution",cat:"endgame",vol:"high",comp:"medium",plat:"all"},
+  {zh:"单车胜马双士",en:"Rook vs Horse+2 Advisors",cat:"endgame",vol:"low",comp:"low",plat:"bilibili"},
+  {zh:"炮类残局",en:"Cannon Endgame",cat:"endgame",vol:"medium",comp:"low",plat:"all"},
+  {zh:"车类残局",en:"Rook Endgame",cat:"endgame",vol:"medium",comp:"low",plat:"all"},
+  {zh:"马类残局",en:"Horse Endgame",cat:"endgame",vol:"medium",comp:"low",plat:"all"},
+  {zh:"兵类残局",en:"Pawn Endgame",cat:"endgame",vol:"medium",comp:"low",plat:"all"},
+  {zh:"实用残局",en:"Practical Endgame",cat:"endgame",vol:"high",comp:"medium",plat:"all"},
+  {zh:"江湖残局",en:"Jianghu Endgame Puzzle",cat:"endgame",vol:"high",comp:"medium",plat:"douyin"},
+  {zh:"排局",en:"Composed Endgame",cat:"endgame",vol:"medium",comp:"low",plat:"bilibili"},
+  {zh:"杀法练习",en:"Checkmate Practice",cat:"endgame",vol:"medium",comp:"medium",plat:"all"},
+  {zh:"基本杀法",en:"Basic Checkmate Pattern",cat:"endgame",vol:"high",comp:"medium",plat:"all"},
+  {zh:"例胜例和",en:"Standard Win/Draw Positions",cat:"endgame",vol:"medium",comp:"low",plat:"bilibili"},
+  {zh:"车炮残局",en:"Rook-Cannon Endgame",cat:"endgame",vol:"medium",comp:"low",plat:"all"},
+
+  // General
+  {zh:"象棋",en:"Chinese Chess",cat:"general",vol:"high",comp:"high",plat:"all"},
+  {zh:"中国象棋",en:"Chinese Chess (full)",cat:"general",vol:"high",comp:"high",plat:"all"},
+  {zh:"Xiangqi",en:"Xiangqi",cat:"general",vol:"high",comp:"medium",plat:"youtube"},
+  {zh:"Chinese Chess",en:"Chinese Chess (EN)",cat:"general",vol:"high",comp:"high",plat:"youtube"},
+  {zh:"棋谱",en:"Game Record / Notation",cat:"general",vol:"high",comp:"medium",plat:"all"},
+  {zh:"对局",en:"Game / Match",cat:"general",vol:"high",comp:"high",plat:"all"},
+  {zh:"棋艺",en:"Chess Skill / Art",cat:"general",vol:"medium",comp:"low",plat:"all"},
+  {zh:"棋力",en:"Chess Strength",cat:"general",vol:"medium",comp:"low",plat:"all"},
+  {zh:"复盘",en:"Game Review",cat:"general",vol:"high",comp:"medium",plat:"all"},
+  {zh:"棋道",en:"Way of Chess",cat:"general",vol:"medium",comp:"low",plat:"all"},
+  {zh:"象棋入门",en:"Chess for Beginners",cat:"general",vol:"high",comp:"high",plat:"all"},
+  {zh:"象棋提高",en:"Improve at Chess",cat:"general",vol:"medium",comp:"medium",plat:"all"},
+  {zh:"象棋技巧",en:"Chess Techniques",cat:"general",vol:"high",comp:"high",plat:"all"},
+  {zh:"下棋",en:"Play Chess",cat:"general",vol:"high",comp:"high",plat:"all"},
+  {zh:"天天象棋",en:"Tian Tian Xiangqi (app)",cat:"general",vol:"high",comp:"medium",plat:"douyin"},
+  {zh:"象棋大师",en:"Chess Master",cat:"general",vol:"high",comp:"high",plat:"all"},
+  {zh:"棋手",en:"Chess Player",cat:"general",vol:"medium",comp:"low",plat:"all"},
+
+  // Player names
+  {zh:"胡荣华",en:"Hu Ronghua",cat:"player",vol:"high",comp:"low",plat:"all"},
+  {zh:"许银川",en:"Xu Yinchuan",cat:"player",vol:"high",comp:"low",plat:"all"},
+  {zh:"王天一",en:"Wang Tianyi",cat:"player",vol:"high",comp:"medium",plat:"all"},
+  {zh:"郑惟桐",en:"Zheng Weitong",cat:"player",vol:"medium",comp:"low",plat:"all"},
+  {zh:"赵鑫鑫",en:"Zhao Xinxin",cat:"player",vol:"medium",comp:"low",plat:"all"},
+  {zh:"蒋川",en:"Jiang Chuan",cat:"player",vol:"high",comp:"low",plat:"all"},
+  {zh:"孟辰",en:"Meng Chen",cat:"player",vol:"medium",comp:"low",plat:"all"},
+  {zh:"洪智",en:"Hong Zhi",cat:"player",vol:"medium",comp:"low",plat:"all"},
+  {zh:"吕钦",en:"Lu Qin",cat:"player",vol:"medium",comp:"low",plat:"all"},
+  {zh:"柳大华",en:"Liu Dahua",cat:"player",vol:"high",comp:"low",plat:"all"},
+  {zh:"杨官璘",en:"Yang Guanlin",cat:"player",vol:"medium",comp:"low",plat:"bilibili"},
+  {zh:"谢靖",en:"Xie Jing",cat:"player",vol:"medium",comp:"low",plat:"all"},
+  {zh:"汪洋",en:"Wang Yang",cat:"player",vol:"medium",comp:"low",plat:"all"},
+  {zh:"徐超",en:"Xu Chao",cat:"player",vol:"low",comp:"low",plat:"bilibili"},
+  {zh:"赵国荣",en:"Zhao Guorong",cat:"player",vol:"medium",comp:"low",plat:"all"},
+
+  // Content types
+  {zh:"教程",en:"Tutorial",cat:"content",vol:"high",comp:"high",plat:"all"},
+  {zh:"讲解",en:"Commentary / Explanation",cat:"content",vol:"high",comp:"high",plat:"all"},
+  {zh:"直播",en:"Livestream",cat:"content",vol:"high",comp:"high",plat:"all"},
+  {zh:"残局破解",en:"Endgame Puzzle Solving",cat:"content",vol:"high",comp:"medium",plat:"all"},
+  {zh:"实战对局",en:"Real Game Play",cat:"content",vol:"high",comp:"high",plat:"all"},
+  {zh:"象棋教学",en:"Chess Teaching",cat:"content",vol:"high",comp:"high",plat:"all"},
+  {zh:"速赢",en:"Quick Win",cat:"content",vol:"medium",comp:"medium",plat:"douyin"},
+  {zh:"翻盘",en:"Comeback",cat:"content",vol:"medium",comp:"medium",plat:"douyin"},
+  {zh:"名局赏析",en:"Famous Game Analysis",cat:"content",vol:"medium",comp:"low",plat:"bilibili"},
+  {zh:"棋局分析",en:"Game Analysis",cat:"content",vol:"high",comp:"medium",plat:"all"},
+  {zh:"新手教学",en:"Beginner Tutorial",cat:"content",vol:"high",comp:"high",plat:"all"},
+  {zh:"高手过招",en:"Expert vs Expert",cat:"content",vol:"medium",comp:"medium",plat:"douyin"},
+  {zh:"解说",en:"Commentary",cat:"content",vol:"high",comp:"high",plat:"all"},
+  {zh:"布局陷阱",en:"Opening Trap",cat:"content",vol:"high",comp:"medium",plat:"all"},
+  {zh:"象棋直播",en:"Chess Livestream",cat:"content",vol:"high",comp:"high",plat:"all"},
+  {zh:"象棋挑战",en:"Chess Challenge",cat:"content",vol:"medium",comp:"medium",plat:"douyin"},
+  {zh:"一步杀",en:"One Move Checkmate",cat:"content",vol:"medium",comp:"medium",plat:"douyin"},
+  {zh:"象棋短视频",en:"Chess Short Video",cat:"content",vol:"medium",comp:"medium",plat:"douyin"},
+  {zh:"棋谱讲解",en:"Notation Commentary",cat:"content",vol:"medium",comp:"medium",plat:"bilibili"},
+  {zh:"象棋比赛",en:"Chess Competition",cat:"content",vol:"high",comp:"high",plat:"all"},
+];
+
+const CATEGORIES = {opening:"Opening 开局",tactics:"Tactics 战术",endgame:"Endgame 残局",general:"General 通用",player:"Players 棋手",content:"Content Types 内容类型"};
+
+// Populate category filter
+(function(){
+  const sel=document.getElementById('kwCatFilter');
+  Object.entries(CATEGORIES).forEach(([k,v])=>{const o=document.createElement('option');o.value=k;o.textContent=v;sel.appendChild(o);});
+})();
+
+function renderKeywords(){
+  const search=document.getElementById('kwSearch').value.toLowerCase();
+  const cat=document.getElementById('kwCatFilter').value;
+  const vol=document.getElementById('kwVolFilter').value;
+  const comp=document.getElementById('kwCompFilter').value;
+  const plat=document.getElementById('kwPlatFilter').value;
+  const filtered=KEYWORDS.filter(k=>{
+    if(search && !k.zh.toLowerCase().includes(search) && !k.en.toLowerCase().includes(search)) return false;
+    if(cat && k.cat!==cat) return false;
+    if(vol && k.vol!==vol) return false;
+    if(comp && k.comp!==comp) return false;
+    if(plat && k.plat!==plat) return false;
+    return true;
+  });
+  document.getElementById('kwCount').textContent=filtered.length+' keywords';
+  const tbody=document.getElementById('kwTableBody');
+  tbody.innerHTML=filtered.map(k=>`<tr>
+    <td style="font-weight:600">${k.zh}</td>
+    <td>${k.en}</td>
+    <td>${CATEGORIES[k.cat]||k.cat}</td>
+    <td><span class="badge badge-${k.vol}">${k.vol.toUpperCase()}</span></td>
+    <td><span class="badge badge-${k.comp}">${k.comp.toUpperCase()}</span></td>
+    <td><span class="badge badge-${k.plat}">${k.plat==='all'?'All':k.plat.charAt(0).toUpperCase()+k.plat.slice(1)}</span></td>
+  </tr>`).join('');
+}
+renderKeywords();
+
+// ═══════════════════════════════════════════════════════════════
+//  TITLE GENERATOR
+// ═══════════════════════════════════════════════════════════════
+const EMOTIONAL_WORDS = ["绝杀","震惊","惊天","逆转","翻盘","神之一手","秒杀","碾压","完胜","暴击","封神","无解","恐怖","巅峰","致命","必学","必看","高能","爆发","极限"];
+const HOOK_WORDS = ["你敢信","太强了","这也行","学会这招","看完秒懂","99%的人不知道","高手都在用","一招制敌","不看后悔","建议收藏"];
+const AUDIENCE_MAP = {beginner:"新手",intermediate:"进阶",advanced:"高手",all:""};
+
+function generateTitles(){
+  const topic=document.getElementById('tgTopic').value.trim();
+  const type=document.getElementById('tgType').value;
+  const move=document.getElementById('tgMove').value.trim();
+  const audience=document.getElementById('tgAudience').value;
+  if(!topic){toast('Please enter a video topic');return;}
+  const audLabel=AUDIENCE_MAP[audience];
+  const container=document.getElementById('titleResults');
+
+  // Generate Douyin titles (punchy, emotional, <30 chars)
+  const douyinTitles=[
+    `${topic}${move?'：'+move:''}，${EMOTIONAL_WORDS[Math.floor(Math.random()*EMOTIONAL_WORDS.length)]}！`,
+    `${HOOK_WORDS[Math.floor(Math.random()*HOOK_WORDS.length)]}！${topic}${move?move:''}`,
+    `象棋${type}：${topic}${move?'，'+move:''}`,
+    `${audLabel?audLabel+'必看！':''}${topic}${EMOTIONAL_WORDS[Math.floor(Math.random()*EMOTIONAL_WORDS.length)]}`,
+    `${move||topic}！${HOOK_WORDS[Math.floor(Math.random()*HOOK_WORDS.length)]}`,
+  ];
+
+  // Generate Bilibili titles (descriptive, hook in first 8 chars, brackets)
+  const bilibiliTitles=[
+    `【${type}】${topic}${move?'——'+move:''}${audLabel?'（'+audLabel+'篇）':''}`,
+    `【象棋${type}】${topic}详解${move?'：'+move:''}`,
+    `${topic}全面解析！${move?move+'的':''}正确下法【象棋教学】`,
+    `【${audLabel||'实战'}】${topic}${move?'，'+move+'是关键':'核心要点'}`,
+    `${topic}${move?'｜'+move:''}｜${type}系列${audLabel?'·'+audLabel+'向':''}`,
+  ];
+
+  // Generate YouTube titles (curiosity-driven, <60 chars, benefit-focused)
+  const youtubeTitles=[
+    `Master ${move||topic}: ${type==='教程'?'Complete Tutorial':'Essential Guide'} | Chinese Chess`,
+    `${topic} ${move?'- '+move+' ':''} Explained | Xiangqi ${type==='教程'?'Tutorial':'Strategy'}`,
+    `How to Win with ${move||topic} | ${audience==='beginner'?'Beginner':'Advanced'} Xiangqi`,
+    `The Secret of ${move||topic} | Chinese Chess ${type==='教程'?'Lesson':'Analysis'}`,
+    `${move||topic}: Why ${audience==='beginner'?'Every Beginner':'Top Players'} ${audience==='beginner'?'Needs This':'Use This'} | Xiangqi`,
+  ];
+
+  function scoreTitle(t,platform){
+    let s=50;
+    const len=t.length;
+    if(platform==='douyin'){
+      if(len<=30) s+=15; else if(len<=35) s+=5; else s-=10;
+      EMOTIONAL_WORDS.forEach(w=>{if(t.includes(w)) s+=5;});
+      if(t.includes('！')) s+=5;
+      if(t.includes('？')) s+=3;
+    } else if(platform==='bilibili'){
+      if(t.startsWith('【')) s+=10;
+      if(len>=15 && len<=40) s+=10;
+      const first8=t.substring(0,8);
+      if(first8.includes('【')&&first8.includes('】')) s+=5;
+      if(t.includes('详解')||t.includes('解析')||t.includes('教学')) s+=5;
+    } else {
+      if(len<=60) s+=15; else if(len<=70) s+=5; else s-=10;
+      if(t.toLowerCase().includes('xiangqi')||t.toLowerCase().includes('chinese chess')) s+=8;
+      if(t.includes('How')||t.includes('Why')||t.includes('Master')||t.includes('Secret')) s+=5;
+      if(t.includes('|')) s+=3;
+    }
+    return Math.min(100,Math.max(0,s));
+  }
+
+  function scoreColor(s){return s>=80?'var(--green)':s>=60?'var(--yellow)':s>=40?'var(--orange)':'var(--red)';}
+
+  function renderPlatformTitles(titles,platform,label,color){
+    return `<div class="section"><h2 style="color:${color}">${label} Titles</h2>${titles.map((t,i)=>{
+      const score=scoreTitle(t,platform);
+      return `<div class="title-card">
+        <button class="btn btn-copy copy-btn" onclick="copyText(\`${t.replace(/`/g,"\\`")}\`)">Copy</button>
+        <div class="platform-label" style="color:${color}">${label} #${i+1}</div>
+        <div class="title-text">${t}</div>
+        <div class="title-meta">
+          <span>${t.length} chars</span>
+          <span class="score-bar"><span class="score-track"><span class="score-fill" style="width:${score}%;background:${scoreColor(score)}"></span></span><span class="score-num" style="color:${scoreColor(score)}">${score}</span></span>
+          ${platform==='douyin'&&t.length>30?'<span style="color:var(--red)">Over 30 char limit</span>':''}
+          ${platform==='youtube'&&t.length>60?'<span style="color:var(--orange)">Consider shortening</span>':''}
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  container.innerHTML=
+    renderPlatformTitles(douyinTitles,'douyin','Douyin 抖音','var(--douyin)')+
+    renderPlatformTitles(bilibiliTitles,'bilibili','Bilibili 哔哩哔哩','var(--bilibili)')+
+    renderPlatformTitles(youtubeTitles,'youtube','YouTube','var(--youtube)');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DESCRIPTION GENERATOR
+// ═══════════════════════════════════════════════════════════════
+function generateDescriptions(){
+  const topic=document.getElementById('dgTopic').value.trim();
+  const keywords=document.getElementById('dgKeywords').value.trim();
+  const type=document.getElementById('dgType').value;
+  const duration=parseInt(document.getElementById('dgDuration').value)||10;
+  if(!topic){toast('Please enter a video topic');return;}
+
+  const kwList=keywords?keywords.split(/[,，]/).map(s=>s.trim()).filter(Boolean):[];
+  const hashtagsCN=kwList.length?kwList.map(k=>'#'+k).join(' '):'#象棋 #中国象棋 #'+type;
+  const hashtagsEN=kwList.length?kwList.map(k=>'#'+k.replace(/\s/g,'')).join(' '):'#xiangqi #chinesechess #'+type;
+
+  // Timestamps
+  const tsLines=[];
+  const segments=Math.min(6,Math.floor(duration/2));
+  for(let i=0;i<segments;i++){
+    const m=Math.floor(i*(duration/segments));
+    const s=Math.floor((i*(duration/segments)-m)*60);
+    tsLines.push(`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} Section ${i+1}`);
+  }
+
+  const ytDesc=`${topic} — ${type} | Chinese Chess (Xiangqi)
+
+In this video, we explore ${topic} in depth. ${kwList.length?'Covering key concepts: '+kwList.join(', ')+'.':'Perfect for players looking to improve their game.'}
+
+Timestamps:
+${tsLines.join('\n')}
+
+Keywords: ${kwList.join(', ')||'象棋, xiangqi, Chinese chess, '+type}
+
+Subscribe for more xiangqi content!
+Like & Share if you found this helpful.
+
+${hashtagsEN} #chess #strategy #boardgame
+
+---
+Follow us:
+Bilibili: [Your Bilibili Link]
+Douyin: [Your Douyin Link]`;
+
+  const biliDesc=`${topic}${type==='教程'?'教学':''}系列
+
+本期内容：${topic}
+${kwList.length?'涵盖知识点：'+kwList.join('、'):'适合各级棋友学习观看'}
+
+标签：${kwList.map(k=>k).join('、')||'象棋、中国象棋、'+type}
+
+相关推荐：
+- 上一期：[填写上期视频标题]
+- 系列合集：[填写合集链接]
+
+${hashtagsCN} #象棋教学 #棋艺提高
+
+点赞、投币、收藏，三连支持！`;
+
+  const douyinDesc=`${topic}${kwList.length?'，'+kwList[0]:''}！${type==='教程'?'学会这招提升一个档次':'不看后悔系列'}
+
+${hashtagsCN} #象棋 #中国象棋 #棋艺 #${type}`;
+
+  const container=document.getElementById('descResults');
+  container.innerHTML=
+    renderDescBlock('YouTube','var(--youtube)',ytDesc)+
+    renderDescBlock('Bilibili 哔哩哔哩','var(--bilibili)',biliDesc)+
+    renderDescBlock('Douyin 抖音','var(--douyin)',douyinDesc)+
+    `<div class="section"><h2>Suggested Hashtags</h2>
+      <div class="row">
+        <div class="col"><label style="color:var(--youtube)">YouTube</label><div style="font-size:13px;margin-top:4px">${hashtagsEN} #chess #strategy #boardgame #tutorial</div><button class="btn btn-copy btn-sm" style="margin-top:8px" onclick="copyText('${hashtagsEN} #chess #strategy #boardgame #tutorial')">Copy</button></div>
+        <div class="col"><label style="color:var(--bilibili)">Bilibili</label><div style="font-size:13px;margin-top:4px">${hashtagsCN} #象棋教学 #棋艺提高 #学习</div><button class="btn btn-copy btn-sm" style="margin-top:8px" onclick="copyText('${hashtagsCN} #象棋教学 #棋艺提高 #学习')">Copy</button></div>
+        <div class="col"><label style="color:var(--douyin)">Douyin</label><div style="font-size:13px;margin-top:4px">${hashtagsCN} #象棋 #棋艺</div><button class="btn btn-copy btn-sm" style="margin-top:8px" onclick="copyText('${hashtagsCN} #象棋 #棋艺')">Copy</button></div>
+      </div>
+    </div>`;
+}
+
+function renderDescBlock(label,color,text){
+  const escaped=text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return `<div class="section"><h2 style="color:${color}">${label} Description</h2>
+    <div class="desc-output"><button class="btn btn-copy copy-btn" onclick="copyText(this.parentElement.textContent.replace('Copy','').trim())">Copy</button>${escaped}</div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TITLE ANALYZER
+// ═══════════════════════════════════════════════════════════════
+const EMOTION_TRIGGERS_ZH=["绝杀","震惊","惊天","逆转","翻盘","神","秒杀","碾压","完胜","暴击","封神","无解","恐怖","巅峰","致命","必学","必看","高能","爆发","极限","99%","不知道","居然","竟然","万万没想到","太强了","这也行","后悔","收藏"];
+const EMOTION_TRIGGERS_EN=["secret","master","never","amazing","incredible","shocking","must","essential","powerful","deadly","ultimate","unbelievable","insane","brilliant","hidden","revealed"];
+
+function analyzeTitle(){
+  const title=document.getElementById('azTitle').value.trim();
+  const platform=document.getElementById('azPlatform').value;
+  if(!title){document.getElementById('analyzerResults').innerHTML='';return;}
+
+  const len=title.length;
+  const isChinese=/[\u4e00-\u9fff]/.test(title);
+
+  // Keyword density
+  let kwMatches=[];
+  KEYWORDS.forEach(k=>{
+    if(title.includes(k.zh)||title.toLowerCase().includes(k.en.toLowerCase())) kwMatches.push(k.zh||k.en);
+  });
+
+  // Emotional triggers
+  let emotionFound=[];
+  EMOTION_TRIGGERS_ZH.forEach(w=>{if(title.includes(w)) emotionFound.push(w);});
+  EMOTION_TRIGGERS_EN.forEach(w=>{if(title.toLowerCase().includes(w.toLowerCase())) emotionFound.push(w);});
+
+  // Readability at thumbnail
+  const readabilityScore = len<=20?'Excellent':len<=30?'Good':len<=45?'Fair':'Poor — may be cut off';
+
+  // Platform scores
+  function douyinScore(){
+    let s=50;
+    if(len<=30) s+=20; else if(len<=35) s+=10; else s-=15;
+    s+=Math.min(20,emotionFound.length*7);
+    if(title.includes('！')||title.includes('？')) s+=5;
+    s+=Math.min(10,kwMatches.length*3);
+    if(isChinese) s+=5;
+    return Math.min(100,Math.max(0,s));
+  }
+  function bilibiliScore(){
+    let s=50;
+    if(title.startsWith('【')) s+=10;
+    if(len>=15&&len<=40) s+=15; else if(len<=50) s+=5; else s-=10;
+    if(title.includes('详解')||title.includes('解析')||title.includes('教学')||title.includes('教程')) s+=8;
+    s+=Math.min(10,kwMatches.length*3);
+    if(isChinese) s+=5;
+    return Math.min(100,Math.max(0,s));
+  }
+  function youtubeScore(){
+    let s=50;
+    if(len<=60) s+=15; else if(len<=70) s+=5; else s-=10;
+    if(title.toLowerCase().includes('xiangqi')||title.toLowerCase().includes('chinese chess')) s+=10;
+    if(title.includes('|')||title.includes('-')||title.includes(':')) s+=5;
+    if(/how|why|what|master|learn|secret|guide|tutorial/i.test(title)) s+=8;
+    s+=Math.min(10,kwMatches.length*3);
+    return Math.min(100,Math.max(0,s));
+  }
+
+  const scores={douyin:douyinScore(),bilibili:bilibiliScore(),youtube:youtubeScore()};
+  const avgScore=Math.round((scores.douyin+scores.bilibili+scores.youtube)/3);
+
+  function scoreColor(s){return s>=80?'var(--green)':s>=60?'var(--yellow)':s>=40?'var(--orange)':'var(--red)';}
+
+  // Suggestions
+  let suggestions=[];
+  if(len>60&&isChinese) suggestions.push('Title is long. Consider shortening for better thumbnail display.');
+  if(len>30&&isChinese) suggestions.push('For Douyin, keep under 30 characters for full visibility.');
+  if(emotionFound.length===0) suggestions.push('Add emotional trigger words (e.g., 绝杀, 必看, 震惊) to increase CTR.');
+  if(kwMatches.length===0) suggestions.push('No recognized xiangqi keywords found. Add relevant keywords for SEO.');
+  if(!title.startsWith('【')&&isChinese) suggestions.push('For Bilibili, consider starting with【brackets】for categorization.');
+  if(!isChinese&&!title.includes('Xiangqi')&&!title.toLowerCase().includes('chinese chess')) suggestions.push('For YouTube, include "Xiangqi" or "Chinese Chess" for discoverability.');
+  if(title===title.toUpperCase()&&/[a-zA-Z]/.test(title)) suggestions.push('Avoid ALL CAPS — it can hurt credibility.');
+
+  const container=document.getElementById('analyzerResults');
+  container.innerHTML=`
+    <div class="section">
+      <h2>Analysis Results</h2>
+      <div class="analysis-grid">
+        <div class="analysis-item"><div class="val">${len}</div><div class="label">Characters${len>60?' (long!)':''}</div></div>
+        <div class="analysis-item"><div class="val">${kwMatches.length}</div><div class="label">Keywords Found</div></div>
+        <div class="analysis-item"><div class="val">${emotionFound.length}</div><div class="label">Emotional Triggers</div></div>
+        <div class="analysis-item"><div class="val">${readabilityScore}</div><div class="label" style="font-size:11px">Thumbnail Readability</div></div>
+      </div>
+      ${kwMatches.length?'<div style="margin-bottom:12px"><strong style="font-size:13px">Keywords detected:</strong> <span style="font-size:13px;color:var(--accent2)">'+kwMatches.join(', ')+'</span></div>':''}
+      ${emotionFound.length?'<div style="margin-bottom:12px"><strong style="font-size:13px">Emotion triggers:</strong> <span style="font-size:13px;color:var(--orange)">'+emotionFound.join(', ')+'</span></div>':''}
+    </div>
+    <div class="section">
+      <h2>Platform Scores</h2>
+      <div class="analysis-grid">
+        ${['douyin','bilibili','youtube'].map(p=>{
+          const s=scores[p];const c=scoreColor(s);
+          const labelMap={douyin:'Douyin 抖音',bilibili:'Bilibili 哔哩哔哩',youtube:'YouTube'};
+          const colorMap={douyin:'var(--douyin)',bilibili:'var(--bilibili)',youtube:'var(--youtube)'};
+          return `<div class="analysis-item"><div class="val" style="color:${c}">${s}</div><div class="label" style="color:${colorMap[p]}">${labelMap[p]}</div>
+            <div class="score-bar" style="justify-content:center;margin-top:6px"><div class="score-track" style="max-width:160px;width:100%"><div class="score-fill" style="width:${s}%;background:${c}"></div></div></div></div>`;
+        }).join('')}
+      </div>
+    </div>
+    ${suggestions.length?`<div class="section"><h2>Improvement Suggestions</h2><ul style="margin-left:18px;font-size:13px;line-height:2">${suggestions.map(s=>'<li>'+s+'</li>').join('')}</ul></div>`:''}
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  COMPETITOR TRACKER
+// ═══════════════════════════════════════════════════════════════
+function getCompetitors(){return JSON.parse(localStorage.getItem('seo_competitors')||'[]');}
+function saveCompetitors(d){localStorage.setItem('seo_competitors',JSON.stringify(d));}
+
+function addCompetitor(){
+  const title=document.getElementById('compTitle').value.trim();
+  const channel=document.getElementById('compChannel').value.trim();
+  const platform=document.getElementById('compPlatform').value;
+  const views=parseInt(document.getElementById('compViews').value)||0;
+  const date=document.getElementById('compDate').value||new Date().toISOString().split('T')[0];
+  if(!title){toast('Please enter a title');return;}
+  const list=getCompetitors();
+  list.push({id:Date.now(),title,channel,platform,views,date});
+  saveCompetitors(list);
+  document.getElementById('compTitle').value='';
+  document.getElementById('compChannel').value='';
+  document.getElementById('compViews').value='';
+  renderCompetitors();
+  toast('Entry added');
+}
+
+function deleteCompetitor(id){
+  saveCompetitors(getCompetitors().filter(c=>c.id!==id));
+  renderCompetitors();
+}
+
+function renderCompetitors(){
+  const list=getCompetitors();
+  const platFilter=document.getElementById('compPlatFilter').value;
+  const sortBy=document.getElementById('compSortBy').value;
+  let filtered=platFilter?list.filter(c=>c.platform===platFilter):[...list];
+  if(sortBy==='views-desc') filtered.sort((a,b)=>b.views-a.views);
+  else if(sortBy==='views-asc') filtered.sort((a,b)=>a.views-b.views);
+  else if(sortBy==='date-desc') filtered.sort((a,b)=>b.date.localeCompare(a.date));
+  else filtered.sort((a,b)=>a.date.localeCompare(b.date));
+
+  document.getElementById('compCount').textContent=filtered.length+' entries';
+  const colorMap={douyin:'var(--douyin)',bilibili:'var(--bilibili)',youtube:'var(--youtube)'};
+  document.getElementById('compTableBody').innerHTML=filtered.map(c=>`<tr>
+    <td style="max-width:300px">${c.title}</td>
+    <td>${c.channel}</td>
+    <td><span class="badge badge-${c.platform}">${c.platform}</span></td>
+    <td style="font-weight:600">${c.views.toLocaleString()}</td>
+    <td>${c.date}</td>
+    <td><button class="btn btn-sm btn-danger" onclick="deleteCompetitor(${c.id})">Del</button></td>
+  </tr>`).join('');
+
+  // Word frequency analysis
+  renderWordFrequency(filtered);
+}
+
+function renderWordFrequency(entries){
+  const wordCount={};
+  const stopWords=new Set(['的','了','在','是','和','与','也','都','中','有','对','于','这','那','不','我','你','他','a','the','and','or','is','in','of','to','for','|','-','—','【','】','（','）']);
+  entries.forEach(e=>{
+    // Split Chinese characters individually and English words by space
+    const chars=e.title.replace(/[【】（）\[\]\(\)｜|—\-:：,，.。！!？?]/g,' ').split('');
+    let buffer='';
+    const words=[];
+    chars.forEach(ch=>{
+      if(/[\u4e00-\u9fff]/.test(ch)){
+        if(buffer.trim()) words.push(buffer.trim().toLowerCase());
+        buffer='';
+        words.push(ch);
+      } else if(ch===' '){
+        if(buffer.trim()) words.push(buffer.trim().toLowerCase());
+        buffer='';
+      } else {
+        buffer+=ch;
+      }
+    });
+    if(buffer.trim()) words.push(buffer.trim().toLowerCase());
+
+    // Also extract 2-char Chinese bigrams
+    const zhChars=e.title.replace(/[^\u4e00-\u9fff]/g,'');
+    for(let i=0;i<zhChars.length-1;i++){
+      const bigram=zhChars[i]+zhChars[i+1];
+      if(!stopWords.has(bigram)) wordCount[bigram]=(wordCount[bigram]||0)+1;
+    }
+
+    words.forEach(w=>{
+      if(w.length>=1 && !stopWords.has(w)) wordCount[w]=(wordCount[w]||0)+1;
+    });
+  });
+
+  const sorted=Object.entries(wordCount).sort((a,b)=>b[1]-a[1]).slice(0,20);
+  const maxCount=sorted.length?sorted[0][1]:1;
+  document.getElementById('wordFreqBars').innerHTML=sorted.length?
+    sorted.map(([word,count])=>`<div class="freq-bar">
+      <div class="word">${word}</div>
+      <div class="bar" style="width:${Math.max(4,count/maxCount*100)}%">${count}</div>
+    </div>`).join(''):'<p style="color:var(--text2);font-size:13px">Add competitor entries to see word frequency analysis.</p>';
+}
+renderCompetitors();
+
+// ═══════════════════════════════════════════════════════════════
+//  TAG / HASHTAG MANAGER
+// ═══════════════════════════════════════════════════════════════
+const TAG_SETS={
+  "教程":{
+    youtube:["xiangqi tutorial","chinese chess lesson","learn xiangqi","chess strategy","xiangqi opening","xiangqi for beginners","how to play xiangqi","xiangqi tips","chinese chess strategy","chess tutorial","xiangqi guide","board game tutorial","xiangqi tactics","xiangqi endgame","xiangqi basics","chess education","traditional chess","asian chess","strategy game","xiangqi master"],
+    bilibili:["象棋教程","象棋教学","新手入门","象棋基础","中国象棋","象棋技巧","零基础学象棋","象棋入门教程","象棋开局","象棋残局","象棋战术","象棋讲解","棋艺提高","象棋学习","下棋技巧","象棋知识","象棋课程","棋力提升","象棋进阶","象棋干货"],
+    douyin:["#象棋","#象棋教学","#中国象棋","#学象棋","#象棋入门","#棋艺","#象棋技巧","#下棋","#象棋教程","#新手学棋","#象棋课堂","#涨知识","#每日一学","#象棋小课堂","#棋道"]
+  },
+  "实战":{
+    youtube:["xiangqi game","chinese chess match","live xiangqi","xiangqi gameplay","xiangqi battle","real game xiangqi","xiangqi competition","chess match analysis","xiangqi rated game","xiangqi online","competitive xiangqi","xiangqi tournament","high level xiangqi","intense chess game","xiangqi showdown","chess arena","grandmaster game","xiangqi play","board game match","strategy battle"],
+    bilibili:["象棋实战","在线对局","象棋对弈","高手过招","象棋比赛","实战讲解","对局分析","天天象棋","象棋对战","棋手对决","象棋竞技","精彩对局","象棋实录","复盘分析","象棋高手","巅峰对决","在线下棋","象棋擂台","网络对弈","象棋博弈"],
+    douyin:["#象棋实战","#高手过招","#象棋对决","#下棋","#中国象棋","#象棋","#精彩对局","#象棋比赛","#巅峰对决","#棋手","#象棋高手","#对弈","#象棋擂台","#天天象棋","#棋艺"]
+  },
+  "讲解":{
+    youtube:["xiangqi analysis","chinese chess commentary","xiangqi explained","game review xiangqi","xiangqi breakdown","chess analysis","xiangqi notation","move by move xiangqi","xiangqi lesson","instructive game","xiangqi commentary","chinese chess review","xiangqi study","chess education","positional analysis","tactical review","xiangqi ideas","chess concepts","game annotation","xiangqi insight"],
+    bilibili:["象棋讲解","棋谱讲解","名局赏析","象棋解说","对局复盘","经典对局","象棋分析","大师对局","象棋评论","棋谱分析","象棋拆解","逐步讲解","象棋研究","精彩解说","象棋妙招","棋局分析","象棋详解","棋艺赏析","象棋精讲","高手棋局"],
+    douyin:["#象棋讲解","#象棋","#棋谱","#名局","#象棋解说","#中国象棋","#经典对局","#象棋分析","#棋艺","#象棋复盘","#大师棋局","#象棋研究","#象棋妙招","#精彩对局","#学象棋"]
+  },
+  "残局":{
+    youtube:["xiangqi endgame","chinese chess puzzle","xiangqi puzzle","endgame study","chess endgame","xiangqi problem","checkmate puzzle","xiangqi challenge","endgame technique","practical endgame","xiangqi composition","chess problem","xiangqi drill","endgame mastery","xiangqi test","puzzle solving","chess brain teaser","xiangqi exercise","checkmate pattern","tactical puzzle"],
+    bilibili:["象棋残局","残局破解","残局讲解","江湖残局","实用残局","象棋排局","残局练习","象棋谜题","残局技巧","杀法练习","基本杀法","残局入门","车类残局","马类残局","炮类残局","残局教学","残局解析","象棋习题","经典残局","残局挑战"],
+    douyin:["#象棋残局","#残局破解","#象棋","#中国象棋","#江湖残局","#残局","#象棋谜题","#脑筋急转弯","#棋艺","#象棋挑战","#一步杀","#象棋题目","#益智","#烧脑","#象棋练习"]
+  },
+  "开局":{
+    youtube:["xiangqi opening","chinese chess opening","opening theory","xiangqi strategy","opening system","how to start xiangqi","xiangqi first moves","opening repertoire","xiangqi preparation","central cannon","flying elephant","chess opening guide","xiangqi development","opening principles","starting position","xiangqi setup","opening trap","xiangqi book","chess theory","opening analysis"],
+    bilibili:["象棋开局","开局教学","中炮","飞相局","仙人指路","屏风马","开局套路","开局陷阱","开局布局","象棋布局","开局技巧","先手开局","后手应对","开局定式","象棋理论","开局研究","常见开局","开局详解","开局变化","开局秘籍"],
+    douyin:["#象棋开局","#开局","#象棋","#中国象棋","#中炮","#飞相局","#开局套路","#象棋技巧","#布局","#象棋教学","#开局陷阱","#学象棋","#象棋入门","#棋艺","#象棋秘籍"]
+  },
+  "直播":{
+    youtube:["xiangqi live","chinese chess stream","live xiangqi game","xiangqi livestream","chess stream","playing xiangqi live","online xiangqi","real time chess","xiangqi broadcast","live chess match","interactive chess","xiangqi live play","streaming chess","chess live session","xiangqi marathon","live commentary","xiangqi event","chess live event","watch xiangqi","live game analysis"],
+    bilibili:["象棋直播","在线下棋","象棋实况","直播对弈","象棋Live","实时对局","象棋互动","直播间","象棋主播","在线对战","棋友互动","象棋连麦","直播下棋","象棋房间","实况象棋","棋手直播","象棋频道","直播竞技","象棋擂台赛","在线切磋"],
+    douyin:["#象棋直播","#直播","#象棋","#中国象棋","#下棋","#在线对弈","#象棋主播","#棋艺","#直播间","#象棋互动","#象棋实战","#棋手","#对弈","#高手直播","#象棋擂台"]
+  },
+  "挑战":{
+    youtube:["xiangqi challenge","chess challenge","can you solve this","xiangqi puzzle challenge","chess brain teaser","xiangqi test","chess quiz","solve this puzzle","xiangqi riddle","checkmate challenge","find the move","xiangqi dare","chess IQ test","xiangqi mission","tactical challenge","can you beat this","xiangqi trial","chess showdown","xiangqi battle","mind game"],
+    bilibili:["象棋挑战","挑战赛","象棋难题","你能解开吗","象棋测试","智力挑战","象棋竞猜","棋力测试","挑战高手","象棋PK","象棋闯关","脑力挑战","象棋擂台","益智挑战","象棋考验","残局挑战","象棋大考","棋艺挑战","象棋关卡","解题挑战"],
+    douyin:["#象棋挑战","#挑战","#象棋","#你能解开吗","#脑筋急转弯","#益智","#象棋谜题","#中国象棋","#棋艺","#烧脑","#挑战赛","#象棋测试","#智力测试","#一步杀","#象棋大挑战"]
+  }
+};
+
+function renderTagSets(){
+  const contentType=document.getElementById('tagContentType').value;
+  const platform=document.getElementById('tagPlatform').value;
+  const tags=(TAG_SETS[contentType]&&TAG_SETS[contentType][platform])||[];
+  const container=document.getElementById('tagSetsContainer');
+
+  let formatted='';
+  if(platform==='youtube') formatted=tags.join(', ');
+  else if(platform==='bilibili') formatted=tags.join('、');
+  else formatted=tags.join(' ');
+
+  container.innerHTML=`
+    <div class="section">
+      <h2>${platform.charAt(0).toUpperCase()+platform.slice(1)} Tags — ${contentType}</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:13px;color:var(--text2)">${tags.length} tags</span>
+        <button class="btn btn-primary btn-sm" onclick="copyText(\`${formatted.replace(/`/g,"\\`")}\`)">Copy All Tags</button>
+      </div>
+      <div class="tag-cloud">${tags.map(t=>`<span class="tag-pill" onclick="copyText('${t.replace(/'/g,"\\'")}')">${t}</span>`).join('')}</div>
+      <div style="margin-top:16px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:13px;white-space:pre-wrap;line-height:1.6;color:var(--text2)">${formatted}</div>
+    </div>
+  `;
+}
+renderTagSets();
+
+// ═══════════════════════════════════════════════════════════════
+//  CALENDAR SEO READINESS
+// ═══════════════════════════════════════════════════════════════
+function getSeoReadiness(){return JSON.parse(localStorage.getItem('seo_readiness')||'{}');}
+function saveSeoReadiness(d){localStorage.setItem('seo_readiness',JSON.stringify(d));}
+
+function renderCalendarReadiness(){
+  const container=document.getElementById('calendarReadiness');
+  // Try to load calendar entries from localStorage
+  const calData=JSON.parse(localStorage.getItem('calendar_entries')||'[]');
+  const readiness=getSeoReadiness();
+
+  if(!calData.length){
+    container.innerHTML=`<div style="text-align:center;padding:40px;color:var(--text2)">
+      <p style="font-size:15px;margin-bottom:8px">No calendar entries found.</p>
+      <p style="font-size:13px">Add videos in the <a href="calendar.html">Content Calendar</a> first, or manage SEO readiness below.</p>
+      <div style="margin-top:20px">
+        <button class="btn btn-primary" onclick="addManualSeoEntry()">Add Manual Entry</button>
+      </div>
+    </div>`;
+
+    // Show manually added entries
+    const manualEntries=JSON.parse(localStorage.getItem('seo_manual_entries')||'[]');
+    if(manualEntries.length){
+      container.innerHTML+=renderReadinessCards(manualEntries,readiness);
+    }
+    return;
+  }
+
+  // Sort by date, show upcoming
+  const today=new Date().toISOString().split('T')[0];
+  const upcoming=calData.filter(e=>e.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,20);
+  const past=calData.filter(e=>e.date<today).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
+
+  let html='<h3 style="font-size:15px;margin-bottom:12px;color:var(--accent2)">Upcoming Videos</h3>';
+  if(upcoming.length) html+=renderReadinessCards(upcoming,readiness);
+  else html+='<p style="color:var(--text2);font-size:13px">No upcoming videos.</p>';
+
+  if(past.length){
+    html+='<h3 style="font-size:15px;margin:20px 0 12px;color:var(--text2)">Recent Past Videos</h3>';
+    html+=renderReadinessCards(past,readiness);
+  }
+
+  container.innerHTML=html;
+}
+
+function renderReadinessCards(entries,readiness){
+  return entries.map(e=>{
+    const r=readiness[e.id||e.date+e.title]||{title:false,titleScore:0,desc:false,tags:false};
+    const titleDot=r.title?(r.titleScore>=70?'dot-green':'dot-yellow'):'dot-red';
+    const descDot=r.desc?'dot-green':'dot-red';
+    const tagsDot=r.tags?'dot-green':'dot-red';
+    const platformColor=e.platform==='douyin'?'var(--douyin)':e.platform==='bilibili'?'var(--bilibili)':'var(--youtube)';
+    return `<div class="readiness-card">
+      <h4>${e.title||e.topic||'Untitled'} <span style="color:${platformColor};font-size:12px;font-weight:400">${e.platform||'—'}</span> <span style="color:var(--text2);font-size:12px;font-weight:400">${e.date||''}</span></h4>
+      <div class="readiness-check"><span class="dot ${titleDot}"></span> Title ${r.title?'written (Score: '+r.titleScore+')':'not set'}</div>
+      <div class="readiness-check"><span class="dot ${descDot}"></span> Description ${r.desc?'written':'not set'}</div>
+      <div class="readiness-check"><span class="dot ${tagsDot}"></span> Tags ${r.tags?'selected':'not set'}</div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-secondary" onclick="toggleSeoField('${e.id||e.date+e.title}','title')">Toggle Title</button>
+        <button class="btn btn-sm btn-secondary" onclick="toggleSeoField('${e.id||e.date+e.title}','desc')">Toggle Desc</button>
+        <button class="btn btn-sm btn-secondary" onclick="toggleSeoField('${e.id||e.date+e.title}','tags')">Toggle Tags</button>
+        <button class="btn btn-sm btn-secondary" onclick="setSeoScore('${e.id||e.date+e.title}')">Set Score</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSeoField(id,field){
+  const r=getSeoReadiness();
+  if(!r[id]) r[id]={title:false,titleScore:0,desc:false,tags:false};
+  r[id][field]=!r[id][field];
+  saveSeoReadiness(r);
+  renderCalendarReadiness();
+}
+
+function setSeoScore(id){
+  const score=prompt('Enter title score (0-100):');
+  if(score===null) return;
+  const r=getSeoReadiness();
+  if(!r[id]) r[id]={title:false,titleScore:0,desc:false,tags:false};
+  r[id].titleScore=Math.min(100,Math.max(0,parseInt(score)||0));
+  r[id].title=true;
+  saveSeoReadiness(r);
+  renderCalendarReadiness();
+}
+
+function addManualSeoEntry(){
+  const title=prompt('Video title / topic:');
+  if(!title) return;
+  const platform=prompt('Platform (douyin/bilibili/youtube):','bilibili');
+  const date=prompt('Date (YYYY-MM-DD):',new Date().toISOString().split('T')[0]);
+  const entries=JSON.parse(localStorage.getItem('seo_manual_entries')||'[]');
+  entries.push({id:'manual_'+Date.now(),title,platform:platform||'bilibili',date:date||new Date().toISOString().split('T')[0]});
+  localStorage.setItem('seo_manual_entries',JSON.stringify(entries));
+
+  // Also add to calendar_entries so they show up
+  const calEntries=JSON.parse(localStorage.getItem('calendar_entries')||'[]');
+  calEntries.push({id:'manual_'+Date.now(),title,platform:platform||'bilibili',date:date||new Date().toISOString().split('T')[0]});
+  localStorage.setItem('calendar_entries',JSON.stringify(calEntries));
+
+  renderCalendarReadiness();
+  toast('Entry added');
+}
+
+renderCalendarReadiness();
+
+// Set default date for competitor
+document.getElementById('compDate').value=new Date().toISOString().split('T')[0];
+</script>
+<script>
+// Universal language toggle
+(function() {
+  let pageLang = localStorage.getItem('pageLang') || 'zh';
+  
+  window.setPageLang = function(lang) {
+    pageLang = lang;
+    localStorage.setItem('pageLang', lang);
+    document.querySelectorAll('.lt-btn').forEach(b => {
+      const isActive = b.dataset.lang === lang;
+      b.style.background = isActive ? 'rgba(240,192,96,0.9)' : 'rgba(255,255,255,0.08)';
+      b.style.color = isActive ? '#1a1d2e' : '#9ca0b8';
+      b.style.border = isActive ? 'none' : '1px solid rgba(255,255,255,0.06)';
+    });
+    applyLang();
+  };
+  
+  function applyLang() {
+    document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+      if (pageLang === 'zh') el.textContent = el.dataset.zh;
+      else if (pageLang === 'en') el.textContent = el.dataset.en;
+      else el.textContent = el.dataset.zh + ' ' + el.dataset.en;
+    });
+  }
+  
+  // Apply on load
+  setTimeout(() => {
+    setPageLang(pageLang);
+  }, 100);
+})();
+</script>
+</body>
+</html>

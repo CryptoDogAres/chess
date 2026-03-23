@@ -1,0 +1,11 @@
+# Episode 11: Advanced Endgame -- Horse & Cannon Endgames
+# 第十一集：残局进阶——马炮残局
+# Practice positions for horse endgames, cannon platform techniques, and horse vs cannon comparison
+# 马残局、炮找炮架技巧、马炮对比练习
+
+3ak4/4a4/9/9/9/9/4N4/9/9/4K4 w - - 0 1 # Horse vs two Advisors (draw) 单马对双士（和棋） — Horse alone cannot break two-Advisor defense; recognize the draw 单马无法突破双士防守，识别和棋
+3ak4/4a4/4e4/4P4/9/9/4N4/9/9/4K4 w - - 0 1 # Horse+Pawn vs Advisor+Elephant (win) 马兵对士象（能赢） — Horse coordinates with Pawn advance; King must follow up 马配合兵前进，帅也要跟上
+3ak4/4a4/9/4N4/9/9/9/9/9/4K4 w - - 0 1 # Horse at palace gate 马踞九宫口 — Horse on e7 threatens d9 and f9; maximum pressure on Black's defense 马在e7威胁d9和f9，对黑方压力最大
+3ak4/4a4/4e4/9/9/9/9/4C4/9/4K4 w - - 0 1 # Cannon using King as platform 炮用帅做架 — move King to e2 as platform; Cannon then attacks along e-file over King 帅走e2做炮架，炮隔帅攻击e线目标
+3ak4/4a4/4e4/4P4/9/9/4C4/9/9/4K4 w - - 0 1 # Cannon+Pawn coordination 炮兵配合 — Pawn on e7 serves as platform; Cannon attacks over Pawn as it advances 兵e7做炮架，炮隔兵攻击，兵步步前进
+3ak4/4a4/4e4/5N3/9/9/4c4/9/9/4K4 w - - 0 1 # Horse vs Cannon comparison 马炮对比 — Red Horse on f7 roams freely; Black Cannon on e4 has no platform; Horse advantage clear 红马f7自由驰骋，黑炮e4无架可用，马的优势明显

@@ -1,0 +1,53 @@
+{
+  "id": "content-beginner",
+  "title": "新手教程 Beginner Tutorial Series",
+  "description": "Evergreen SEO content for beginners — structured learning path from zero to intermediate",
+  "folder": "content",
+  "priority": "medium",
+  "status": "completed",
+  "progress": 100,
+  "tasks": [
+    {
+      "id": "cb1",
+      "text": "Outline 12-episode beginner curriculum: rules → basic kills → openings → endgame",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "cb2",
+      "text": "Ep 1-3: Rules, piece movement, basic checkmate patterns (马后炮, 天地炮)",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "cb3",
+      "text": "Ep 4-6: Top 5 popular openings with simple explanations",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "cb4",
+      "text": "Ep 7-9: Middle game tactics and piece coordination",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "cb5",
+      "text": "Ep 10-12: Essential endgame patterns (top 50 basic positions)",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "cb6",
+      "text": "SEO-optimize titles and descriptions for search discovery",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "cb7",
+      "text": "Create downloadable practice position sets for each episode",
+      "done": true,
+      "priority": "low"
+    }
+  ]
+}

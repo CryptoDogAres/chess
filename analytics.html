@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" rel="stylesheet">
+<title>数据分析 — Analytics Tracker</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0f1117;--surface:#1e2130;--surface2:#282b3d;--surface3:#333750;
+--text:#e8e8f0;--text2:#9a9bb5;--accent:#6c72cb;
+--red:#e8384f;--green:#36b37e;--gold:#f5a623;--blue:#4fc3f7;
+--douyin:#fe2c55;--bili:#fb7299;--youtube:#ff0000;
+--border:#2e3148;--radius:10px;
+}
+body{font-family:'LXGW WenKai',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Header */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header h1{font-size:20px;font-weight:700}
+.header h1 span{color:var(--text2);font-weight:400;font-size:14px;margin-left:8px}
+.header-actions{display:flex;gap:10px;align-items:center}
+
+/* Navigation Tabs */
+.tabs{display:flex;gap:4px;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;flex-wrap:nowrap}
+.tab{padding:8px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);transition:all .2s;white-space:nowrap;border:1px solid transparent}
+.tab:hover{background:var(--surface2);color:var(--text)}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* Main Content */
+.main{padding:20px 24px;max-width:1400px;margin:0 auto}
+.section{display:none}
+.section.active{display:block}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card h3{font-size:15px;margin-bottom:14px;color:var(--text);display:flex;align-items:center;gap:8px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+
+/* Platform Cards */
+.platform-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+@media(max-width:900px){.platform-cards{grid-template-columns:1fr}}
+.platform-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden}
+.platform-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.platform-card.douyin::before{background:var(--douyin)}
+.platform-card.bilibili::before{background:var(--bili)}
+.platform-card.youtube::before{background:var(--youtube)}
+.platform-card .p-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.platform-card .p-name{font-size:16px;font-weight:700}
+.platform-card .p-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff}
+.platform-card.douyin .p-icon{background:var(--douyin)}
+.platform-card.bilibili .p-icon{background:var(--bili)}
+.platform-card.youtube .p-icon{background:var(--youtube)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat-item{background:var(--surface2);border-radius:8px;padding:10px 12px}
+.stat-item .label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.stat-item .value{font-size:18px;font-weight:700;margin-top:2px;display:flex;align-items:center;gap:6px}
+.stat-item .trend{font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px}
+.stat-item .trend.up{background:rgba(54,179,126,.15);color:var(--green)}
+.stat-item .trend.down{background:rgba(232,56,79,.15);color:var(--red)}
+.stat-item .trend.flat{background:rgba(154,155,181,.15);color:var(--text2)}
+
+/* Buttons */
+.btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--surface3);border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{opacity:.9}
+.btn.danger{background:var(--red);border-color:var(--red);color:#fff}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#000}
+
+/* Forms */
+.form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end}
+.form-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:120px}
+.form-group label{font-size:11px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:var(--accent)}
+
+/* Tables */
+.table-wrap{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--surface2);padding:10px 12px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);cursor:pointer;white-space:nowrap;position:sticky;top:0}
+th:hover{color:var(--text);background:var(--surface3)}
+th .sort-arrow{margin-left:4px;font-size:10px}
+td{padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+tr:hover td{background:rgba(108,114,203,.05)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.badge.gold{background:rgba(245,166,35,.2);color:var(--gold)}
+.badge.douyin{background:rgba(254,44,85,.15);color:var(--douyin)}
+.badge.bilibili{background:rgba(251,114,153,.15);color:var(--bili)}
+.badge.youtube{background:rgba(255,0,0,.15);color:var(--youtube)}
+
+/* Filter bar */
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.filter-bar select,.filter-bar input{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:13px;outline:none}
+
+/* Charts */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.chart-grid{grid-template-columns:1fr}}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.chart-card h4{font-size:13px;color:var(--text2);margin-bottom:12px;font-weight:600}
+.chart-card canvas{width:100%;height:250px}
+
+/* Weekly Review */
+.review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.review-item{background:var(--surface2);border-radius:8px;padding:16px}
+.review-item .ri-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.review-item .ri-value{font-size:22px;font-weight:700}
+.review-item .ri-sub{font-size:12px;color:var(--text2);margin-top:4px}
+
+/* Milestones */
+.milestone-platform{margin-bottom:24px}
+.milestone-platform h4{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.milestone-list{display:flex;gap:12px;flex-wrap:wrap}
+.milestone-item{background:var(--surface2);border-radius:8px;padding:14px 18px;min-width:200px;flex:1}
+.milestone-item .m-target{font-size:13px;font-weight:600;margin-bottom:8px}
+.milestone-item .m-bar{height:8px;background:var(--surface3);border-radius:4px;overflow:hidden;margin-bottom:6px}
+.milestone-item .m-bar-fill{height:100%;border-radius:4px;transition:width .5s}
+.milestone-item .m-info{font-size:11px;color:var(--text2);display:flex;justify-content:space-between}
+.milestone-item.achieved{border:1px solid var(--green)}
+.milestone-item.achieved .m-target::after{content:' ✓';color:var(--green)}
+
+/* Content Analysis */
+.content-table{width:100%;border-collapse:collapse;font-size:13px}
+.content-table th{padding:10px;text-align:left;background:var(--surface2);font-size:11px;text-transform:uppercase;color:var(--text2)}
+.content-table td{padding:10px;border-bottom:1px solid var(--border)}
+.recommendation{background:linear-gradient(135deg,rgba(108,114,203,.15),rgba(79,195,247,.1));border:1px solid var(--accent);border-radius:var(--radius);padding:16px;margin-top:16px;font-size:14px}
+.recommendation strong{color:var(--accent)}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;max-width:700px;width:90%;max-height:80vh;overflow-y:auto}
+.modal h3{margin-bottom:16px}
+.modal .form-row:last-of-type{margin-bottom:16px}
+
+/* Platform stat editor modal */
+.platform-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* Data section */
+.data-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+#importArea{width:100%;min-height:200px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:monospace;font-size:12px;resize:vertical}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--text2)}
+
+/* Responsive */
+@media(max-width:768px){
+.main{padding:12px}
+.platform-cards{grid-template-columns:1fr}
+.chart-grid{grid-template-columns:1fr}
+.form-row{flex-direction:column}
+.form-group{min-width:100%}
+.header{flex-direction:column;gap:8px}
+.tabs{padding:8px 12px}
+}
+</style>
+</head>
+<body>
+
+<nav style="background:#131520;border-bottom:1px solid rgba(255,255,255,0.06);padding:8px 16px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-family:-apple-system,sans-serif;">
+  <a href="dashboard.html" style="color:#ef4444;font-weight:700;text-decoration:none;font-size:0.82em;padding:4px 12px;">棋 Dashboard</a>
+  <a href="board-art.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Art Board</a>
+  <a href="board3d.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">3D Board</a>
+  <a href="board.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Board</a>
+  <a href="games.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Games</a>
+  <a href="explain.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Explain</a>
+  <a href="analyze.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analyze</a>
+  <a href="calendar.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Calendar</a>
+  <a href="scripts.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Scripts</a>
+  <a href="analytics.html" style="color:#fff;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);">Analytics</a>
+  <a href="branding.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Branding</a>
+  <a href="seo.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">SEO</a>
+  <a href="translate.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Translate</a>
+  <a href="report.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Report</a>
+</nav>
+
+<div class="header">
+  <h1><span data-zh="数据分析" data-en="Analytics Tracker">数据分析</span> <span data-zh="" data-en=""></span></h1>
+  <div class="header-actions">
+    <div class="lang-toggle" style="display:inline-flex;gap:3px;margin-left:auto;">
+  <button onclick="setPageLang('zh')" class="lt-btn lt-active" data-lang="zh" style="background:rgba(240,192,96,0.9);color:#1a1d2e;border:none;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">中文</button>
+  <button onclick="setPageLang('en')" class="lt-btn" data-lang="en" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">EN</button>
+  <button onclick="setPageLang('both')" class="lt-btn" data-lang="both" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">双语</button>
+</div>
+    <a href="dashboard.html" class="btn sm" data-zh="← 返回看板" data-en="← Dashboard">← 返回 Dashboard</a>
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" data-tab="overview" data-zh="平台总览" data-en="Overview">平台总览</div>
+  <div class="tab" data-tab="videos" data-zh="视频日志" data-en="Video Log">视频日志</div>
+  <div class="tab" data-tab="charts" data-zh="增长图表" data-en="Growth Charts">增长图表</div>
+  <div class="tab" data-tab="weekly" data-zh="每周复盘" data-en="Weekly Review">每周复盘</div>
+  <div class="tab" data-tab="milestones" data-zh="里程碑" data-en="Milestones">里程碑</div>
+  <div class="tab" data-tab="content" data-zh="内容分析" data-en="Content Analysis">内容分析</div>
+  <div class="tab" data-tab="data" data-zh="数据管理" data-en="Data Management">数据管理</div>
+</div>
+
+<div class="main">
+
+<!-- ==================== OVERVIEW ==================== -->
+<div class="section active" id="sec-overview">
+  <div class="platform-cards" id="platformCards"></div>
+  <div style="text-align:right;margin-bottom:16px">
+    <button class="btn primary" onclick="openPlatformEditor()">+ 更新平台数据</button>
+  </div>
+  <div class="card">
+    <h3>历史数据记录</h3>
+    <div class="table-wrap">
+      <table id="platformHistoryTable">
+        <thead><tr><th>日期</th><th>平台</th><th>粉丝</th><th>总播放</th><th>视频数</th><th>均播放</th><th>互动率%</th><th>收入¥</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== VIDEO LOG ==================== -->
+<div class="section" id="sec-videos">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h3 style="margin:0">视频表现日志</h3>
+      <button class="btn primary" onclick="openVideoModal()">+ 添加视频</button>
+    </div>
+    <div class="filter-bar">
+      <select id="filterPlatform" onchange="renderVideoTable()">
+        <option value="">全部平台</option>
+        <option value="Douyin">Douyin</option>
+        <option value="Bilibili">Bilibili</option>
+        <option value="YouTube">YouTube</option>
+      </select>
+      <select id="filterType" onchange="renderVideoTable()">
+        <option value="">全部类型</option>
+        <option value="残局 Puzzle">残局 Puzzle</option>
+        <option value="名局 Famous">名局 Famous</option>
+        <option value="教程 Tutorial">教程 Tutorial</option>
+        <option value="直播 Live">直播 Live</option>
+        <option value="系列 Series">系列 Series</option>
+      </select>
+      <input type="date" id="filterDateFrom" onchange="renderVideoTable()" title="从">
+      <input type="date" id="filterDateTo" onchange="renderVideoTable()" title="到">
+      <button class="btn sm" onclick="clearVideoFilters()">清除筛选</button>
+    </div>
+    <div class="table-wrap" style="max-height:500px;overflow-y:auto">
+      <table id="videoTable">
+        <thead><tr>
+          <th data-sort="date" onclick="sortVideos('date')">日期 <span class="sort-arrow"></span></th>
+          <th data-sort="title" onclick="sortVideos('title')">标题 <span class="sort-arrow"></span></th>
+          <th data-sort="platform" onclick="sortVideos('platform')">平台 <span class="sort-arrow"></span></th>
+          <th data-sort="type" onclick="sortVideos('type')">类型 <span class="sort-arrow"></span></th>
+          <th data-sort="views" onclick="sortVideos('views')">播放 <span class="sort-arrow"></span></th>
+          <th data-sort="likes" onclick="sortVideos('likes')">点赞 <span class="sort-arrow"></span></th>
+          <th data-sort="comments" onclick="sortVideos('comments')">评论 <span class="sort-arrow"></span></th>
+          <th data-sort="shares" onclick="sortVideos('shares')">分享 <span class="sort-arrow"></span></th>
+          <th data-sort="watchTime" onclick="sortVideos('watchTime')">观看% <span class="sort-arrow"></span></th>
+          <th data-sort="revenue" onclick="sortVideos('revenue')">收入¥ <span class="sort-arrow"></span></th>
+          <th></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CHARTS ==================== -->
+<div class="section" id="sec-charts">
+  <div class="chart-grid">
+    <div class="chart-card"><h4>粉丝增长 Follower Growth</h4><canvas id="chartFollowers"></canvas></div>
+    <div class="chart-card"><h4>每视频播放 Views per Video</h4><canvas id="chartViews"></canvas></div>
+    <div class="chart-card"><h4>内容类型对比 Content Type Comparison</h4><canvas id="chartContentType"></canvas></div>
+    <div class="chart-card"><h4>收入趋势 Revenue Over Time</h4><canvas id="chartRevenue"></canvas></div>
+  </div>
+</div>
+
+<!-- ==================== WEEKLY REVIEW ==================== -->
+<div class="section" id="sec-weekly">
+  <div class="card" style="margin-bottom:16px">
+    <h3>本周目标 Weekly Goals</h3>
+    <div class="form-row">
+      <div class="form-group"><label>目标播放 Views Goal</label><input type="number" id="goalViews" onchange="saveGoals()"></div>
+      <div class="form-group"><label>目标粉丝增长 Follower Growth Goal</label><input type="number" id="goalFollowers" onchange="saveGoals()"></div>
+      <div class="form-group"><label>目标发布数 Videos Goal</label><input type="number" id="goalVideos" onchange="saveGoals()" placeholder="5-7"></div>
+      <div class="form-group"><label>目标收入 Revenue Goal ¥</label><input type="number" id="goalRevenue" onchange="saveGoals()"></div>
+    </div>
+  </div>
+  <div class="review-grid" id="weeklyReview"></div>
+  <div class="card" style="margin-top:16px">
+    <h3>本周最佳 Best Performer</h3>
+    <div id="weeklyBest" style="padding:8px 0;color:var(--text2)">暂无数据</div>
+  </div>
+  <div class="card">
+    <h3>本周最差 Needs Improvement</h3>
+    <div id="weeklyWorst" style="padding:8px 0;color:var(--text2)">暂无数据</div>
+  </div>
+</div>
+
+<!-- ==================== MILESTONES ==================== -->
+<div class="section" id="sec-milestones">
+  <div id="milestoneBoard"></div>
+</div>
+
+<!-- ==================== CONTENT ANALYSIS ==================== -->
+<div class="section" id="sec-content">
+  <div class="card">
+    <h3>内容类型分析 Content Type Analysis</h3>
+    <div class="table-wrap">
+      <table class="content-table" id="contentAnalysisTable">
+        <thead><tr><th>类型</th><th>视频数</th><th>均播放</th><th>均互动率%</th><th>最佳平台</th><th>总收入¥</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="recommendation" id="contentRecommendation">暂无足够数据生成推荐。添加更多视频记录后将自动分析。</div>
+  </div>
+</div>
+
+<!-- ==================== DATA MANAGEMENT ==================== -->
+<div class="section" id="sec-data">
+  <div class="card">
+    <h3>数据管理 Data Management</h3>
+    <div class="data-actions">
+      <button class="btn primary" onclick="exportData()">导出 JSON</button>
+      <button class="btn" onclick="importDataPrompt()">导入 JSON</button>
+      <button class="btn gold" onclick="loadSampleData()">加载示例数据 Load Sample</button>
+      <button class="btn danger" onclick="clearAllData()">清除所有数据</button>
+    </div>
+    <textarea id="importArea" placeholder="粘贴 JSON 数据到此处，然后点击导入..."></textarea>
+    <div style="margin-top:10px">
+      <button class="btn" onclick="doImport()">确认导入</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- ==================== MODALS ==================== -->
+<div class="modal-overlay" id="modalPlatform">
+  <div class="modal">
+    <h3>更新平台数据</h3>
+    <div class="form-row">
+      <div class="form-group"><label>日期</label><input type="date" id="peDate"></div>
+      <div class="form-group"><label>平台</label>
+        <select id="pePlatform">
+          <option value="Douyin">Douyin 抖音</option>
+          <option value="Bilibili">Bilibili B站</option>
+          <option value="YouTube">YouTube</option>
+        </select>
+      </div>
+    </div>
+    <div class="platform-edit-grid">
+      <div class="form-group"><label>粉丝/订阅 Followers</label><input type="number" id="peFollowers"></div>
+      <div class="form-group"><label>总播放 Total Views</label><input type="number" id="peViews"></div>
+      <div class="form-group"><label>视频数 Videos</label><input type="number" id="peVideos"></div>
+      <div class="form-group"><label>均播放 Avg Views</label><input type="number" id="peAvgViews"></div>
+      <div class="form-group"><label>互动率% Engagement</label><input type="number" step="0.01" id="peEngagement"></div>
+      <div class="form-group"><label>收入¥ Revenue</label><input type="number" step="0.01" id="peRevenue"></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+      <button class="btn" onclick="closePlatformEditor()">取消</button>
+      <button class="btn primary" onclick="savePlatformEntry()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalVideo">
+  <div class="modal">
+    <h3>添加视频记录</h3>
+    <div class="form-row">
+      <div class="form-group"><label>日期</label><input type="date" id="vDate"></div>
+      <div class="form-group"><label>平台</label>
+        <select id="vPlatform">
+          <option value="Douyin">Douyin</option>
+          <option value="Bilibili">Bilibili</option>
+          <option value="YouTube">YouTube</option>
+        </select>
+      </div>
+      <div class="form-group"><label>类型</label>
+        <select id="vType">
+          <option value="残局 Puzzle">残局 Puzzle</option>
+          <option value="名局 Famous">名局 Famous</option>
+          <option value="教程 Tutorial">教程 Tutorial</option>
+          <option value="直播 Live">直播 Live</option>
+          <option value="系列 Series">系列 Series</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex:3"><label>标题 Title</label><input type="text" id="vTitle"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>播放 Views</label><input type="number" id="vViews"></div>
+      <div class="form-group"><label>点赞 Likes</label><input type="number" id="vLikes"></div>
+      <div class="form-group"><label>评论 Comments</label><input type="number" id="vComments"></div>
+      <div class="form-group"><label>分享 Shares</label><input type="number" id="vShares"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>观看% Watch Time</label><input type="number" step="0.1" id="vWatchTime"></div>
+      <div class="form-group"><label>收入¥ Revenue</label><input type="number" step="0.01" id="vRevenue"></div>
+    </div>
+    <div id="editVideoId" style="display:none"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+      <button class="btn" onclick="closeVideoModal()">取消</button>
+      <button class="btn primary" onclick="saveVideo()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ DATA LAYER ============ */
+const STORE_PLATFORM = 'analytics_platform';
+const STORE_VIDEOS = 'analytics_videos';
+const STORE_GOALS = 'analytics_goals';
+
+function loadPlatformData(){ return JSON.parse(localStorage.getItem(STORE_PLATFORM)||'[]'); }
+function savePlatformData(d){ localStorage.setItem(STORE_PLATFORM, JSON.stringify(d)); }
+function loadVideos(){ return JSON.parse(localStorage.getItem(STORE_VIDEOS)||'[]'); }
+function saveVideos(d){ localStorage.setItem(STORE_VIDEOS, JSON.stringify(d)); }
+function loadGoals(){ return JSON.parse(localStorage.getItem(STORE_GOALS)||'{}'); }
+function saveGoalsData(d){ localStorage.setItem(STORE_GOALS, JSON.stringify(d)); }
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function fmt(n){ if(n==null||isNaN(n)) return '—'; if(n>=1e6) return (n/1e6).toFixed(1)+'M'; if(n>=1e4) return (n/1e3).toFixed(1)+'K'; return Number(n).toLocaleString(); }
+function fmtMoney(n){ return n!=null&&!isNaN(n)?'¥'+Number(n).toFixed(2):'—'; }
+
+/* ============ TABS ============ */
+document.getElementById('tabs').addEventListener('click', function(e){
+  if(!e.target.classList.contains('tab')) return;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  e.target.classList.add('active');
+  const tabId = e.target.dataset.tab;
+  document.getElementById('sec-'+tabId).classList.add('active');
+  if(tabId==='charts') setTimeout(renderAllCharts,50);
+  if(tabId==='weekly') renderWeeklyReview();
+  if(tabId==='milestones') renderMilestones();
+  if(tabId==='content') renderContentAnalysis();
+  if(tabId==='overview') renderOverview();
+});
+
+/* ============ PLATFORM OVERVIEW ============ */
+function getLatestPlatformStats(){
+  const data = loadPlatformData();
+  const result = {};
+  ['Douyin','Bilibili','YouTube'].forEach(p=>{
+    const entries = data.filter(e=>e.platform===p).sort((a,b)=>b.date.localeCompare(a.date));
+    result[p] = { current: entries[0]||null, prev: entries[1]||null };
+  });
+  return result;
+}
+
+function trendHTML(current, prev){
+  if(!current||!prev) return '<span class="trend flat">—</span>';
+  const diff = current - prev;
+  if(diff>0) return '<span class="trend up">+'+fmt(diff)+'</span>';
+  if(diff<0) return '<span class="trend down">'+fmt(diff)+'</span>';
+  return '<span class="trend flat">0</span>';
+}
+
+function renderPlatformCards(){
+  const stats = getLatestPlatformStats();
+  const container = document.getElementById('platformCards');
+  container.innerHTML = '';
+  [
+    {key:'Douyin',cls:'douyin',icon:'D',label:'抖音 Douyin'},
+    {key:'Bilibili',cls:'bilibili',icon:'B',label:'哔哩哔哩 Bilibili'},
+    {key:'YouTube',cls:'youtube',icon:'Y',label:'YouTube'}
+  ].forEach(p=>{
+    const c = stats[p.key].current || {};
+    const pr = stats[p.key].prev || {};
+    container.innerHTML += `
+    <div class="platform-card ${p.cls}">
+      <div class="p-header">
+        <span class="p-name">${p.label}</span>
+        <div class="p-icon">${p.icon}</div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="label">粉丝 Followers</div><div class="value">${fmt(c.followers)} ${trendHTML(c.followers,pr.followers)}</div></div>
+        <div class="stat-item"><div class="label">总播放 Views</div><div class="value">${fmt(c.totalViews)} ${trendHTML(c.totalViews,pr.totalViews)}</div></div>
+        <div class="stat-item"><div class="label">视频数 Videos</div><div class="value">${fmt(c.videos)} ${trendHTML(c.videos,pr.videos)}</div></div>
+        <div class="stat-item"><div class="label">均播放 Avg Views</div><div class="value">${fmt(c.avgViews)} ${trendHTML(c.avgViews,pr.avgViews)}</div></div>
+        <div class="stat-item"><div class="label">互动率 Engagement</div><div class="value">${c.engagement!=null?c.engagement+'%':'—'} ${trendHTML(c.engagement,pr.engagement)}</div></div>
+        <div class="stat-item"><div class="label">收入 Revenue</div><div class="value">${fmtMoney(c.revenue)} ${trendHTML(c.revenue,pr.revenue)}</div></div>
+      </div>
+    </div>`;
+  });
+}
+
+function renderPlatformHistory(){
+  const data = loadPlatformData().sort((a,b)=>b.date.localeCompare(a.date));
+  const tbody = document.querySelector('#platformHistoryTable tbody');
+  tbody.innerHTML = data.map(e=>`<tr>
+    <td>${e.date}</td>
+    <td><span class="badge ${e.platform.toLowerCase()}">${e.platform}</span></td>
+    <td>${fmt(e.followers)}</td>
+    <td>${fmt(e.totalViews)}</td>
+    <td>${e.videos||'—'}</td>
+    <td>${fmt(e.avgViews)}</td>
+    <td>${e.engagement!=null?e.engagement+'%':'—'}</td>
+    <td>${fmtMoney(e.revenue)}</td>
+    <td><button class="btn sm danger" onclick="deletePlatformEntry('${e.id}')">×</button></td>
+  </tr>`).join('');
+}
+
+function renderOverview(){ renderPlatformCards(); renderPlatformHistory(); }
+
+/* Platform Editor */
+function openPlatformEditor(){
+  document.getElementById('modalPlatform').classList.add('show');
+  document.getElementById('peDate').value = new Date().toISOString().slice(0,10);
+}
+function closePlatformEditor(){ document.getElementById('modalPlatform').classList.remove('show'); }
+
+function savePlatformEntry(){
+  const entry = {
+    id: uid(),
+    date: document.getElementById('peDate').value,
+    platform: document.getElementById('pePlatform').value,
+    followers: Number(document.getElementById('peFollowers').value)||0,
+    totalViews: Number(document.getElementById('peViews').value)||0,
+    videos: Number(document.getElementById('peVideos').value)||0,
+    avgViews: Number(document.getElementById('peAvgViews').value)||0,
+    engagement: Number(document.getElementById('peEngagement').value)||0,
+    revenue: Number(document.getElementById('peRevenue').value)||0
+  };
+  if(!entry.date){ alert('请选择日期'); return; }
+  const data = loadPlatformData();
+  data.push(entry);
+  savePlatformData(data);
+  closePlatformEditor();
+  renderOverview();
+  ['peFollowers','peViews','peVideos','peAvgViews','peEngagement','peRevenue'].forEach(id=>document.getElementById(id).value='');
+}
+
+function deletePlatformEntry(id){
+  if(!confirm('确定删除?')) return;
+  savePlatformData(loadPlatformData().filter(e=>e.id!==id));
+  renderOverview();
+}
+
+/* ============ VIDEO LOG ============ */
+let videoSortField = 'date';
+let videoSortDir = -1;
+
+function openVideoModal(editId){
+  document.getElementById('modalVideo').classList.add('show');
+  document.getElementById('editVideoId').textContent = editId||'';
+  if(editId){
+    const v = loadVideos().find(e=>e.id===editId);
+    if(v){
+      document.getElementById('vDate').value=v.date;
+      document.getElementById('vPlatform').value=v.platform;
+      document.getElementById('vType').value=v.type;
+      document.getElementById('vTitle').value=v.title;
+      document.getElementById('vViews').value=v.views;
+      document.getElementById('vLikes').value=v.likes;
+      document.getElementById('vComments').value=v.comments;
+      document.getElementById('vShares').value=v.shares;
+      document.getElementById('vWatchTime').value=v.watchTime;
+      document.getElementById('vRevenue').value=v.revenue;
+    }
+  } else {
+    document.getElementById('vDate').value = new Date().toISOString().slice(0,10);
+    ['vTitle','vViews','vLikes','vComments','vShares','vWatchTime','vRevenue'].forEach(id=>document.getElementById(id).value='');
+  }
+}
+function closeVideoModal(){ document.getElementById('modalVideo').classList.remove('show'); }
+
+function saveVideo(){
+  const editId = document.getElementById('editVideoId').textContent;
+  const entry = {
+    id: editId || uid(),
+    date: document.getElementById('vDate').value,
+    platform: document.getElementById('vPlatform').value,
+    type: document.getElementById('vType').value,
+    title: document.getElementById('vTitle').value,
+    views: Number(document.getElementById('vViews').value)||0,
+    likes: Number(document.getElementById('vLikes').value)||0,
+    comments: Number(document.getElementById('vComments').value)||0,
+    shares: Number(document.getElementById('vShares').value)||0,
+    watchTime: Number(document.getElementById('vWatchTime').value)||0,
+    revenue: Number(document.getElementById('vRevenue').value)||0
+  };
+  if(!entry.date||!entry.title){ alert('请填写日期和标题'); return; }
+  let data = loadVideos();
+  if(editId){ data = data.map(e=>e.id===editId?entry:e); }
+  else { data.push(entry); }
+  saveVideos(data);
+  closeVideoModal();
+  renderVideoTable();
+}
+
+function getFilteredVideos(){
+  let data = loadVideos();
+  const fp = document.getElementById('filterPlatform').value;
+  const ft = document.getElementById('filterType').value;
+  const fd = document.getElementById('filterDateFrom').value;
+  const td = document.getElementById('filterDateTo').value;
+  if(fp) data = data.filter(e=>e.platform===fp);
+  if(ft) data = data.filter(e=>e.type===ft);
+  if(fd) data = data.filter(e=>e.date>=fd);
+  if(td) data = data.filter(e=>e.date<=td);
+  return data;
+}
+
+function sortVideos(field){
+  if(videoSortField===field) videoSortDir*=-1;
+  else { videoSortField=field; videoSortDir=-1; }
+  renderVideoTable();
+}
+
+function renderVideoTable(){
+  let data = getFilteredVideos();
+  // Sort
+  data.sort((a,b)=>{
+    let va=a[videoSortField], vb=b[videoSortField];
+    if(typeof va==='string') return va.localeCompare(vb)*videoSortDir;
+    return ((va||0)-(vb||0))*videoSortDir;
+  });
+  // Top 10% threshold
+  const allViews = data.map(e=>e.views).sort((a,b)=>b-a);
+  const top10Idx = Math.max(1, Math.floor(allViews.length*0.1));
+  const top10Threshold = allViews[top10Idx-1]||Infinity;
+
+  const tbody = document.querySelector('#videoTable tbody');
+  tbody.innerHTML = data.map(v=>{
+    const isTop = v.views >= top10Threshold && allViews.length>=3;
+    return `<tr>
+      <td>${v.date}</td>
+      <td>${isTop?'<span class="badge gold">TOP</span> ':''}${v.title}</td>
+      <td><span class="badge ${v.platform.toLowerCase()}">${v.platform}</span></td>
+      <td>${v.type}</td>
+      <td>${fmt(v.views)}</td>
+      <td>${fmt(v.likes)}</td>
+      <td>${fmt(v.comments)}</td>
+      <td>${fmt(v.shares)}</td>
+      <td>${v.watchTime?v.watchTime+'%':'—'}</td>
+      <td>${fmtMoney(v.revenue)}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn sm" onclick="openVideoModal('${v.id}')">编辑</button>
+        <button class="btn sm danger" onclick="deleteVideo('${v.id}')">×</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Update sort arrows
+  document.querySelectorAll('#videoTable th').forEach(th=>{
+    const arrow = th.querySelector('.sort-arrow');
+    if(!arrow) return;
+    const sf = th.dataset.sort;
+    arrow.textContent = sf===videoSortField ? (videoSortDir>0?'▲':'▼') : '';
+  });
+}
+
+function deleteVideo(id){
+  if(!confirm('确定删除?')) return;
+  saveVideos(loadVideos().filter(e=>e.id!==id));
+  renderVideoTable();
+}
+
+function clearVideoFilters(){
+  document.getElementById('filterPlatform').value='';
+  document.getElementById('filterType').value='';
+  document.getElementById('filterDateFrom').value='';
+  document.getElementById('filterDateTo').value='';
+  renderVideoTable();
+}
+
+/* ============ CHARTS ============ */
+function renderAllCharts(){
+  renderFollowerChart();
+  renderViewsChart();
+  renderContentTypeChart();
+  renderRevenueChart();
+}
+
+function setupCanvas(canvasId){
+  const canvas = document.getElementById(canvasId);
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio||1;
+  canvas.width = rect.width * dpr;
+  canvas.height = 250 * dpr;
+  canvas.style.width = rect.width+'px';
+  canvas.style.height = '250px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return {ctx, w:rect.width, h:250};
+}
+
+const chartColors = {Douyin:'#fe2c55',Bilibili:'#fb7299',YouTube:'#ff0000'};
+const typeColors = {'残局 Puzzle':'#6c72cb','名局 Famous':'#4fc3f7','教程 Tutorial':'#36b37e','直播 Live':'#f5a623','系列 Series':'#e8384f'};
+
+function drawLineChart(canvasId, datasets, xLabels){
+  const {ctx,w,h} = setupCanvas(canvasId);
+  const pad = {top:20,right:20,bottom:35,left:55};
+  const cw = w-pad.left-pad.right, ch = h-pad.top-pad.bottom;
+
+  ctx.clearRect(0,0,w,h);
+
+  // Find range
+  let allVals = [];
+  datasets.forEach(ds=>allVals.push(...ds.data));
+  if(allVals.length===0) { ctx.fillStyle='#9a9bb5'; ctx.font='14px sans-serif'; ctx.fillText('暂无数据',w/2-30,h/2); return; }
+  let minV = Math.min(...allVals), maxV = Math.max(...allVals);
+  if(minV===maxV){ minV-=1; maxV+=1; }
+  const range = maxV - minV;
+
+  // Grid
+  ctx.strokeStyle = '#2e3148';
+  ctx.lineWidth = 1;
+  ctx.font = '10px sans-serif';
+  ctx.fillStyle = '#9a9bb5';
+  ctx.textAlign = 'right';
+  for(let i=0;i<=4;i++){
+    const y = pad.top + ch - (ch * i/4);
+    const val = minV + range*i/4;
+    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(w-pad.right,y); ctx.stroke();
+    ctx.fillText(fmt(val), pad.left-8, y+3);
+  }
+
+  // X labels
+  ctx.textAlign = 'center';
+  const step = Math.max(1, Math.floor(xLabels.length/8));
+  xLabels.forEach((label,i)=>{
+    if(i%step===0||i===xLabels.length-1){
+      const x = pad.left + (cw * i/(xLabels.length-1||1));
+      ctx.fillText(label.slice(5), x, h-pad.bottom+18);
+    }
+  });
+
+  // Lines
+  datasets.forEach(ds=>{
+    ctx.strokeStyle = ds.color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ds.data.forEach((v,i)=>{
+      const x = pad.left + (cw * i/(xLabels.length-1||1));
+      const y = pad.top + ch - ((v-minV)/range)*ch;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    // Dots
+    ctx.fillStyle = ds.color;
+    ds.data.forEach((v,i)=>{
+      const x = pad.left + (cw * i/(xLabels.length-1||1));
+      const y = pad.top + ch - ((v-minV)/range)*ch;
+      ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
+    });
+  });
+
+  // Legend
+  let lx = pad.left;
+  ctx.font = '11px sans-serif';
+  datasets.forEach(ds=>{
+    ctx.fillStyle = ds.color;
+    ctx.fillRect(lx, 4, 12, 12);
+    ctx.fillStyle = '#e8e8f0';
+    ctx.textAlign = 'left';
+    ctx.fillText(ds.label, lx+16, 14);
+    lx += ctx.measureText(ds.label).width + 30;
+  });
+}
+
+function drawBarChart(canvasId, categories, dataSets){
+  const {ctx,w,h} = setupCanvas(canvasId);
+  const pad = {top:20,right:20,bottom:50,left:55};
+  const cw = w-pad.left-pad.right, ch = h-pad.top-pad.bottom;
+  ctx.clearRect(0,0,w,h);
+
+  let allVals = [];
+  dataSets.forEach(ds=>allVals.push(...ds.data));
+  if(allVals.length===0||categories.length===0){ ctx.fillStyle='#9a9bb5'; ctx.font='14px sans-serif'; ctx.fillText('暂无数据',w/2-30,h/2); return; }
+  const maxV = Math.max(...allVals)*1.1||1;
+
+  // Grid
+  ctx.strokeStyle='#2e3148'; ctx.lineWidth=1; ctx.font='10px sans-serif'; ctx.fillStyle='#9a9bb5'; ctx.textAlign='right';
+  for(let i=0;i<=4;i++){
+    const y=pad.top+ch-(ch*i/4);
+    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(w-pad.right,y); ctx.stroke();
+    ctx.fillText(fmt(maxV*i/4), pad.left-8, y+3);
+  }
+
+  const groupW = cw / categories.length;
+  const barW = Math.min(groupW*0.7/dataSets.length, 30);
+  const totalBarGroupW = barW * dataSets.length;
+
+  categories.forEach((cat,ci)=>{
+    const gx = pad.left + groupW*ci + groupW/2;
+    dataSets.forEach((ds,di)=>{
+      const x = gx - totalBarGroupW/2 + barW*di;
+      const val = ds.data[ci]||0;
+      const barH = (val/maxV)*ch;
+      ctx.fillStyle = ds.color;
+      ctx.fillRect(x, pad.top+ch-barH, barW-2, barH);
+    });
+    ctx.fillStyle='#9a9bb5'; ctx.textAlign='center'; ctx.font='10px sans-serif';
+    ctx.save(); ctx.translate(gx, h-pad.bottom+14); ctx.rotate(-0.3);
+    ctx.fillText(cat, 0, 0); ctx.restore();
+  });
+
+  // Legend
+  let lx=pad.left; ctx.font='11px sans-serif';
+  dataSets.forEach(ds=>{
+    ctx.fillStyle=ds.color; ctx.fillRect(lx,4,12,12);
+    ctx.fillStyle='#e8e8f0'; ctx.textAlign='left'; ctx.fillText(ds.label,lx+16,14);
+    lx+=ctx.measureText(ds.label).width+30;
+  });
+}
+
+function renderFollowerChart(){
+  const data = loadPlatformData().sort((a,b)=>a.date.localeCompare(b.date));
+  const platforms = ['Douyin','Bilibili','YouTube'];
+  const allDates = [...new Set(data.map(e=>e.date))].sort();
+  if(allDates.length===0){ setupCanvas('chartFollowers'); const {ctx,w,h}=setupCanvas('chartFollowers'); ctx.fillStyle='#9a9bb5'; ctx.font='14px sans-serif'; ctx.fillText('暂无数据',w/2-30,h/2); return; }
+
+  const datasets = platforms.map(p=>{
+    const pData = data.filter(e=>e.platform===p);
+    return {
+      label: p,
+      color: chartColors[p],
+      data: allDates.map(d=>{
+        const entry = pData.filter(e=>e.date<=d).sort((a,b)=>b.date.localeCompare(a.date))[0];
+        return entry ? entry.followers : 0;
+      })
+    };
+  }).filter(ds=>ds.data.some(v=>v>0));
+
+  drawLineChart('chartFollowers', datasets, allDates);
+}
+
+function renderViewsChart(){
+  const videos = loadVideos().sort((a,b)=>a.date.localeCompare(b.date));
+  if(videos.length===0){ const {ctx,w,h}=setupCanvas('chartViews'); ctx.fillStyle='#9a9bb5'; ctx.font='14px sans-serif'; ctx.fillText('暂无数据',w/2-30,h/2); return; }
+
+  const {ctx,w,h}=setupCanvas('chartViews');
+  const pad={top:20,right:20,bottom:35,left:55};
+  const cw=w-pad.left-pad.right, ch=h-pad.top-pad.bottom;
+
+  const maxV = Math.max(...videos.map(v=>v.views))*1.1||1;
+  const dates = videos.map(v=>v.date);
+  const minDate = new Date(dates[0]), maxDate = new Date(dates[dates.length-1]);
+  const dateRange = maxDate-minDate||1;
+
+  // Grid
+  ctx.strokeStyle='#2e3148'; ctx.lineWidth=1; ctx.font='10px sans-serif'; ctx.fillStyle='#9a9bb5'; ctx.textAlign='right';
+  for(let i=0;i<=4;i++){
+    const y=pad.top+ch-(ch*i/4);
+    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(w-pad.right,y); ctx.stroke();
+    ctx.fillText(fmt(maxV*i/4), pad.left-8, y+3);
+  }
+
+  // Dots
+  videos.forEach(v=>{
+    const x = pad.left + ((new Date(v.date)-minDate)/dateRange)*cw;
+    const y = pad.top + ch - (v.views/maxV)*ch;
+    ctx.fillStyle = chartColors[v.platform]||'#6c72cb';
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();
+  });
+
+  // Legend
+  let lx=pad.left; ctx.font='11px sans-serif';
+  ['Douyin','Bilibili','YouTube'].forEach(p=>{
+    ctx.fillStyle=chartColors[p]; ctx.fillRect(lx,4,12,12);
+    ctx.fillStyle='#e8e8f0'; ctx.textAlign='left'; ctx.fillText(p,lx+16,14);
+    lx+=ctx.measureText(p).width+30;
+  });
+
+  // X labels
+  ctx.fillStyle='#9a9bb5'; ctx.textAlign='center'; ctx.font='10px sans-serif';
+  const uniqueDates = [...new Set(dates)].sort();
+  const step = Math.max(1,Math.floor(uniqueDates.length/6));
+  uniqueDates.forEach((d,i)=>{
+    if(i%step===0||i===uniqueDates.length-1){
+      const x=pad.left+((new Date(d)-minDate)/dateRange)*cw;
+      ctx.fillText(d.slice(5),x,h-pad.bottom+18);
+    }
+  });
+}
+
+function renderContentTypeChart(){
+  const videos = loadVideos();
+  const types = ['残局 Puzzle','名局 Famous','教程 Tutorial','直播 Live','系列 Series'];
+  const platforms = ['Douyin','Bilibili','YouTube'];
+
+  const cats = types.filter(t=>videos.some(v=>v.type===t));
+  const dataSets = platforms.map(p=>({
+    label: p, color: chartColors[p],
+    data: cats.map(t=>{
+      const vids = videos.filter(v=>v.type===t&&v.platform===p);
+      return vids.length ? Math.round(vids.reduce((s,v)=>s+v.views,0)/vids.length) : 0;
+    })
+  }));
+
+  drawBarChart('chartContentType', cats.map(c=>c.split(' ')[0]), dataSets);
+}
+
+function renderRevenueChart(){
+  const videos = loadVideos().sort((a,b)=>a.date.localeCompare(b.date));
+  if(videos.length===0){ const {ctx,w,h}=setupCanvas('chartRevenue'); ctx.fillStyle='#9a9bb5'; ctx.font='14px sans-serif'; ctx.fillText('暂无数据',w/2-30,h/2); return; }
+
+  const dateMap = {};
+  videos.forEach(v=>{
+    if(!dateMap[v.date]) dateMap[v.date]=0;
+    dateMap[v.date]+=v.revenue||0;
+  });
+
+  const dates = Object.keys(dateMap).sort();
+  let cumulative = 0;
+  const cumData = dates.map(d=>{ cumulative+=dateMap[d]; return cumulative; });
+
+  drawLineChart('chartRevenue', [{label:'累计收入', color:'#f5a623', data:cumData}], dates);
+}
+
+/* ============ WEEKLY REVIEW ============ */
+function getWeekRange(){
+  const now = new Date();
+  const day = now.getDay()||7;
+  const mon = new Date(now); mon.setDate(now.getDate()-(day-1));
+  const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+  return {
+    start: mon.toISOString().slice(0,10),
+    end: sun.toISOString().slice(0,10)
+  };
+}
+
+function renderWeeklyReview(){
+  const {start,end} = getWeekRange();
+  const videos = loadVideos().filter(v=>v.date>=start && v.date<=end);
+  const goals = loadGoals();
+
+  // Load goals into fields
+  document.getElementById('goalViews').value = goals.views||'';
+  document.getElementById('goalFollowers').value = goals.followers||'';
+  document.getElementById('goalVideos').value = goals.videos||'';
+  document.getElementById('goalRevenue').value = goals.revenue||'';
+
+  const totalViews = videos.reduce((s,v)=>s+v.views,0);
+  const totalRevenue = videos.reduce((s,v)=>s+(v.revenue||0),0);
+  const totalLikes = videos.reduce((s,v)=>s+v.likes,0);
+  const count = videos.length;
+
+  const cadenceOk = count>=5;
+  const cadenceText = count>=5 && count<=7 ? 'On Track' : count<5 ? 'Behind' : 'Ahead';
+  const cadenceColor = count>=5 ? 'var(--green)' : 'var(--red)';
+
+  const container = document.getElementById('weeklyReview');
+  container.innerHTML = `
+    <div class="review-item"><div class="ri-label">本周 ${start} ~ ${end}</div><div class="ri-value">${count}</div><div class="ri-sub">视频发布 (目标: ${goals.videos||'5-7'})</div></div>
+    <div class="review-item"><div class="ri-label">发布节奏 Cadence</div><div class="ri-value" style="color:${cadenceColor}">${cadenceText}</div><div class="ri-sub">${count}/7 videos</div></div>
+    <div class="review-item"><div class="ri-label">总播放 Total Views</div><div class="ri-value">${fmt(totalViews)}</div><div class="ri-sub">目标: ${goals.views?fmt(goals.views):'—'}</div></div>
+    <div class="review-item"><div class="ri-label">总点赞 Total Likes</div><div class="ri-value">${fmt(totalLikes)}</div><div class="ri-sub">均: ${count?fmt(Math.round(totalLikes/count)):'—'}/video</div></div>
+    <div class="review-item"><div class="ri-label">总收入 Revenue</div><div class="ri-value">${fmtMoney(totalRevenue)}</div><div class="ri-sub">目标: ${goals.revenue?fmtMoney(goals.revenue):'—'}</div></div>
+    <div class="review-item"><div class="ri-label">均播放 Avg Views</div><div class="ri-value">${count?fmt(Math.round(totalViews/count)):'—'}</div><div class="ri-sub">per video</div></div>
+  `;
+
+  // Best & worst
+  const bestEl = document.getElementById('weeklyBest');
+  const worstEl = document.getElementById('weeklyWorst');
+  if(videos.length>0){
+    const sorted = [...videos].sort((a,b)=>b.views-a.views);
+    const best = sorted[0];
+    const worst = sorted[sorted.length-1];
+    bestEl.innerHTML = `<strong>${best.title}</strong> — ${best.platform} — ${fmt(best.views)} views, ${fmt(best.likes)} likes`;
+    if(videos.length>1){
+      worstEl.innerHTML = `<strong>${worst.title}</strong> — ${worst.platform} — ${fmt(worst.views)} views, ${fmt(worst.likes)} likes<br><span style="color:var(--text2);font-size:12px">提示: 对比最佳视频，分析标题、封面、内容差异</span>`;
+    } else {
+      worstEl.innerHTML = '本周只有一个视频记录';
+    }
+  } else {
+    bestEl.innerHTML = '本周暂无视频数据';
+    worstEl.innerHTML = '本周暂无视频数据';
+  }
+}
+
+function saveGoals(){
+  saveGoalsData({
+    views: Number(document.getElementById('goalViews').value)||0,
+    followers: Number(document.getElementById('goalFollowers').value)||0,
+    videos: Number(document.getElementById('goalVideos').value)||0,
+    revenue: Number(document.getElementById('goalRevenue').value)||0
+  });
+}
+
+/* ============ MILESTONES ============ */
+function renderMilestones(){
+  const stats = getLatestPlatformStats();
+  const board = document.getElementById('milestoneBoard');
+
+  const milestones = [
+    {platform:'Douyin', cls:'douyin', icon:'D', color:'var(--douyin)', steps:[
+      {label:'1K粉 解锁直播', target:1000, field:'followers'},
+      {label:'10K粉', target:10000, field:'followers'},
+      {label:'100K粉', target:100000, field:'followers'},
+      {label:'1M粉', target:1000000, field:'followers'}
+    ]},
+    {platform:'Bilibili', cls:'bilibili', icon:'B', color:'var(--bili)', steps:[
+      {label:'1K粉 解锁激励', target:1000, field:'followers'},
+      {label:'10K粉 品牌合作', target:10000, field:'followers'},
+      {label:'100K粉', target:100000, field:'followers'}
+    ]},
+    {platform:'YouTube', cls:'youtube', icon:'Y', color:'var(--youtube)', steps:[
+      {label:'1K订阅', target:1000, field:'followers'},
+      {label:'4K观看时长 (合作伙伴)', target:4000, field:'watchHours', special:true},
+      {label:'10K订阅', target:10000, field:'followers'},
+      {label:'100K 银牌', target:100000, field:'followers'}
+    ]}
+  ];
+
+  board.innerHTML = milestones.map(m=>{
+    const current = stats[m.platform].current || {};
+    return `<div class="milestone-platform">
+      <h4><span style="color:${m.color}">${m.icon}</span> ${m.platform}</h4>
+      <div class="milestone-list">
+        ${m.steps.map(s=>{
+          let val = 0;
+          if(s.field==='followers') val = current.followers||0;
+          if(s.special) val = 0; // Watch hours tracked separately
+          const pct = Math.min(100, (val/s.target)*100);
+          const achieved = pct>=100;
+          return `<div class="milestone-item ${achieved?'achieved':''}">
+            <div class="m-target">${s.label}</div>
+            <div class="m-bar"><div class="m-bar-fill" style="width:${pct}%;background:${m.color}"></div></div>
+            <div class="m-info"><span>${fmt(val)} / ${fmt(s.target)}</span><span>${Math.round(pct)}%</span></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ============ CONTENT ANALYSIS ============ */
+function renderContentAnalysis(){
+  const videos = loadVideos();
+  const types = ['残局 Puzzle','名局 Famous','教程 Tutorial','直播 Live','系列 Series'];
+  const platforms = ['Douyin','Bilibili','YouTube'];
+
+  const tbody = document.querySelector('#contentAnalysisTable tbody');
+  let best = {type:'',platform:'',avgViews:0};
+
+  tbody.innerHTML = types.map(t=>{
+    const vids = videos.filter(v=>v.type===t);
+    if(vids.length===0) return `<tr><td>${t}</td><td>0</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>`;
+
+    const avgViews = Math.round(vids.reduce((s,v)=>s+v.views,0)/vids.length);
+    const avgEng = (vids.reduce((s,v)=>s+(v.views>0?(v.likes+v.comments+v.shares)/v.views*100:0),0)/vids.length).toFixed(2);
+    const totalRev = vids.reduce((s,v)=>s+(v.revenue||0),0);
+
+    // Best platform for this type
+    let bestPlat = '—';
+    let bestPlatViews = 0;
+    platforms.forEach(p=>{
+      const pv = vids.filter(v=>v.platform===p);
+      if(pv.length>0){
+        const avg = pv.reduce((s,v)=>s+v.views,0)/pv.length;
+        if(avg>bestPlatViews){ bestPlatViews=avg; bestPlat=p; }
+      }
+    });
+
+    if(avgViews>best.avgViews){ best={type:t,platform:bestPlat,avgViews}; }
+
+    return `<tr>
+      <td>${t}</td>
+      <td>${vids.length}</td>
+      <td>${fmt(avgViews)}</td>
+      <td>${avgEng}%</td>
+      <td><span class="badge ${bestPlat.toLowerCase()}">${bestPlat}</span></td>
+      <td>${fmtMoney(totalRev)}</td>
+    </tr>`;
+  }).join('');
+
+  const rec = document.getElementById('contentRecommendation');
+  if(best.avgViews>0){
+    rec.innerHTML = `<strong>推荐:</strong> 你表现最好的内容类型是 <strong>${best.type}</strong>，最佳平台是 <strong>${best.platform}</strong>，平均播放 <strong>${fmt(best.avgViews)}</strong>。建议增加该类型内容的产出频率。`;
+  } else {
+    rec.innerHTML = '暂无足够数据生成推荐。添加更多视频记录后将自动分析。';
+  }
+}
+
+/* ============ DATA MANAGEMENT ============ */
+function exportData(){
+  const data = {
+    platform: loadPlatformData(),
+    videos: loadVideos(),
+    goals: loadGoals(),
+    exportDate: new Date().toISOString()
+  };
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='analytics_export_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function importDataPrompt(){
+  document.getElementById('importArea').focus();
+}
+
+function doImport(){
+  const text = document.getElementById('importArea').value.trim();
+  if(!text){ alert('请先粘贴JSON数据'); return; }
+  try{
+    const data = JSON.parse(text);
+    if(data.platform) savePlatformData(data.platform);
+    if(data.videos) saveVideos(data.videos);
+    if(data.goals) saveGoalsData(data.goals);
+    alert('导入成功!');
+    document.getElementById('importArea').value='';
+    renderOverview(); renderVideoTable();
+  }catch(e){ alert('JSON解析失败: '+e.message); }
+}
+
+function clearAllData(){
+  if(!confirm('确定要清除所有数据? 此操作不可撤销!')) return;
+  if(!confirm('再次确认: 真的要删除所有数据吗?')) return;
+  localStorage.removeItem(STORE_PLATFORM);
+  localStorage.removeItem(STORE_VIDEOS);
+  localStorage.removeItem(STORE_GOALS);
+  renderOverview(); renderVideoTable();
+  alert('已清除所有数据');
+}
+
+function loadSampleData(){
+  if(loadVideos().length>0 || loadPlatformData().length>0){
+    if(!confirm('这将覆盖现有数据，确定继续?')) return;
+  }
+
+  const today = new Date();
+  const dateStr = d => d.toISOString().slice(0,10);
+  const daysAgo = n => { const d=new Date(today); d.setDate(d.getDate()-n); return dateStr(d); };
+
+  const types = ['残局 Puzzle','名局 Famous','教程 Tutorial','直播 Live','系列 Series'];
+  const platforms = ['Douyin','Bilibili','YouTube'];
+
+  const titles = {
+    '残局 Puzzle': ['经典马后残局详解','车马冷着绝杀','双车错残局巧胜','炮兵联合攻杀','马炮残局必胜法'],
+    '名局 Famous': ['胡荣华巅峰之战','许银川经典对局','王天一妙手连珠','赵鑫鑫精彩逆转','郑惟桐攻杀名局'],
+    '教程 Tutorial': ['中炮开局完整教程','仙人指路攻防详解','飞相局实战技巧','反宫马入门到精通','顺炮横车对直车'],
+    '直播 Live': ['周五晚直播对弈','棋友互动残局挑战','高手过招实时解说','观众点播名局','周末象棋擂台'],
+    '系列 Series': ['布局陷阱系列EP1','残局定式系列EP3','名手风采系列EP2','实战复盘系列EP5','象棋历史系列EP4']
+  };
+
+  // Generate 30 days of videos
+  const videos = [];
+  for(let i=29;i>=0;i--){
+    const numVids = Math.random()>0.3 ? 1 : (Math.random()>0.5 ? 2 : 0);
+    for(let j=0;j<numVids;j++){
+      const platform = platforms[Math.floor(Math.random()*3)];
+      const type = types[Math.floor(Math.random()*5)];
+      const titleList = titles[type];
+      const title = titleList[Math.floor(Math.random()*titleList.length)];
+      const baseViews = platform==='Douyin'? 2000 : platform==='Bilibili'? 800 : 300;
+      const typeMulti = type.includes('Puzzle')?1.3 : type.includes('Famous')?1.1 : type.includes('Tutorial')?1.0 : type.includes('Live')?0.8 : 1.2;
+      const views = Math.round(baseViews * typeMulti * (0.5 + Math.random()*1.5));
+      const engRate = 0.03 + Math.random()*0.08;
+
+      videos.push({
+        id: uid(), date: daysAgo(i), platform, type, title,
+        views,
+        likes: Math.round(views * engRate * (0.6+Math.random()*0.4)),
+        comments: Math.round(views * engRate * 0.15 * (0.5+Math.random())),
+        shares: Math.round(views * engRate * 0.08 * (0.3+Math.random())),
+        watchTime: Math.round(30 + Math.random()*45),
+        revenue: Math.round((views * 0.003 + Math.random()*2)*100)/100
+      });
+    }
+  }
+
+  // Generate platform snapshots every ~5 days
+  const platformData = [];
+  let followers = {Douyin:150,Bilibili:80,YouTube:30};
+  let totalViews = {Douyin:5000,Bilibili:2000,YouTube:800};
+
+  for(let i=29;i>=0;i-=5){
+    platforms.forEach(p=>{
+      followers[p] += Math.round(20 + Math.random()*60);
+      const weekVids = videos.filter(v=>v.platform===p && v.date>=daysAgo(i+5) && v.date<=daysAgo(i));
+      totalViews[p] += weekVids.reduce((s,v)=>s+v.views,0);
+      const vidCount = videos.filter(v=>v.platform===p && v.date<=daysAgo(i)).length;
+
+      platformData.push({
+        id: uid(), date: daysAgo(i), platform: p,
+        followers: followers[p],
+        totalViews: totalViews[p],
+        videos: vidCount,
+        avgViews: vidCount>0 ? Math.round(totalViews[p]/vidCount) : 0,
+        engagement: Math.round((3+Math.random()*6)*100)/100,
+        revenue: Math.round((totalViews[p]*0.002)*100)/100
+      });
+    });
+  }
+
+  saveVideos(videos);
+  savePlatformData(platformData);
+  saveGoalsData({views:10000, followers:50, videos:6, revenue:100});
+
+  renderOverview();
+  renderVideoTable();
+  alert('示例数据已加载! 共 '+videos.length+' 个视频, '+platformData.length+' 条平台记录');
+}
+
+/* ============ INIT ============ */
+renderOverview();
+renderVideoTable();
+</script>
+<script>
+// Universal language toggle
+(function() {
+  let pageLang = localStorage.getItem('pageLang') || 'zh';
+  
+  window.setPageLang = function(lang) {
+    pageLang = lang;
+    localStorage.setItem('pageLang', lang);
+    document.querySelectorAll('.lt-btn').forEach(b => {
+      const isActive = b.dataset.lang === lang;
+      b.style.background = isActive ? 'rgba(240,192,96,0.9)' : 'rgba(255,255,255,0.08)';
+      b.style.color = isActive ? '#1a1d2e' : '#9ca0b8';
+      b.style.border = isActive ? 'none' : '1px solid rgba(255,255,255,0.06)';
+    });
+    applyLang();
+  };
+  
+  function applyLang() {
+    document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+      if (pageLang === 'zh') el.textContent = el.dataset.zh;
+      else if (pageLang === 'en') el.textContent = el.dataset.en;
+      else el.textContent = el.dataset.zh + ' ' + el.dataset.en;
+    });
+  }
+  
+  // Apply on load
+  setTimeout(() => {
+    setPageLang(pageLang);
+  }, 100);
+})();
+</script>
+</body>
+</html>

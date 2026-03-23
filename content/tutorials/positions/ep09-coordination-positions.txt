@@ -1,0 +1,11 @@
+# Episode 9: Piece Coordination -- Chariot, Horse & Cannon Teamwork
+# 第九集：子力配合——车马炮的团队合作
+# Practice positions for two-piece coordination checkmates and attacks
+# 两子配合将杀和进攻的练习局面
+
+3k5/4N4/9/9/9/9/9/9/9/3RK4 w - - 0 1 # Chariot + Horse mate 车马联杀 — Horse on e9 blocks escape, Chariot on d1 advances to d10 for checkmate 马e9封锁逃路，车d1进d10将杀
+3ak4/4a4/4N4/9/9/4R4/9/3c5/9/4K4 w - - 0 1 # Chariot + Horse discovered check 车马抽吃 — Horse on e8 jumps away with check, Chariot captures Black Cannon 马e8跳开将军，车吃黑炮
+3ak4/4a4/9/9/9/9/9/4R4/9/4KC3 w - - 0 1 # Chariot + Cannon platform 车做炮架 — Chariot advances to e8 as platform, Cannon checks along e-file 车进e8做炮架，炮沿e线将军
+3k5/4a4/9/9/9/9/9/4R4/4C4/4K4 w - - 0 1 # Chariot + Cannon on same line 车炮同线杀 — Chariot to e9, Cannon uses Chariot as platform for checkmate 车进e9，炮隔车将杀
+3ak4/9/4N4/9/9/9/9/4C4/9/4K4 w - - 0 1 # Horse + Cannon classic 马炮经典配合 — Horse to d10 check, then Cannon to e8 for Horse-behind-Cannon mate 马跳d10将军，炮到e8马后炮杀
+3ak4/4a4/4e4/9/4N4/9/9/4RC3/9/4K4 w - - 0 1 # Three-piece coordination 三子配合 — Horse, Chariot, and Cannon must work together for fastest checkmate 马车炮三子配合最快将杀

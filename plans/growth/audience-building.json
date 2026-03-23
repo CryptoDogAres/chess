@@ -1,0 +1,59 @@
+{
+  "id": "growth-audience",
+  "title": "涨粉策略 Audience Building Strategy",
+  "description": "Systematic growth from 0 to monetization thresholds across all platforms",
+  "folder": "growth",
+  "priority": "high",
+  "status": "in_progress",
+  "progress": 62,
+  "tasks": [
+    {
+      "id": "ga1",
+      "text": "Commit to 5-7 videos/week posting cadence (non-negotiable for algo)",
+      "done": true,
+      "priority": "critical"
+    },
+    {
+      "id": "ga2",
+      "text": "Reply to 50+ comments within 2 hours of each post (15-20% reach boost)",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "ga3",
+      "text": "Cross-post adapted content: vertical for Douyin, 16:9 for Bilibili/YouTube",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "ga4",
+      "text": "Identify 10 xiangqi creators to engage with (comment, share, collaborate)",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "ga5",
+      "text": "Reach first milestone: 1K followers on each platform",
+      "done": false,
+      "priority": "high"
+    },
+    {
+      "id": "ga6",
+      "text": "Reach second milestone: 10K followers on primary platform",
+      "done": false,
+      "priority": "medium"
+    },
+    {
+      "id": "ga7",
+      "text": "First collaboration with another xiangqi creator",
+      "done": false,
+      "priority": "medium"
+    },
+    {
+      "id": "ga8",
+      "text": "Analyze top 10 performing videos — identify patterns, double down",
+      "done": true,
+      "priority": "medium"
+    }
+  ]
+}

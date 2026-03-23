@@ -1,0 +1,37 @@
+# ==========================================================================
+# Tactical Puzzles — 战术杀法练习
+# 20 checkmate puzzles organized by difficulty
+# Format: FEN_STRING # Mate in X — Description CN — EN | Theme: [pattern] | Difficulty: stars
+# ==========================================================================
+
+# === Mate in 1 (5 positions) — Beginner 初级 ===
+
+3aka3/9/9/9/9/9/9/3N5/4C4/4K4 w # Mate in 1 — 马后炮基本杀法 — Basic Cannon-behind-Horse checkmate | Theme: 马后炮 (Cannon behind Horse) | Difficulty: ★
+3aka3/9/4C4/9/9/9/9/9/R3C4/4K4 w # Mate in 1 — 天地炮基础杀 — Basic Heaven-Earth Cannon kill | Theme: 天地炮 (Heaven & Earth Cannons) | Difficulty: ★
+3akab2/9/4b4/R8/9/9/9/4C4/9/4K4 w # Mate in 1 — 铁门栓基础杀 — Basic Iron Door Bolt kill | Theme: 铁门栓 (Iron Door Bolt) | Difficulty: ★
+2baka3/9/4b4/9/9/4R4/9/9/9/4K4 w # Mate in 1 — 白脸将助杀 — King-face-to-face assisted kill | Theme: 白脸将 (Facing Kings) | Difficulty: ★
+4kab2/4a4/4b3C/9/9/9/9/9/4A4/3K1R3 w # Mate in 1 — 沉底炮闷杀 — Bottom-rank cannon smothered kill | Theme: 闷宫 (Smothered checkmate) | Difficulty: ★
+
+# === Mate in 2 (5 positions) — Intermediate 中级 ===
+
+3ak4/4a4/4b4/4N4/9/9/9/3R5/4C4/4K4 w # Mate in 2 — 弃车马后炮绝杀 — Rook sacrifice into Cannon-behind-Horse | Theme: 马后炮 (Cannon behind Horse) | Difficulty: ★★
+2baka3/9/4b4/4C4/9/9/4R4/9/9/4K4 w # Mate in 2 — 炮碾丹砂弃车杀 — Rolling Cannon sacrifice rook kill | Theme: 天地炮 (Heaven & Earth Cannons) | Difficulty: ★★
+3ak4/4a4/9/9/2R6/9/9/8C/4A4/4K4 w # Mate in 2 — 车炮配合将杀 — Rook-Cannon coordination checkmate | Theme: 连将杀 (Consecutive checks to mate) | Difficulty: ★★★
+3akab2/9/4b4/4R4/3N5/9/9/4C4/9/4K4 w # Mate in 2 — 马跳将门弃车绝杀 — Horse jumps palace gate with rook sacrifice | Theme: 弃子攻杀 (Sacrifice attack) | Difficulty: ★★★
+4k4/4a4/3ab4/1R7/4N4/9/9/9/9/4K4 w # Mate in 2 — 车马冷着闷杀 — Rook-horse quiet move smothered mate | Theme: 闷宫 (Smothered checkmate) | Difficulty: ★★★
+
+# === Mate in 3 (5 positions) — Advanced 高级 ===
+
+2baka3/9/4b4/4R4/9/9/4p4/2N1C4/4A4/4K4 w # Mate in 3 — 车马炮三子连杀 — Rook-Horse-Cannon triple-piece consecutive checkmate | Theme: 连将杀 (Consecutive checks to mate) | Difficulty: ★★★★
+3ak4/4a4/b3b4/4C4/3N5/4R4/9/9/9/4K4 w # Mate in 3 — 弃车双将连杀 — Rook sacrifice into double-check consecutive kill | Theme: 抽将 (Discovered check) | Difficulty: ★★★★
+2bak4/4a4/4b4/4C4/4R4/9/9/3N5/9/4K4 w # Mate in 3 — 大胆弃车马炮联杀 — Bold rook sacrifice horse-cannon combination | Theme: 弃子攻杀 (Sacrifice attack) | Difficulty: ★★★★
+4ka3/4a4/4bR3/9/4N4/9/4C4/9/9/4K4 w # Mate in 3 — 铁门栓变体连杀 — Iron Door Bolt variation consecutive kill | Theme: 铁门栓 (Iron Door Bolt) | Difficulty: ★★★★
+3ak4/9/9/4N4/3R5/9/3p5/4C4/9/4K4 w # Mate in 3 — 马后炮进阶连杀 — Advanced Cannon-behind-Horse consecutive kill | Theme: 马后炮 (Cannon behind Horse) | Difficulty: ★★★★
+
+# === Mate in 4-5 (5 positions) — Expert 专家级 ===
+
+2b1kab2/4a4/4c4/p3R3p/9/9/P2N4P/4B4/4A4/4K4 w # Mate in 4 — 弃车马入局连杀 — Rook sacrifice horse entry consecutive kill | Theme: 弃子攻杀 (Sacrifice attack) | Difficulty: ★★★★★
+3aka3/9/4b2b1/4C4/9/9/4R4/3N5/9/4K4 w # Mate in 4 — 四步绝杀车马炮 — Four-move checkmate rook-horse-cannon | Theme: 连将杀 (Consecutive checks to mate) | Difficulty: ★★★★★
+2bakab2/9/4c4/p3N3p/4R4/9/P7P/4B4/2C1A4/4K4 w # Mate in 4 — 马踩中宫弃子连杀 — Horse central palace sacrifice consecutive kill | Theme: 双车错 (Double Chariot interplay) | Difficulty: ★★★★★
+3ak4/4a4/4b4/4N4/2P1R4/9/9/4C4/9/4K4 w # Mate in 5 — 五步绝杀兵马炮车 — Five-move checkmate pawn-horse-cannon-rook | Theme: 弃子攻杀 (Sacrifice attack) | Difficulty: ★★★★★
+2bak4/4a4/2n1b4/4C4/9/4R4/3N5/9/9/4K4 w # Mate in 5 — 连环弃子逼杀 — Chain sacrifice forced checkmate | Theme: 抽将 (Discovered check) | Difficulty: ★★★★★

@@ -1,0 +1,65 @@
+{
+  "id": "content-famous",
+  "title": "名局解说 Famous Game Commentary",
+  "description": "Full game analysis of iconic xiangqi matches — authority-building long-form content",
+  "folder": "content",
+  "priority": "high",
+  "status": "in_progress",
+  "progress": 78,
+  "tasks": [
+    {
+      "id": "cf1",
+      "text": "Select 10 iconic games (胡荣华 vs 吕钦, 许银川 vs 吕钦, 1979 全运会决赛, etc.)",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "cf2",
+      "text": "Source game records from DPxq.com database",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "cf3",
+      "text": "Run full Pikafish analysis on each game (identify blunders, brilliancies)",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "cf4",
+      "text": "Write commentary scripts using Xu Yinchuan method: no jargon, variation trees",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "cf5",
+      "text": "Record first 3 full game analyses (10-30 min each)",
+      "done": false,
+      "priority": "high"
+    },
+    {
+      "id": "cf6",
+      "text": "Edit in Premiere Pro with engine eval overlays + arrow annotations",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "cf7",
+      "text": "Add historical context and storytelling narrative to each game",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "cf8",
+      "text": "Publish to Bilibili (16:9) + YouTube (16:9)",
+      "done": false,
+      "priority": "high"
+    },
+    {
+      "id": "cf9",
+      "text": "Create short highlight clips from each game for Douyin",
+      "done": true,
+      "priority": "medium"
+    }
+  ]
+}

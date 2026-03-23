@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<!--
+  OBS Setup:
+  - Add as Browser Source
+  - Width: 60, Height: 1080
+  - Position: left edge of screen (x=0, y=0)
+  - Check "Shutdown source when not visible"
+  - URL params: ?fen=rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR
+  - Polls localhost:8080/analyze every 2 seconds for live eval
+-->
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    width: 40px;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  }
+
+  .eval-container {
+    position: relative;
+    width: 40px;
+    height: 100vh;
+    border-right: 1px solid rgba(255, 215, 0, 0.3);
+  }
+
+  /* Black side (top) */
+  .bar-black {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 100%);
+    transition: height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    height: 50%;
+    z-index: 1;
+  }
+
+  /* Red/White side (bottom) */
+  .bar-red {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(180deg, #e8e8e8 0%, #cc2222 30%, #aa1111 100%);
+    transition: height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    height: 50%;
+    z-index: 1;
+  }
+
+  /* Divider line */
+  .divider {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #ffd700, #ffaa00, #ffd700);
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+    z-index: 3;
+    transition: top 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    top: 50%;
+  }
+
+  /* Eval number display */
+  .eval-display {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    color: #ffd700;
+    font-size: 11px;
+    font-weight: 700;
+    text-shadow: 0 0 4px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.7);
+    background: rgba(0, 0, 0, 0.75);
+    padding: 2px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    transition: top 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    top: calc(50% - 12px);
+  }
+
+  /* Edge glow animation */
+  .bar-black::after, .bar-red::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    animation: edgeGlow 3s ease-in-out infinite;
+  }
+  .bar-black::after {
+    background: linear-gradient(180deg, transparent, rgba(255,215,0,0.2), transparent);
+  }
+  .bar-red::after {
+    background: linear-gradient(180deg, transparent, rgba(255,215,0,0.2), transparent);
+  }
+
+  @keyframes edgeGlow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  /* Tick marks */
+  .ticks {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .tick {
+    position: absolute;
+    right: 0;
+    width: 8px;
+    height: 1px;
+    background: rgba(255, 215, 0, 0.2);
+  }
+</style>
+</head>
+<body>
+
+<div class="eval-container">
+  <div class="bar-black" id="barBlack"></div>
+  <div class="bar-red" id="barRed"></div>
+  <div class="divider" id="divider"></div>
+  <div class="eval-display" id="evalDisplay">0.0</div>
+  <div class="ticks" id="ticks"></div>
+</div>
+
+<script>
+  // Generate tick marks at key eval points
+  (function() {
+    const ticks = document.getElementById('ticks');
+    // Ticks at 25%, 50%, 75%
+    [25, 50, 75].forEach(pct => {
+      const t = document.createElement('div');
+      t.className = 'tick';
+      t.style.top = pct + '%';
+      t.style.width = '12px';
+      t.style.background = 'rgba(255, 215, 0, 0.35)';
+      ticks.appendChild(t);
+    });
+    // Finer ticks every 10%
+    for (let i = 10; i <= 90; i += 10) {
+      if (i % 25 === 0) continue;
+      const t = document.createElement('div');
+      t.className = 'tick';
+      t.style.top = i + '%';
+      ticks.appendChild(t);
+    }
+  })();
+
+  // Convert eval (centipawns or mate) to bar percentage (0=full black, 100=full red)
+  function evalToPercent(evalObj) {
+    if (evalObj.mate !== undefined && evalObj.mate !== null) {
+      // Mate score: strongly favor the winning side
+      return evalObj.mate > 0 ? 95 : 5;
+    }
+    const cp = evalObj.cp || 0;
+    // Sigmoid-like mapping: +-500cp maps to roughly +-40% from center
+    const pct = 50 - (50 * (2 / (1 + Math.exp(-cp / 250)) - 1));
+    return Math.max(2, Math.min(98, pct));
+  }
+
+  function formatEval(evalObj) {
+    if (evalObj.mate !== undefined && evalObj.mate !== null) {
+      return 'M' + Math.abs(evalObj.mate);
+    }
+    const cp = evalObj.cp || 0;
+    const val = (cp / 100).toFixed(1);
+    return cp >= 0 ? '+' + val : val;
+  }
+
+  function updateBar(evalObj) {
+    const pct = evalToPercent(evalObj); // pct = black portion from top
+    document.getElementById('barBlack').style.height = pct + '%';
+    document.getElementById('barRed').style.height = (100 - pct) + '%';
+    document.getElementById('divider').style.top = pct + '%';
+    document.getElementById('evalDisplay').style.top = 'calc(' + pct + '% - 12px)';
+    document.getElementById('evalDisplay').textContent = formatEval(evalObj);
+  }
+
+  // Read FEN from URL params
+  function getParam(name) {
+    const url = new URLSearchParams(window.location.search);
+    return url.get(name);
+  }
+
+  // Poll the engine endpoint
+  let currentFen = getParam('fen') || '';
+
+  async function pollEval() {
+    try {
+      const url = new URL('http://localhost:8080/analyze');
+      if (currentFen) url.searchParams.set('fen', currentFen);
+      const resp = await fetch(url);
+      if (resp.ok) {
+        const data = await resp.json();
+        // Expected format: { eval: { cp: 50 } } or { eval: { mate: 3 } }
+        if (data && data.eval) {
+          updateBar(data.eval);
+        } else if (data && (data.cp !== undefined || data.mate !== undefined)) {
+          updateBar(data);
+        }
+      }
+    } catch (e) {
+      // Server not available; keep current state
+    }
+  }
+
+  // Initial state
+  updateBar({ cp: 0 });
+
+  // Poll every 2 seconds
+  setInterval(pollEval, 2000);
+  pollEval();
+
+  // Also accept postMessage updates: window.postMessage({ eval: { cp: 150 } }, '*')
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.eval) {
+      updateBar(e.data.eval);
+    }
+    if (e.data && e.data.fen) {
+      currentFen = e.data.fen;
+    }
+  });
+</script>
+</body>
+</html>

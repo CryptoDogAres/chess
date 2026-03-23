@@ -1,0 +1,53 @@
+{
+  "id": "growth-seo",
+  "title": "SEO与算法优化 SEO & Algorithm Optimization",
+  "description": "Maximize discoverability across platforms through systematic optimization",
+  "folder": "growth",
+  "priority": "medium",
+  "status": "completed",
+  "progress": 100,
+  "tasks": [
+    {
+      "id": "gs1",
+      "text": "Research top 50 xiangqi search keywords (YouTube + Bilibili + Douyin)",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "gs2",
+      "text": "Create title formula templates: curiosity + benefit, under 60 chars",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "gs3",
+      "text": "Design 3 thumbnail styles, A/B test on YouTube",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "gs4",
+      "text": "Optimize first 3 seconds of every video for maximum hook",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "gs5",
+      "text": "Bilibili: ensure first 8 characters of title are compelling",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "gs6",
+      "text": "Track traffic sources weekly: search vs suggestions vs Shorts",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "gs7",
+      "text": "Install vidIQ or TubeBuddy for YouTube keyword research",
+      "done": true,
+      "priority": "low"
+    }
+  ]
+}

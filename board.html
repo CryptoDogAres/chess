@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" rel="stylesheet">
+<title>象棋分析板 — Xiangqi Analysis Board</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0f1117;
+  color: #e0e0e0;
+  font-family: 'LXGW WenKai', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+header {
+  background: #1a1d2e;
+  border-bottom: 1px solid #2a2d40;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+header h1 {
+  font-size: 22px;
+  color: #f0c060;
+  letter-spacing: 1px;
+}
+header h1 span { color: #aaa; font-size: 14px; font-weight: 400; margin-left: 8px; }
+header a {
+  color: #7aa2f7;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 6px 14px;
+  border: 1px solid #7aa2f7;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+header a:hover { background: rgba(122,162,247,0.15); }
+
+.app-layout {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+.board-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.side-col {
+  flex: 1;
+  min-width: 280px;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.panel {
+  background: #1e2130;
+  border: 1px solid #2a2d40;
+  border-radius: 10px;
+  padding: 14px;
+}
+.panel-title {
+  font-size: 14px;
+  color: #f0c060;
+  margin-bottom: 10px;
+  font-weight: 600;
+  border-bottom: 1px solid #2a2d40;
+  padding-bottom: 6px;
+}
+
+/* Board canvas wrapper */
+.board-wrap {
+  position: relative;
+  display: inline-block;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+canvas#board {
+  display: block;
+  cursor: default;
+}
+
+/* Controls bar */
+.controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.controls button, .controls select {
+  background: #282b40;
+  color: #ddd;
+  border: 1px solid #3a3d55;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.controls button:hover { background: #3a3d55; }
+.controls button.active { background: #f0c060; color: #1a1d2e; border-color: #f0c060; }
+
+/* FEN input */
+.fen-row {
+  display: flex;
+  gap: 8px;
+}
+.fen-row input {
+  flex: 1;
+  background: #12141e;
+  border: 1px solid #3a3d55;
+  color: #e0e0e0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 13px;
+}
+.fen-row button {
+  background: #f0c060;
+  color: #1a1d2e;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+}
+.fen-row button:hover { background: #e0b050; }
+
+/* Preset buttons */
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.presets button {
+  background: #282b40;
+  color: #ccc;
+  border: 1px solid #3a3d55;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.presets button:hover { background: #3a3d55; color: #f0c060; }
+
+/* Move history */
+.move-list {
+  max-height: 260px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 13px;
+}
+.move-list::-webkit-scrollbar { width: 6px; }
+.move-list::-webkit-scrollbar-thumb { background: #3a3d55; border-radius: 3px; }
+.move-list .move-entry {
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+.move-list .move-entry:hover { background: #282b40; }
+.move-list .move-entry.current { background: #f0c06030; color: #f0c060; }
+.move-list .move-entry .num { color: #666; margin-right: 8px; }
+
+.nav-buttons {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.nav-buttons button {
+  flex: 1;
+  background: #282b40;
+  color: #ddd;
+  border: 1px solid #3a3d55;
+  padding: 7px 0;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.nav-buttons button:hover { background: #3a3d55; }
+
+/* Commentary */
+.commentary-area {
+  width: 100%;
+  min-height: 80px;
+  background: #12141e;
+  border: 1px solid #3a3d55;
+  color: #e0e0e0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  resize: vertical;
+  font-family: inherit;
+}
+.comment-display {
+  min-height: 36px;
+  padding: 8px;
+  background: #12141e;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+}
+
+/* Annotation legend */
+.legend {
+  display: flex; gap: 12px; font-size: 12px; color: #888; margin-top: 6px;
+}
+.legend span { display: flex; align-items: center; gap: 4px; }
+.legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .app-layout { flex-direction: column; align-items: center; }
+  .side-col { max-width: 100%; width: 100%; }
+}
+
+/* Status bar */
+.status-bar {
+  font-size: 13px;
+  color: #aaa;
+  padding: 4px 0;
+  text-align: center;
+}
+.status-bar .red-turn { color: #e05050; font-weight: 600; }
+.status-bar .black-turn { color: #ccc; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<nav style="background:#131520;border-bottom:1px solid rgba(255,255,255,0.06);padding:8px 16px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-family:-apple-system,sans-serif;">
+  <a href="dashboard.html" style="color:#ef4444;font-weight:700;text-decoration:none;font-size:0.82em;padding:4px 12px;">棋 Dashboard</a>
+  <a href="board-art.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Art Board</a>
+  <a href="board3d.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">3D Board</a>
+  <a href="board.html" style="color:#fff;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);">Board</a>
+  <a href="games.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Games</a>
+  <a href="explain.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Explain</a>
+  <a href="analyze.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analyze</a>
+  <a href="calendar.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Calendar</a>
+  <a href="scripts.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Scripts</a>
+  <a href="analytics.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Analytics</a>
+  <a href="branding.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Branding</a>
+  <a href="seo.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">SEO</a>
+  <a href="translate.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Translate</a>
+  <a href="report.html" style="color:#9ca0b8;text-decoration:none;font-size:0.75em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">Report</a>
+</nav>
+
+<header>
+  <h1><span data-zh="象棋分析板" data-en="Xiangqi Analysis Board">象棋分析板</span><span data-zh="" data-en=""> Xiangqi Analysis Board</span></h1>
+  <div class="lang-toggle" style="display:inline-flex;gap:3px;margin-left:auto;">
+  <button onclick="setPageLang('zh')" class="lt-btn lt-active" data-lang="zh" style="background:rgba(240,192,96,0.9);color:#1a1d2e;border:none;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">中文</button>
+  <button onclick="setPageLang('en')" class="lt-btn" data-lang="en" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">EN</button>
+  <button onclick="setPageLang('both')" class="lt-btn" data-lang="both" style="background:rgba(255,255,255,0.08);color:#9ca0b8;border:1px solid rgba(255,255,255,0.06);padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">双语</button>
+</div>
+  <a href="dashboard.html">← Dashboard</a>
+</header>
+
+<div class="app-layout">
+  <!-- Board Column -->
+  <div class="board-col">
+    <div class="board-wrap">
+      <canvas id="board" width="560" height="620"></canvas>
+    </div>
+    <div class="status-bar" id="statusBar">红方走 Red to move</div>
+    <div class="controls">
+      <button onclick="resetBoard()" title="Reset to start" data-zh="⟲ 重置" data-en="⟲ Reset">⟲ 重置</button>
+      <button onclick="flipBoard()" title="Flip board" data-zh="⇅ 翻转" data-en="⇅ Flip">⇅ 翻转</button>
+      <button onclick="clearAnnotations()" title="Clear highlights and arrows" data-zh="✕ 清除标注" data-en="✕ Clear">✕ 清除标注</button>
+      <select id="highlightColor" title="Annotation color">
+        <option value="red">● 红 (差招 Bad)</option>
+        <option value="green">● 绿 (好招 Good)</option>
+        <option value="blue">● 蓝 (候选 Candidate)</option>
+        <option value="yellow">● 黄 (关注 Watch)</option>
+      </select>
+    </div>
+    <div class="panel">
+      <div class="panel-title" data-zh="FEN 局面串" data-en="Position FEN">FEN 局面串</div>
+      <div class="fen-row">
+        <input type="text" id="fenInput" value="rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w" spellcheck="false">
+        <button onclick="loadFenFromInput()" data-zh="加载" data-en="Load">加载</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title" data-zh="预设局面" data-en="Presets">预设局面 Presets</div>
+      <div class="presets" id="presetButtons"></div>
+    </div>
+    <div class="legend">
+      <span>右键点击: 标记方格</span>
+      <span>右键拖拽: 画箭头</span>
+      <span><span class="dot" style="background:#e05050"></span>差招</span>
+      <span><span class="dot" style="background:#50c050"></span>好招</span>
+      <span><span class="dot" style="background:#5080e0"></span>候选</span>
+    </div>
+  </div>
+
+  <!-- Side Column -->
+  <div class="side-col">
+    <div class="panel">
+      <div class="panel-title" data-zh="走法记录" data-en="Move History">走法记录 Move History</div>
+      <div class="move-list" id="moveList"></div>
+      <div class="nav-buttons">
+        <button onclick="navFirst()" title="First">⏮</button>
+        <button onclick="navPrev()" title="Previous">◀</button>
+        <button onclick="navNext()" title="Next">▶</button>
+        <button onclick="navLast()" title="Last">⏭</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title" data-zh="评注" data-en="Commentary">评注 Commentary</div>
+      <div class="comment-display" id="commentDisplay">点击走法查看评注 / Click a move to see commentary</div>
+      <textarea class="commentary-area" id="commentInput" placeholder="为当前走法添加评注... Add commentary for the current move..."></textarea>
+      <div style="margin-top:6px; display:flex; gap:6px;">
+        <button class="controls" style="background:#282b40; color:#ddd; border:1px solid #3a3d55; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:13px;" onclick="saveComment()" data-zh="保存评注" data-en="Save">保存评注</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// XIANGQI ANALYSIS BOARD — Full implementation
+// ============================================================
+
+const canvas = document.getElementById('board');
+const ctx = canvas.getContext('2d');
+
+// Board dimensions
+const MARGIN_LEFT = 35;
+const MARGIN_TOP = 35;
+const CELL = 60;
+const COLS = 9;
+const ROWS = 10;
+const BOARD_W = (COLS - 1) * CELL;
+const BOARD_H = (ROWS - 1) * CELL;
+const PIECE_R = 26;
+
+// Resize canvas to fit
+canvas.width = MARGIN_LEFT * 2 + BOARD_W;
+canvas.height = MARGIN_TOP * 2 + BOARD_H;
+
+// State
+let boardState = []; // 10 rows x 9 cols, null or {type, color}
+let flipped = false;
+let dragPiece = null; // {row, col, piece, x, y}
+let moveHistory = []; // [{from, to, captured, fenBefore, fenAfter, notation}]
+let currentMoveIndex = -1; // -1 = initial position
+let comments = {}; // moveIndex -> string
+let highlights = {}; // "r,c" -> color
+let arrows = []; // [{fromR, fromC, toR, toC, color}]
+let rightDragStart = null;
+
+// Piece mappings
+const PIECE_CHARS = {
+  'K': '帥', 'A': '仕', 'B': '相', 'R': '車', 'N': '馬', 'C': '炮', 'P': '兵',
+  'k': '將', 'a': '士', 'b': '象', 'r': '車', 'n': '馬', 'c': '砲', 'p': '卒'
+};
+const PIECE_TYPES = { 'K':'k','A':'a','B':'b','R':'r','N':'n','C':'c','P':'p',
+                      'k':'k','a':'a','b':'b','r':'r','n':'n','c':'c','p':'p' };
+
+function pieceColor(ch) {
+  return ch === ch.toUpperCase() ? 'red' : 'black';
+}
+
+// ============================================================
+// FEN PARSING
+// ============================================================
+const START_FEN = 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w';
+
+let currentTurn = 'w'; // 'w' = red, 'b' = black
+
+function parseFen(fen) {
+  const parts = fen.trim().split(/\s+/);
+  const rows = parts[0].split('/');
+  currentTurn = parts[1] || 'w';
+  const board = [];
+  for (let r = 0; r < 10; r++) {
+    const row = [];
+    const fenRow = rows[r] || '';
+    for (let i = 0; i < fenRow.length; i++) {
+      const ch = fenRow[i];
+      if (ch >= '1' && ch <= '9') {
+        for (let j = 0; j < parseInt(ch); j++) row.push(null);
+      } else {
+        row.push({ type: ch, color: pieceColor(ch) });
+      }
+    }
+    while (row.length < 9) row.push(null);
+    board.push(row);
+  }
+  while (board.length < 10) board.push(new Array(9).fill(null));
+  return board;
+}
+
+function boardToFen(board, turn) {
+  let fen = '';
+  for (let r = 0; r < 10; r++) {
+    if (r > 0) fen += '/';
+    let empty = 0;
+    for (let c = 0; c < 9; c++) {
+      if (board[r][c] === null) {
+        empty++;
+      } else {
+        if (empty > 0) { fen += empty; empty = 0; }
+        fen += board[r][c].type;
+      }
+    }
+    if (empty > 0) fen += empty;
+  }
+  fen += ' ' + (turn || 'w');
+  return fen;
+}
+
+function cloneBoard(b) {
+  return b.map(row => row.map(cell => cell ? { ...cell } : null));
+}
+
+// ============================================================
+// BOARD DRAWING
+// ============================================================
+function boardX(col) {
+  const c = flipped ? (8 - col) : col;
+  return MARGIN_LEFT + c * CELL;
+}
+function boardY(row) {
+  const r = flipped ? (9 - row) : row;
+  return MARGIN_TOP + r * CELL;
+}
+function gridFromPixel(px, py) {
+  for (let r = 0; r < 10; r++) {
+    for (let c = 0; c < 9; c++) {
+      const dx = px - boardX(c);
+      const dy = py - boardY(r);
+      if (dx * dx + dy * dy < PIECE_R * PIECE_R) return { row: r, col: c };
+    }
+  }
+  // Fallback: nearest intersection
+  const bestC = Math.round(((flipped ? (canvas.width - MARGIN_LEFT - px) : (px - MARGIN_LEFT)) / CELL));
+  const bestR = Math.round(((flipped ? (canvas.height - MARGIN_TOP - py) : (py - MARGIN_TOP)) / CELL));
+  if (bestR >= 0 && bestR < 10 && bestC >= 0 && bestC < 9) return { row: bestR, col: bestC };
+  return null;
+}
+
+function draw() {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Board background — warm wood tone
+  ctx.fillStyle = '#d4a85c';
+  ctx.fillRect(0, 0, W, H);
+
+  // Slightly darker outer border area
+  const bx = MARGIN_LEFT - 14, by = MARGIN_TOP - 14;
+  const bw = BOARD_W + 28, bh = BOARD_H + 28;
+  ctx.fillStyle = '#c89848';
+  ctx.fillRect(bx, by, bw, bh);
+
+  // Inner board area
+  ctx.fillStyle = '#ddb870';
+  ctx.fillRect(MARGIN_LEFT - 4, MARGIN_TOP - 4, BOARD_W + 8, BOARD_H + 8);
+
+  ctx.strokeStyle = '#3a2a10';
+  ctx.lineWidth = 1.2;
+
+  // Grid lines — horizontal
+  for (let r = 0; r < 10; r++) {
+    const y = MARGIN_TOP + r * CELL;
+    ctx.beginPath();
+    ctx.moveTo(MARGIN_LEFT, y);
+    ctx.lineTo(MARGIN_LEFT + BOARD_W, y);
+    ctx.stroke();
+  }
+  // Grid lines — vertical
+  for (let c = 0; c < 9; c++) {
+    const x = MARGIN_LEFT + c * CELL;
+    if (c === 0 || c === 8) {
+      ctx.beginPath();
+      ctx.moveTo(x, MARGIN_TOP);
+      ctx.lineTo(x, MARGIN_TOP + BOARD_H);
+      ctx.stroke();
+    } else {
+      // Break at river
+      ctx.beginPath();
+      ctx.moveTo(x, MARGIN_TOP);
+      ctx.lineTo(x, MARGIN_TOP + 4 * CELL);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, MARGIN_TOP + 5 * CELL);
+      ctx.lineTo(x, MARGIN_TOP + BOARD_H);
+      ctx.stroke();
+    }
+  }
+
+  // Palace diagonals
+  ctx.lineWidth = 1;
+  // Top palace (rows 0-2, cols 3-5)
+  const px1 = MARGIN_LEFT + 3 * CELL, px2 = MARGIN_LEFT + 5 * CELL;
+  const py1 = MARGIN_TOP, py2 = MARGIN_TOP + 2 * CELL;
+  ctx.beginPath(); ctx.moveTo(px1, py1); ctx.lineTo(px2, py2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(px2, py1); ctx.lineTo(px1, py2); ctx.stroke();
+  // Bottom palace (rows 7-9, cols 3-5)
+  const py3 = MARGIN_TOP + 7 * CELL, py4 = MARGIN_TOP + 9 * CELL;
+  ctx.beginPath(); ctx.moveTo(px1, py3); ctx.lineTo(px2, py4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(px2, py3); ctx.lineTo(px1, py4); ctx.stroke();
+
+  // River text — 楚河 汉界
+  ctx.save();
+  ctx.font = 'bold 28px "KaiTi", "STKaiti", "SimSun", serif';
+  ctx.fillStyle = '#6b4a20';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const riverY = MARGIN_TOP + 4.5 * CELL;
+  // Determine which side is which based on flip
+  if (!flipped) {
+    ctx.fillText('楚  河', MARGIN_LEFT + 1.5 * CELL, riverY);
+    ctx.fillText('汉  界', MARGIN_LEFT + 6.5 * CELL, riverY);
+  } else {
+    ctx.fillText('汉  界', MARGIN_LEFT + 1.5 * CELL, riverY);
+    ctx.fillText('楚  河', MARGIN_LEFT + 6.5 * CELL, riverY);
+  }
+  ctx.restore();
+
+  // Star points (cannon and pawn positions)
+  const starPoints = [
+    [2,1],[2,7],[7,1],[7,7], // cannon positions
+    [3,0],[3,2],[3,4],[3,6],[3,8], // black pawn
+    [6,0],[6,2],[6,4],[6,6],[6,8]  // red pawn
+  ];
+  for (const [r,c] of starPoints) {
+    drawStar(MARGIN_LEFT + c * CELL, MARGIN_TOP + r * CELL, c);
+  }
+
+  // Coordinate labels
+  ctx.font = '11px monospace';
+  ctx.fillStyle = '#6b4a20';
+  ctx.textAlign = 'center';
+  const redNums = ['九','八','七','六','五','四','三','二','一'];
+  const blackNums = ['1','2','3','4','5','6','7','8','9'];
+  for (let c = 0; c < 9; c++) {
+    const x = MARGIN_LEFT + c * CELL;
+    const topLabel = flipped ? redNums[8-c] : blackNums[c];
+    const botLabel = flipped ? blackNums[8-c] : redNums[c];
+    ctx.fillText(topLabel, x, MARGIN_TOP - 20);
+    ctx.fillText(botLabel, x, MARGIN_TOP + BOARD_H + 22);
+  }
+
+  // Draw highlights
+  for (const key in highlights) {
+    const [r, c] = key.split(',').map(Number);
+    const x = boardX(c), y = boardY(r);
+    ctx.fillStyle = getHighlightRGBA(highlights[key]);
+    ctx.fillRect(x - CELL / 2, y - CELL / 2, CELL, CELL);
+  }
+
+  // Draw last move highlight
+  if (currentMoveIndex >= 0 && moveHistory[currentMoveIndex]) {
+    const mv = moveHistory[currentMoveIndex];
+    ctx.fillStyle = 'rgba(240, 192, 96, 0.25)';
+    let fx = boardX(mv.from.col), fy = boardY(mv.from.row);
+    ctx.fillRect(fx - CELL/2, fy - CELL/2, CELL, CELL);
+    let tx = boardX(mv.to.col), ty = boardY(mv.to.row);
+    ctx.fillRect(tx - CELL/2, ty - CELL/2, CELL, CELL);
+  }
+
+  // Draw arrows
+  for (const ar of arrows) {
+    drawArrow(boardX(ar.fromC), boardY(ar.fromR), boardX(ar.toC), boardY(ar.toR), ar.color);
+  }
+
+  // Draw pieces
+  for (let r = 0; r < 10; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (dragPiece && dragPiece.row === r && dragPiece.col === c) continue;
+      const p = boardState[r][c];
+      if (p) drawPiece(boardX(c), boardY(r), p);
+    }
+  }
+
+  // Draw dragged piece on top
+  if (dragPiece) {
+    drawPiece(dragPiece.x, dragPiece.y, dragPiece.piece);
+  }
+}
+
+function drawStar(x, y, col) {
+  const s = 5, g = 3;
+  ctx.strokeStyle = '#3a2a10';
+  ctx.lineWidth = 0.8;
+  // Draw four small L-shapes
+  const parts = [];
+  if (col > 0) {
+    parts.push([[-g,-g-s,-g,-g],[-g,-g,-g-s,-g]]);
+    parts.push([[-g,g+s,-g,g],[-g,g,-g-s,g]]);
+  }
+  if (col < 8) {
+    parts.push([[g,g+s,g,g],[g,g,g+s,g]]);
+    parts.push([[g,-g-s,g,-g],[g,-g,g+s,-g]]);
+  }
+  for (const pair of parts) {
+    for (const [x1,y1,x2,y2] of pair) {
+      ctx.beginPath();
+      ctx.moveTo(x+x1, y+y1);
+      ctx.lineTo(x+x2, y+y2);
+      ctx.stroke();
+    }
+  }
+}
+
+function drawPiece(x, y, piece) {
+  const isRed = piece.color === 'red';
+  // Outer ring
+  ctx.beginPath();
+  ctx.arc(x, y, PIECE_R, 0, Math.PI * 2);
+  ctx.fillStyle = isRed ? '#fff5e6' : '#fff5e6';
+  ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = isRed ? '#b03030' : '#222';
+  ctx.stroke();
+
+  // Inner ring
+  ctx.beginPath();
+  ctx.arc(x, y, PIECE_R - 4, 0, Math.PI * 2);
+  ctx.strokeStyle = isRed ? '#c04040' : '#333';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Character
+  ctx.font = 'bold 24px "KaiTi", "STKaiti", "SimSun", "Microsoft YaHei", serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = isRed ? '#c03030' : '#1a1a1a';
+  ctx.fillText(PIECE_CHARS[piece.type] || '?', x, y + 1);
+}
+
+function drawArrow(x1, y1, x2, y2, color) {
+  const headLen = 14;
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  const col = getArrowColor(color);
+  ctx.save();
+  ctx.strokeStyle = col;
+  ctx.fillStyle = col;
+  ctx.lineWidth = 4;
+  ctx.globalAlpha = 0.75;
+  // Shorten start and end to not overlap pieces
+  const dist = Math.sqrt((x2-x1)**2 + (y2-y1)**2);
+  const shorten = PIECE_R + 4;
+  if (dist < shorten * 2) { ctx.restore(); return; }
+  const sx = x1 + Math.cos(angle) * shorten;
+  const sy = y1 + Math.sin(angle) * shorten;
+  const ex = x2 - Math.cos(angle) * shorten;
+  const ey = y2 - Math.sin(angle) * shorten;
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  ctx.lineTo(ex, ey);
+  ctx.stroke();
+  // Arrowhead
+  ctx.beginPath();
+  ctx.moveTo(ex, ey);
+  ctx.lineTo(ex - headLen * Math.cos(angle - Math.PI/6), ey - headLen * Math.sin(angle - Math.PI/6));
+  ctx.lineTo(ex - headLen * Math.cos(angle + Math.PI/6), ey - headLen * Math.sin(angle + Math.PI/6));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function getHighlightRGBA(color) {
+  const map = { red: 'rgba(220,50,50,0.35)', green: 'rgba(50,200,50,0.35)', blue: 'rgba(50,100,220,0.35)', yellow: 'rgba(220,200,50,0.35)' };
+  return map[color] || map.red;
+}
+function getArrowColor(color) {
+  const map = { red: '#e05050', green: '#50c878', blue: '#5088dd', yellow: '#ddc850' };
+  return map[color] || map.red;
+}
+
+// ============================================================
+// INTERACTION — Drag & Drop
+// ============================================================
+let mouseDown = false;
+let mouseButton = 0;
+
+canvas.addEventListener('mousedown', (e) => {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const px = (e.clientX - rect.left) * scaleX;
+  const py = (e.clientY - rect.top) * scaleY;
+  mouseButton = e.button;
+
+  if (e.button === 2) {
+    // Right click — annotation
+    const g = gridFromPixel(px, py);
+    if (g) rightDragStart = g;
+    return;
+  }
+
+  if (e.button !== 0) return;
+  mouseDown = true;
+  const g = gridFromPixel(px, py);
+  if (!g) return;
+  const piece = boardState[g.row][g.col];
+  if (piece) {
+    dragPiece = { row: g.row, col: g.col, piece, x: boardX(g.col), y: boardY(g.row) };
+    draw();
+  }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (!dragPiece) return;
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  dragPiece.x = (e.clientX - rect.left) * scaleX;
+  dragPiece.y = (e.clientY - rect.top) * scaleY;
+  draw();
+});
+
+canvas.addEventListener('mouseup', (e) => {
+  if (e.button === 2 && rightDragStart) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const px = (e.clientX - rect.left) * scaleX;
+    const py = (e.clientY - rect.top) * scaleY;
+    const g = gridFromPixel(px, py);
+    const color = document.getElementById('highlightColor').value;
+    if (g) {
+      if (g.row === rightDragStart.row && g.col === rightDragStart.col) {
+        // Toggle highlight
+        const key = g.row + ',' + g.col;
+        if (highlights[key] === color) delete highlights[key];
+        else highlights[key] = color;
+      } else {
+        // Draw arrow
+        arrows.push({ fromR: rightDragStart.row, fromC: rightDragStart.col, toR: g.row, toC: g.col, color });
+      }
+    }
+    rightDragStart = null;
+    draw();
+    return;
+  }
+
+  if (!dragPiece) { mouseDown = false; return; }
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const px = (e.clientX - rect.left) * scaleX;
+  const py = (e.clientY - rect.top) * scaleY;
+  const g = gridFromPixel(px, py);
+
+  if (g && (g.row !== dragPiece.row || g.col !== dragPiece.col)) {
+    // Attempt move
+    const captured = boardState[g.row][g.col];
+    // Don't capture own pieces
+    if (!captured || captured.color !== dragPiece.piece.color) {
+      // Record move
+      const fenBefore = boardToFen(boardState, currentTurn);
+      const notation = getMoveNotation(dragPiece.piece, dragPiece.row, dragPiece.col, g.row, g.col, captured);
+
+      // Truncate future if we branched
+      if (currentMoveIndex < moveHistory.length - 1) {
+        moveHistory = moveHistory.slice(0, currentMoveIndex + 1);
+        // Remove comments for deleted moves
+        const keys = Object.keys(comments).filter(k => parseInt(k) > currentMoveIndex);
+        keys.forEach(k => delete comments[k]);
+      }
+
+      boardState[g.row][g.col] = dragPiece.piece;
+      boardState[dragPiece.row][dragPiece.col] = null;
+      currentTurn = currentTurn === 'w' ? 'b' : 'w';
+      const fenAfter = boardToFen(boardState, currentTurn);
+
+      moveHistory.push({ from: { row: dragPiece.row, col: dragPiece.col }, to: { row: g.row, col: g.col }, captured, fenBefore, fenAfter, notation });
+      currentMoveIndex = moveHistory.length - 1;
+      updateFenInput();
+      updateMoveList();
+      updateStatus();
+    }
+  }
+
+  dragPiece = null;
+  mouseDown = false;
+  draw();
+});
+
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+// Touch support
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const px = (touch.clientX - rect.left) * scaleX;
+  const py = (touch.clientY - rect.top) * scaleY;
+  const g = gridFromPixel(px, py);
+  if (!g) return;
+  const piece = boardState[g.row][g.col];
+  if (piece) {
+    dragPiece = { row: g.row, col: g.col, piece, x: boardX(g.col), y: boardY(g.row) };
+    draw();
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (!dragPiece) return;
+  const touch = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  dragPiece.x = (touch.clientX - rect.left) * scaleX;
+  dragPiece.y = (touch.clientY - rect.top) * scaleY;
+  draw();
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+  if (!dragPiece) return;
+  const touch = e.changedTouches[0];
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const px = (touch.clientX - rect.left) * scaleX;
+  const py = (touch.clientY - rect.top) * scaleY;
+  const g = gridFromPixel(px, py);
+  if (g && (g.row !== dragPiece.row || g.col !== dragPiece.col)) {
+    const captured = boardState[g.row][g.col];
+    if (!captured || captured.color !== dragPiece.piece.color) {
+      const fenBefore = boardToFen(boardState, currentTurn);
+      const notation = getMoveNotation(dragPiece.piece, dragPiece.row, dragPiece.col, g.row, g.col, captured);
+      if (currentMoveIndex < moveHistory.length - 1) {
+        moveHistory = moveHistory.slice(0, currentMoveIndex + 1);
+      }
+      boardState[g.row][g.col] = dragPiece.piece;
+      boardState[dragPiece.row][dragPiece.col] = null;
+      currentTurn = currentTurn === 'w' ? 'b' : 'w';
+      const fenAfter = boardToFen(boardState, currentTurn);
+      moveHistory.push({ from: { row: dragPiece.row, col: dragPiece.col }, to: { row: g.row, col: g.col }, captured, fenBefore, fenAfter, notation });
+      currentMoveIndex = moveHistory.length - 1;
+      updateFenInput();
+      updateMoveList();
+      updateStatus();
+    }
+  }
+  dragPiece = null;
+  draw();
+});
+
+// ============================================================
+// MOVE NOTATION
+// ============================================================
+function getMoveNotation(piece, fromR, fromC, toR, toC, captured) {
+  const pChar = PIECE_CHARS[piece.type];
+  const isRed = piece.color === 'red';
+  // Chinese-style col numbers: red counts from right (9..1), black from right of their view (1..9)
+  const redCol = (c) => 9 - c;
+  const blackCol = (c) => c + 1;
+  const colNum = isRed ? redCol : blackCol;
+
+  const fromColN = colNum(fromC);
+  const toColN = colNum(toC);
+  let direction;
+  if (fromR === toR) {
+    direction = '平';
+  } else if ((isRed && toR < fromR) || (!isRed && toR > fromR)) {
+    direction = '进';
+  } else {
+    direction = '退';
+  }
+
+  const steps = (fromC === toC) ? Math.abs(toR - fromR) : toColN;
+  const capStr = captured ? ('×' + PIECE_CHARS[captured.type]) : '';
+  return `${pChar}${fromColN}${direction}${steps}${capStr}`;
+}
+
+// ============================================================
+// MOVE HISTORY & NAVIGATION
+// ============================================================
+function updateMoveList() {
+  const el = document.getElementById('moveList');
+  let html = '';
+  for (let i = 0; i < moveHistory.length; i++) {
+    const mv = moveHistory[i];
+    const cls = i === currentMoveIndex ? 'current' : '';
+    const num = i + 1;
+    const side = (i % 2 === 0) ? '红' : '黑';
+    const commentIcon = comments[i] ? ' 💬' : '';
+    html += `<div class="move-entry ${cls}" onclick="jumpToMove(${i})"><span><span class="num">${num}.</span>${side} ${mv.notation}</span><span>${commentIcon}</span></div>`;
+  }
+  if (moveHistory.length === 0) {
+    html = '<div style="color:#555; padding:8px; text-align:center;">暂无走法记录</div>';
+  }
+  el.innerHTML = html;
+  // Scroll to current
+  const current = el.querySelector('.current');
+  if (current) current.scrollIntoView({ block: 'nearest' });
+}
+
+function jumpToMove(idx) {
+  if (idx < -1 || idx >= moveHistory.length) return;
+  // Save current comment first
+  saveCommentSilent();
+
+  if (idx === -1) {
+    boardState = parseFen(START_FEN);
+    currentTurn = 'w';
+  } else {
+    const fen = moveHistory[idx].fenAfter;
+    boardState = parseFen(fen);
+  }
+  currentMoveIndex = idx;
+  updateFenInput();
+  updateMoveList();
+  updateStatus();
+  updateCommentDisplay();
+  draw();
+}
+
+function navFirst() { jumpToMove(-1); }
+function navPrev() { jumpToMove(Math.max(-1, currentMoveIndex - 1)); }
+function navNext() { jumpToMove(Math.min(moveHistory.length - 1, currentMoveIndex + 1)); }
+function navLast() { jumpToMove(moveHistory.length - 1); }
+
+function updateFenInput() {
+  document.getElementById('fenInput').value = boardToFen(boardState, currentTurn);
+}
+
+function updateStatus() {
+  const el = document.getElementById('statusBar');
+  if (currentTurn === 'w') {
+    el.innerHTML = '<span class="red-turn">红方走 Red to move</span> | 回合 ' + (Math.floor(currentMoveIndex / 2) + 1);
+  } else {
+    el.innerHTML = '<span class="black-turn">黑方走 Black to move</span> | 回合 ' + (Math.floor(currentMoveIndex / 2) + 1);
+  }
+}
+
+function updateCommentDisplay() {
+  const disp = document.getElementById('commentDisplay');
+  const input = document.getElementById('commentInput');
+  if (currentMoveIndex >= 0 && comments[currentMoveIndex]) {
+    disp.textContent = comments[currentMoveIndex];
+  } else if (currentMoveIndex === -1) {
+    disp.textContent = '初始局面 — Starting position';
+  } else {
+    disp.textContent = '暂无评注';
+  }
+  input.value = (currentMoveIndex >= 0 && comments[currentMoveIndex]) ? comments[currentMoveIndex] : '';
+}
+
+// ============================================================
+// COMMENTS
+// ============================================================
+function saveComment() {
+  const text = document.getElementById('commentInput').value.trim();
+  if (currentMoveIndex >= 0) {
+    if (text) comments[currentMoveIndex] = text;
+    else delete comments[currentMoveIndex];
+    updateCommentDisplay();
+    updateMoveList();
+  }
+}
+
+function saveCommentSilent() {
+  const text = document.getElementById('commentInput').value.trim();
+  if (currentMoveIndex >= 0) {
+    if (text) comments[currentMoveIndex] = text;
+    else delete comments[currentMoveIndex];
+  }
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function resetBoard() {
+  loadFen(START_FEN);
+  moveHistory = [];
+  currentMoveIndex = -1;
+  comments = {};
+  clearAnnotations();
+  updateMoveList();
+  updateStatus();
+  updateCommentDisplay();
+}
+
+function flipBoard() {
+  flipped = !flipped;
+  draw();
+}
+
+function clearAnnotations() {
+  highlights = {};
+  arrows = [];
+  draw();
+}
+
+function loadFen(fen) {
+  boardState = parseFen(fen);
+  updateFenInput();
+  draw();
+  updateStatus();
+}
+
+function loadFenFromInput() {
+  const fen = document.getElementById('fenInput').value.trim();
+  if (!fen) return;
+  boardState = parseFen(fen);
+  moveHistory = [];
+  currentMoveIndex = -1;
+  comments = {};
+  updateMoveList();
+  updateStatus();
+  updateCommentDisplay();
+  draw();
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowLeft') { e.preventDefault(); navPrev(); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); navNext(); }
+  else if (e.key === 'Home') { e.preventDefault(); navFirst(); }
+  else if (e.key === 'End') { e.preventDefault(); navLast(); }
+});
+
+// ============================================================
+// PRESET POSITIONS
+// ============================================================
+const PRESETS = [
+  {
+    name: '初始局面',
+    fen: 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w',
+    desc: '标准开局 — Standard starting position'
+  },
+  {
+    name: '马后炮杀',
+    fen: '4k4/4a4/9/9/9/9/4n4/4C4/9/3K1N3 w',
+    desc: '经典马后炮绝杀 — Classic "Horse behind Cannon" checkmate. Red plays C8=5 (cannon to the king file), supported by the knight.'
+  },
+  {
+    name: '天地炮',
+    fen: 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C2C4/9/RNBAKABNR w',
+    desc: '天地炮开局 — "Sky and Earth Cannons" setup. Both cannons on the central file and side file creating pressure.'
+  },
+  {
+    name: '适情雅趣·七星聚会',
+    fen: '2baka3/9/4b4/9/2P1r4/9/9/C3C4/4p4/2BAKA3 w',
+    desc: '选自《适情雅趣》— 七星聚会，古谱经典残局。红先走，考验双炮兵对车卒的残局功力。'
+  },
+  {
+    name: '铁门栓',
+    fen: '3k5/3Pa4/4b4/9/9/9/9/4R4/9/4K4 w',
+    desc: '铁门栓杀法 — "Iron Door Bolt" checkmate. The rook and pawn coordinate to trap the king.'
+  },
+  {
+    name: '双车错',
+    fen: '3aka3/9/9/9/9/4R4/9/9/4R4/3AKA3 w',
+    desc: '双车错经典杀法 — Two rooks alternating attack, a fundamental checkmate technique.'
+  },
+  {
+    name: '大胆穿心',
+    fen: '3ak4/4a4/4b4/9/2b6/3R5/9/9/9/3K5 w',
+    desc: '车单挑入九宫——大胆穿心杀法。红车冲入宫心发动致命攻击。'
+  },
+  {
+    name: '三子归边',
+    fen: '1rbak4/4a4/2n1b4/p3p3p/9/P8/4P3P/2N1C4/4A4/2BAK4 w',
+    desc: '实战残局 — 三子归边 (Three pieces converging to the side), a key endgame attacking concept.'
+  }
+];
+
+function loadPreset(idx) {
+  const p = PRESETS[idx];
+  loadFen(p.fen);
+  moveHistory = [];
+  currentMoveIndex = -1;
+  comments = {};
+  updateMoveList();
+  updateCommentDisplay();
+  document.getElementById('commentDisplay').textContent = p.desc;
+}
+
+function initPresets() {
+  const el = document.getElementById('presetButtons');
+  el.innerHTML = PRESETS.map((p, i) =>
+    `<button onclick="loadPreset(${i})">${p.name}</button>`
+  ).join('');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  boardState = parseFen(START_FEN);
+  initPresets();
+  updateMoveList();
+  updateStatus();
+  updateCommentDisplay();
+  draw();
+}
+
+init();
+</script>
+<script>
+// Universal language toggle
+(function() {
+  let pageLang = localStorage.getItem('pageLang') || 'zh';
+  
+  window.setPageLang = function(lang) {
+    pageLang = lang;
+    localStorage.setItem('pageLang', lang);
+    document.querySelectorAll('.lt-btn').forEach(b => {
+      const isActive = b.dataset.lang === lang;
+      b.style.background = isActive ? 'rgba(240,192,96,0.9)' : 'rgba(255,255,255,0.08)';
+      b.style.color = isActive ? '#1a1d2e' : '#9ca0b8';
+      b.style.border = isActive ? 'none' : '1px solid rgba(255,255,255,0.06)';
+    });
+    applyLang();
+  };
+  
+  function applyLang() {
+    document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+      if (pageLang === 'zh') el.textContent = el.dataset.zh;
+      else if (pageLang === 'en') el.textContent = el.dataset.en;
+      else el.textContent = el.dataset.zh + ' ' + el.dataset.en;
+    });
+  }
+  
+  // Apply on load
+  setTimeout(() => {
+    setPageLang(pageLang);
+  }, 100);
+})();
+</script>
+</body>
+</html>

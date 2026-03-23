@@ -1,0 +1,71 @@
+{
+  "id": "content-endgame",
+  "title": "残局谜题系列 Endgame Puzzle Series",
+  "description": "Create endgame puzzle short-form content — highest engagement format (30% viewer preference)",
+  "folder": "content",
+  "priority": "high",
+  "status": "in_progress",
+  "progress": 80,
+  "tasks": [
+    {
+      "id": "ce1",
+      "text": "Curate 20 classic endgames from《适情雅趣》",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "ce2",
+      "text": "Curate 20 tactical puzzles from《桔中秘》",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "ce3",
+      "text": "Analyze all 40 positions with Pikafish engine",
+      "done": true,
+      "priority": "high"
+    },
+    {
+      "id": "ce4",
+      "text": "Write scripts: show bad moves first → reveal correct move",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "ce5",
+      "text": "Record first 10 puzzle videos (vertical, 1-3 min each)",
+      "done": false,
+      "priority": "high"
+    },
+    {
+      "id": "ce6",
+      "text": "Edit with 剪映 — add auto-captions, bold text overlays",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "ce7",
+      "text": "Create thumbnail templates for puzzle series",
+      "done": true,
+      "priority": "medium"
+    },
+    {
+      "id": "ce8",
+      "text": "Publish first batch to Douyin + YouTube Shorts",
+      "done": false,
+      "priority": "high"
+    },
+    {
+      "id": "ce9",
+      "text": "Track engagement: views, completion rate, comments",
+      "done": true,
+      "priority": "low"
+    },
+    {
+      "id": "ce10",
+      "text": "Iterate format based on first batch analytics",
+      "done": true,
+      "priority": "low"
+    }
+  ]
+}
